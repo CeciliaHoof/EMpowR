@@ -4,7 +4,7 @@ import re
 
 # Local imports
 from app import app
-from models import db, Medication
+from models import db, Medication, MetricType
 
 def extract_description(description):
     match = re.search(r"DESCRIPTION\s*(.*)", description, re.IGNORECASE)
@@ -79,6 +79,7 @@ if __name__ == '__main__':
     with app.app_context():
         print('Clearing tables...')
         Medication.query.delete()
+        MetricType.query.delete()
         
         print("Seeding medications...")
         meds_to_fetch = ['"Synthroid"', '"Lipitor"', '"Qbrelis"', '"Zestril"','"METFORMIN%20HYDROCHLORIDE"', '"Norvasc"', '"Lopressor"', '"TOPROL XL"', '"Prilosec"', '"ZOCOR"', '"Proventil HFA"', '"VENTOLIN HFA"', '"Neurontin"', '"Zithromax"', '"Zoloft"', '"Celexa"', '"Lasix"', '"Lexapro"', '"FLONASE ALLERGY RELIEF"', '"tramadol hydrochloride"', '"Protonix Delayed-Release"', '"Warfarin Sodium"', '"Trazodone Hydrochloride"', '"SINGULAIR"', '"Coreg"', '"Advil"', '"Motrin IB"', '"PRAVASTATIN SODIUM"', '"Cymbalta"', '"OxyContin"', '"Percocet"', '"Meloxicam"', '"ADVAIR DISKUS"', '"Zantac 360"', '"Effexor XR"', '"CELEBREX"', '"Norco"', '"Prozac"', '"ABILIFY"', '"SYMBICORT"', '"Xanax"', '"Nexium 24HR"', '"Crestor"', '"Cardizem"', '"Effexor XR"', '"Prevacid"', '"Flagyl"', '"FENTANYL"', '"SEROQUEL"', '"Oxybutynin Chloride"', '"Spiriva Respimat"', '"Lotensin"', '"Strattera"', '"Aricept"', '"RESTORIL"', '"Humalog"', '"Suboxone"', '"LIDODERM"', '"CHANTIX"', '"Zyprexa"', '"Isosorbide Mononitrate"', '"Viagra"', '"Latuda"', '"REMERON"', '"Vasotec"', '"Clonidine Hydrochloride"', '"PAXIL"', '"Reglan"', '"Ambien"', '"Namenda"', '"Pristiq Extended-Release"', '"Cipro"', '"Actos"', '"Kenalog"', '"Microgestin 1/20"', '"JANUVIA"', '"Aricept"', '"Ondansetron Hydrochloride"', '"PAMELOR"', '"Methotrexate"', '"NITROGLYCERIN"', '"Amoxicillin"', '"Hydrochlorothiazide"', '"TENORMIN"', '"Glipizide"', '"Lantus"', '"WELLBUTRIN XL"']
@@ -234,6 +235,40 @@ if __name__ == '__main__':
                 setattr(new_medication, "pharm_class", "Antihypertensive - ACE Inhibitor")
             
             medications.append(new_medication)
-        print(len(medications))
+
         db.session.add_all(medications)
+
+        print('Seeding metric types')
+
+        metric_types = []
+
+        SBP = MetricType(metric_type = 'Systolic Blood Pressure', green_params = 90, yellow_params = 125, red_params = 161)
+        metric_types.append(SBP)
+        
+        DBP = MetricType(metric_type = 'Diasystolic Blood Pressure', green_params = 60, yellow_params = 81, red_params = 91)
+        metric_types.append(DBP)
+
+        HR = MetricType(metric_type = 'Heart Rate', green_params = 60, yellow_params = 101, red_params = 121)
+        metric_types.append(HR)
+        
+        RR = MetricType(metric_type = 'Respiratory Rate', green_params = 12, yellow_params = 21, red_params = 30)
+        metric_types.append(RR)
+        
+        PAIN = MetricType(metric_type = 'Pain Level', green_params = 0, yellow_params = 4, red_params = 7)
+        metric_types.append(PAIN)
+
+        BG = MetricType(metric_type = 'Blood Glucose', green_params = 80, yellow_params = 100, red_params = 150)
+        metric_types.append(BG)
+
+        MED = MetricType(metric_type = 'Medication Taken')
+        metric_types.append(MED)
+
+        LF = MetricType(metric_type = 'Lifestyle Factors')
+        metric_types.append(LF)
+
+        SYM = MetricType(metric_type = 'Symptom')
+        metric_types.append(SYM)
+
+        db.session.add_all(metric_types)
+
         db.session.commit()

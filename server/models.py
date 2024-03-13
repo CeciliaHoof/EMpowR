@@ -94,8 +94,8 @@ class Prescription(db.Model, SerializerMixin):
     created_at = db.Column(db.DateTime, server_default = db.func.now())
     updated_at =  db.Column(db.DateTime, onupdate = db.func.now())
 
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    medication_id = db.Column(db.Integer, db.ForeignKey('medications.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable = False)
+    medication_id = db.Column(db.Integer, db.ForeignKey('medications.id'), nullable=False)
 
     user = db.relationship('User', back_populates = 'prescriptions')
     medication = db.relationship('Medication', back_populates = 'prescriptions')
@@ -115,8 +115,8 @@ class HealthMetric(db.Model, SerializerMixin):
     created_at = db.Column(db.DateTime, server_default = db.func.now())
     updated_at =  db.Column(db.DateTime, onupdate = db.func.now())
 
-    metric_type_id = db.Column(db.Integer, db.ForeignKey('metric_types.id'))
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    metric_type_id = db.Column(db.Integer, db.ForeignKey('metric_types.id'), nullable = False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable = False)
 
     metric_type = db.relationship('MetricType', back_populates = 'health_metrics')
     user = db.relationship('User', back_populates = 'health_metrics')
@@ -134,10 +134,8 @@ class MetricType(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key = True)
     metric_type = db.Column(db.String)
     green_params = db.Column(db.Integer)
-    yellow_params_low = db.Column(db.Integer)
-    yellow_params_high = db.Column(db.Integer)
-    red_params_low = db.Column(db.Integer)
-    red_params_high = db.Column(db.Integer)
+    yellow_params = db.Column(db.Integer)
+    red_params = db.Column(db.Integer)
 
     health_metrics = db.relationship('HealthMetric', back_populates = 'metric_type')
 
