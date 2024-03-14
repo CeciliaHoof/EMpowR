@@ -1,21 +1,21 @@
 import React, { useContext, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
-
-import NavMenu from "./NavMenu"
-import Login from "../pages/Login"
-import Dashboard from "../pages/Dashboard"
-import ErrorPage from "../pages/ErrorPage"
-import Medications from "../pages/Medications"
-import Prescriptions from "../pages/Prescriptions"
+import styled from "styled-components";
+import NavMenu from "./NavMenu";
+import Login from "../pages/Login";
+import Dashboard from "../pages/Dashboard";
+import ErrorPage from "../pages/ErrorPage";
+import Medications from "../pages/Medications";
+import Prescriptions from "../pages/Prescriptions";
 
 import { UserContext } from "../context/user";
 import { HealthMetricsContext } from "../context/healthMetrics";
 import { PrescriptionsContext } from "../context/prescriptions";
 
 function App() {
-  const { user, setUser } = useContext(UserContext)
-  const { healthMetrics, setHealthMetrics } = useContext(HealthMetricsContext)
-  const { prescriptions, setPrescriptions } = useContext(PrescriptionsContext)
+  const { user, setUser } = useContext(UserContext);
+  const { healthMetrics, setHealthMetrics } = useContext(HealthMetricsContext);
+  const { prescriptions, setPrescriptions } = useContext(PrescriptionsContext);
 
   useEffect(() => {
     fetch("/check_session").then((r) => {
@@ -33,19 +33,22 @@ function App() {
     fetch("/health_metrics")
       .then((r) => r.json())
       .then((data) => setHealthMetrics(data));
-    
+
     fetch("/prescriptions")
       .then((r) => r.json())
       .then((data) => setPrescriptions(data));
   }, [user]);
 
-  if (!user){
+  if (!user) {
     return (
-      <Login />
-    )
+      <Container>
+        <Login />
+      </Container>
+    );
   }
+
   return (
-    <>
+    <Container>
       <NavMenu />
       <Routes>
         <Route path="/" element={<Dashboard />} />
@@ -53,9 +56,12 @@ function App() {
         <Route path="/prescriptions" element={<Prescriptions />} />
         <Route path="/error" element={<ErrorPage />} />
       </Routes>
-    </>
-  )
-
+    </Container>
+  );
 }
 
 export default App;
+
+const Container = styled.div`
+  height: 100vh;
+`;

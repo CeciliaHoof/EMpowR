@@ -5,3 +5,18 @@
   --text: hsla(0, 0%, 100%, 0.88);
 }
 
+h1 {
+  font-size: 4vh;
+}
+
+h2 {
+  font-size: 3vh;
+}
+
+h3 {
+  font-size: 2vh
+}
+
+.centered_text {
+  text-align: center;
+}

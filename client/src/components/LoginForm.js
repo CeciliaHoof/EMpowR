@@ -8,10 +8,10 @@ import { UserContext } from "../context/user";
 function LoginForm() {
   const { setUser } = useContext(UserContext);
   const [hasAccount, setHasAccount] = useState(false);
-  const [submitted, setSubmitted] = useState(false)
+  const [submitted, setSubmitted] = useState(false);
 
   const formSchema = yup.object().shape({
-    email: yup.string().email('Invalid email.').required("Must enter email"),
+    email: yup.string().email("Invalid email.").required("Must enter email"),
     password: yup.string().required("Must enter password"),
     ...(hasAccount
       ? {}
@@ -38,86 +38,114 @@ function LoginForm() {
     },
     validationSchema: formSchema,
     onSubmit: (values) => {
-        setSubmitted(true)
-        fetch(hasAccount ? '/login' : "/signup", {
-          method: "POST",
-          headers: {
-            "content-type": "application/json",
-          },
-          body: JSON.stringify(values, null, 2),
-        }).then((r) => {
-          if (r.ok) {
-            r.json().then((user) => {
-              setUser(user);
-            });
-          } else {
-            r.json().then((errors) => {
-              formik.setErrors(errors);
-            });
-          }
-        });
-      }
+      setSubmitted(true);
+      fetch(hasAccount ? "/login" : "/signup", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify(values, null, 2),
+      }).then((r) => {
+        if (r.ok) {
+          r.json().then((user) => {
+            setUser(user);
+          });
+        } else {
+          r.json().then((errors) => {
+            formik.setErrors(errors);
+          });
+        }
+      });
+    },
   });
 
   return (
     <Form onSubmit={formik.handleSubmit}>
-      <h3>{hasAccount ? "Login" : "Create Account"}</h3>
+      <h3 className="centered_text">
+        {hasAccount ? "Login" : "Create Account"}
+      </h3>
       {!hasAccount && (
         <>
           <Form.Field>
+            <label style={{ fontSize: "1.5vh" }}>First Name</label>
             <Form.Input
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               value={formik.values.first_name}
               name="first_name"
-              label="First Name"
               type="text"
+              style={{ height: "3.5vh" }}
             />
-            {formik.errors.first_name && formik.touched.first_name && <span style={{ color: "red" }}>{formik.errors.first_name}</span>}
+            {formik.errors.first_name && formik.touched.first_name && (
+              <span style={{ color: "red" }}>{formik.errors.first_name}</span>
+            )}
           </Form.Field>
           <Form.Field>
+            <label style={{ fontSize: "1.5vh" }}>Last Name</label>
             <Form.Input
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               value={formik.values.last_name}
               name="last_name"
-              label="Last Name"
               type="text"
+              style={{ height: "3.5vh" }}
             />
-            {formik.errors.last_name && formik.touched.last_name && <span style={{ color: "red" }}>{formik.errors.last_name}</span>}
+            {formik.errors.last_name && formik.touched.last_name && (
+              <span style={{ color: "red" }}>{formik.errors.last_name}</span>
+            )}
           </Form.Field>
         </>
       )}
       <Form.Field>
+        <label style={{ fontSize: "1.5vh" }}>Email Address</label>
         <Form.Input
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
           value={formik.values.username}
           name="email"
-          label="Email"
           type="email"
+          style={{ height: "3.5vh" }}
         ></Form.Input>
-        {formik.errors.email && formik.touched.email && <span style={{ color: "red" }}>{formik.errors.email}</span>}
+        {formik.errors.email && formik.touched.email && (
+          <span style={{ color: "red" }}>{formik.errors.email}</span>
+        )}
       </Form.Field>
       <Form.Field>
+        <label style={{ fontSize: "1.5vh" }}>Password</label>
         <Form.Input
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
           value={formik.values.password}
           name="password"
-          label="Password"
           type="password"
+          style={{ height: "3.5vh" }}
         />
-        {formik.errors.password && formik.touched.password && <span style={{ color: "red" }}>{formik.errors.password}</span>}
+        {formik.errors.password && formik.touched.password && (
+          <span style={{ color: "red" }}>{formik.errors.password}</span>
+        )}
       </Form.Field>
       <Form.Field>
-        {submitted && formik.errors && Object.values(formik.errors).map(error => <span key={error} style={{ color: "red" }}>{error}</span>)}
-        
-        <Form.Button type="submit">{hasAccount ? "Login": "Create Account"}</Form.Button>
+        {submitted &&
+          formik.errors &&
+          Object.values(formik.errors).map((error) => (
+            <span key={error} style={{ color: "red" }}>
+              {error}
+            </span>
+          ))}
+        <div className="centered_text">
+          <Form.Button style={{ fontSize: "1.5vh" }} type="submit">
+            {hasAccount ? "Login" : "Create Account"}
+          </Form.Button>
 
-        <span onClick={() => setHasAccount(!hasAccount)}>
-          {!hasAccount ? "Already have an Account? Click Here!" : "Don't have account yet? Click here to create an account."}
-        </span>
+          <span
+            onClick={() => setHasAccount(!hasAccount)}
+            style={{ fontSize: "1.5vh" }}
+          >
+            {!hasAccount
+              ? "Already have an Account? Click Here!"
+              : "Don't have account yet? Click here to create an account."}
+          </span>
+        </div>
       </Form.Field>
     </Form>
   );
