@@ -27,7 +27,7 @@ function App() {
         setUser(null);
       }
     });
-  }, [setUser]);
+  }, []);
 
   useEffect(() => {
     fetch("/health_metrics")
