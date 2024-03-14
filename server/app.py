@@ -6,6 +6,7 @@
 from flask import request, make_response, session
 from flask_restful import Resource
 from datetime import datetime
+from sqlalchemy.exc import IntegrityError
 
 # Local imports
 from config import app, db, api
@@ -205,7 +206,8 @@ class Signup(Resource):
             session['user_id'] = user.id
 
             return make_response(user.to_dict(), 201)
-
+        except IntegrityError:
+            return make_response({'error': 'Email already in use.'}, 422)
         except Exception as e:
             return make_response({'error': str(e)}, 422)
     
@@ -228,7 +230,7 @@ class Login(Resource):
                 response_body = user.to_dict()
                 status = 200
             else:
-                response_body = {'error': 'Invalid username or password'}
+                response_body = {'error': 'Invalid email address or password'}
                 status = 401
         return make_response(response_body, status)
 
