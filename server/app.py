@@ -32,9 +32,6 @@ class MedicationsById(Resource):
 api.add_resource(MedicationsById, '/medications/<int:id>')
 
 class Prescriptions(Resource):
-    
-    def get(self):
-        return make_response([prescription.to_dict() for prescription in Prescription.query.all()], 200)
 
     def post(self):
         prescription_data = request.get_json()
@@ -58,7 +55,7 @@ class Prescriptions(Resource):
 api.add_resource(Prescriptions, '/prescriptions')
 
 class PrescriptionsById(Resource):
-    # GET, PATCH, DELETE
+
     def get(self, id):
         prescription = Prescription.query.filter(Prescription.id == id).first()
 
@@ -109,9 +106,6 @@ class MetricTypes(Resource):
 api.add_resource(MetricTypes, '/metric_types')
 
 class HealthMetrics(Resource):
-    
-    def get(self):
-        return make_response([metric.to_dict() for metric in HealthMetric.query.all()], 200)
 
     def post(self):
         metric_data = request.get_json()
