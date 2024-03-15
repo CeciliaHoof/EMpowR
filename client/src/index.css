@@ -5,7 +5,9 @@
   --text: hsla(0, 0%, 100%, 0.88);
 }
 
-h1 {
+html { font-size: 1vw; }
+
+/* h1 {
   font-size: 4vh;
 }
 
@@ -15,7 +17,7 @@ h2 {
 
 h3 {
   font-size: 2vh
-}
+} */
 
 .centered_text {
   text-align: center;
