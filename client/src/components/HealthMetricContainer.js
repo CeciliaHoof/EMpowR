@@ -8,14 +8,19 @@ function HealthMetricContainer() {
   const { healthMetrics, setHealthMetrics } = useContext(HealthMetricsContext);
   const [open, setOpen] = useState(false);
 
-  const metricsDisplay = healthMetrics.map((metric) => (
-    <HealthMetric metric={metric} key={metric.id} />
-  ));
-
   function onAddMetric(metric) {
     setHealthMetrics([...healthMetrics, metric]);
   }
   
+  function onDeleteMetric(metric){
+    const updatedMetrics = healthMetrics.filter(hm => hm.id !== metric.id)
+    setHealthMetrics(updatedMetrics)
+  }
+
+  const metricsDisplay = healthMetrics.map((metric) => (
+    <HealthMetric metric={metric} key={metric.id} handleDelete={onDeleteMetric}/>
+  ));
+
   return (
     <Segment style={{ height: "80vh", overflowY: "auto" }}>
       <Modal
@@ -34,7 +39,7 @@ function HealthMetricContainer() {
           />
         }
         header="What Health Metric would you like to log?"
-        content={<HealthMetricForm close={setOpen} addMetric={onAddMetric} />}
+        content={<HealthMetricForm close={setOpen} addMetric={onAddMetric} method={"POST"}/>}
         style={{ textAlign: "center" }}
       />
       <Feed>{metricsDisplay}</Feed>
