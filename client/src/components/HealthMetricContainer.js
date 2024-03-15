@@ -1,10 +1,10 @@
-import { useContext, useEffect, useState } from "react";
-import { Segment, Feed, Icon, Modal, Dropdown } from "semantic-ui-react";
+import { useContext, useState } from "react";
+import { Segment, Feed, Icon, Modal } from "semantic-ui-react";
 import HealthMetric from "./HealthMetric";
 import { HealthMetricsContext } from "../context/healthMetrics";
 import HealthMetricForm from "./HealthMetricForm";
 
-function HealthMetricContainer() {
+function HealthMetricContainer({ script }) {
   const { healthMetrics, setHealthMetrics } = useContext(HealthMetricsContext);
   const [open, setOpen] = useState(false);
 
@@ -17,12 +17,20 @@ function HealthMetricContainer() {
     setHealthMetrics(updatedMetrics)
   }
 
-  const metricsDisplay = healthMetrics.map((metric) => (
+  const metricsDisplay = healthMetrics
+  .filter(metric => {
+    if(script){
+      return metric.content.toUpperCase() === script.toUpperCase()
+    } else {
+      return metric
+    }
+  })
+  .map((metric) => (
     <HealthMetric metric={metric} key={metric.id} handleDelete={onDeleteMetric}/>
   ));
 
   return (
-    <Segment style={{ height: "80vh", overflowY: "auto" }}>
+    <Segment style={{ height: "100%", overflowY: "auto" }}>
       <Modal
         onClose={() => setOpen(false)}
         onOpen={() => setOpen(true)}

@@ -5,13 +5,10 @@ import Snapshot from "../components/Snapshot"
 import HealthMetricContainer from "../components/HealthMetricContainer";
 import { HealthMetricsContext } from "../context/healthMetrics";
 import { PrescriptionsContext } from "../context/prescriptions";
-import { UserContext } from "../context/user";
-
-
 
 function Dashboard() {
-    const { healthMetrics, setHealthMetrics } = useContext(HealthMetricsContext)
-    const { prescriptions, setPrescriptions } = useContext(PrescriptionsContext)
+    const { healthMetrics } = useContext(HealthMetricsContext)
+    const { prescriptions } = useContext(PrescriptionsContext)
 
     const numPrescriptions = prescriptions.length
     const numMetrics = healthMetrics.length

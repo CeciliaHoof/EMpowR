@@ -8,11 +8,14 @@ import moment from "moment";
 import { UserContext } from "../context/user";
 
 function HealthMetricForm({ close, addMetric, method, metric, onEdit }) {
-  const { user, setUser } = useContext(UserContext);
-  const [selectedMetricType, setSelectedMetricType] = useState(metric ? metric.metric_type : {});
+  const { user } = useContext(UserContext);
+  const [selectedMetricType, setSelectedMetricType] = useState(
+    metric ? metric.metric_type : {}
+  );
   const [metricTypes, setMetricTypes] = useState([]);
   const [systolic, setSystolic] = useState("");
   const [diastolic, setDiastolic] = useState("");
+  const [medication, setMedication] = useState("");
 
   useEffect(() => {
     fetch("/metric_types")
@@ -28,14 +31,17 @@ function HealthMetricForm({ close, addMetric, method, metric, onEdit }) {
       comment: metric.comment,
       metric_type_id: metric.metric_type_id,
       time_taken: metric.time_taken,
-      user_id: metric.user_id}
-  } else { initialState = {
-    content: "",
-    comment: "",
-    metric_type_id: "",
-    time_taken: "",
-    user_id: user.id,
-  };}
+      user_id: metric.user_id,
+    };
+  } else {
+    initialState = {
+      content: "",
+      comment: "",
+      metric_type_id: "",
+      time_taken: "",
+      user_id: user.id,
+    };
+  }
 
   const handleChangeMetricType = (event, { value }) => {
     setSelectedMetricType(metricTypes.find((metric) => metric.id === value));
@@ -65,6 +71,12 @@ function HealthMetricForm({ close, addMetric, method, metric, onEdit }) {
         postData = {
           ...values,
           content: `${systolic}/${diastolic}`,
+          time_taken: formattedDateTime,
+        };
+      } else if (selectedMetricType.id === 6) {
+        postData = {
+          ...values,
+          content: medication,
           time_taken: formattedDateTime,
         };
       } else {
@@ -131,10 +143,11 @@ function HealthMetricForm({ close, addMetric, method, metric, onEdit }) {
   const medications = user.prescriptions.map(
     (prescription) => prescription.medication
   );
-  const medication_options = medications.map((med) => ({
+  const medicationOptions = medications.map((med) => ({
     key: med.generic_name,
     text: med.generic_name,
     value: med.generic_name,
+    name: "content", // Ensure that the name attribute matches the name of your field
   }));
 
   return (
@@ -143,7 +156,9 @@ function HealthMetricForm({ close, addMetric, method, metric, onEdit }) {
         <Form.Select
           label="Metric Type"
           options={metric_options}
-          placeholder={metric ? metric.metric_type.metric_type : "Select Metric Type"}
+          placeholder={
+            metric ? metric.metric_type.metric_type : "Select Metric Type"
+          }
           onChange={handleChangeMetricType}
         />
         <span style={{ color: "red" }}>{formik.errors.metric_type_id}</span>
@@ -180,13 +195,17 @@ function HealthMetricForm({ close, addMetric, method, metric, onEdit }) {
           <>
             <Form.Select
               label="Medication"
-              options={medication_options}
+              options={medicationOptions}
               placeholder="Select Medication"
-              onChange={formik.handleChange}
+              value={medication}
+              onChange={(e, { value }) => {
+                setMedication(value);
+                formik.setFieldValue("content", value);
+              }}
               onBlur={formik.handleBlur}
               name="content"
             />
-            <span style={{ color: "red" }}>{formik.errors.diastolic}</span>
+            <span style={{ color: "red" }}>{formik.errors.content}</span>
           </>
         )}
         {selectedMetricType.id !== 1 && selectedMetricType.id !== 6 && (
