@@ -7,7 +7,7 @@ import Dashboard from "../pages/Dashboard";
 import ErrorPage from "../pages/ErrorPage";
 import Medications from "../pages/Medications";
 import Prescriptions from "../pages/Prescriptions";
-
+import MedicationDetails from "./MedicationDetails"
 import { UserContext } from "../context/user";
 import { HealthMetricsContext } from "../context/healthMetrics";
 import { PrescriptionsContext } from "../context/prescriptions";
@@ -49,6 +49,7 @@ function App() {
         <Route path="/medications" element={<Medications />} />
         <Route path="/prescriptions" element={<Prescriptions />} />
         <Route path="/error" element={<ErrorPage />} />
+        <Route path="/medications/:id" element={<MedicationDetails />} />
       </Routes>
       
     </Container>
