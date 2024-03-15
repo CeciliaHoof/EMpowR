@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 function Login() {
   return (
-    <>
+    <div style={{height: '100vh'}}>
       <Header>
         <h1 style={{ marginBottom: "1vh" }}>
           Welcome to HealthSync, your new at home Electronic Medical Record.
@@ -26,7 +26,7 @@ function Login() {
           <LoginForm />
         </FormContainer>
       </MainContainer>
-    </>
+    </div>
   );
 }
 

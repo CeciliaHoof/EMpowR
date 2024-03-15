@@ -136,10 +136,11 @@ class MetricType(db.Model, SerializerMixin):
     green_params = db.Column(db.Integer)
     yellow_params = db.Column(db.Integer)
     red_params = db.Column(db.Integer)
+    units = db.Column(db.String)
 
     health_metrics = db.relationship('HealthMetric', back_populates = 'metric_type')
 
-    serialize_rules = ('-health_metrics.metric_type', )
+    serialize_rules = ('-health_metrics', )
 
     def __repr__(self):
         return f'< Metric Type {self.id} | {self.metric_type} >'

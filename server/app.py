@@ -101,6 +101,13 @@ class PrescriptionsById(Resource):
         
 api.add_resource(PrescriptionsById, '/prescriptions/<int:id>')
 
+class MetricTypes(Resource):
+
+    def get(self):
+        return make_response([metric_type.to_dict() for metric_type in MetricType.query.all()], 200)
+    
+api.add_resource(MetricTypes, '/metric_types')
+
 class HealthMetrics(Resource):
     
     def get(self):
@@ -116,8 +123,7 @@ class HealthMetrics(Resource):
                 time_str = metric_data['time_taken']
                 time = datetime.strptime(time_str, '%m-%d-%Y %H:%M')
                 new_metric.time_taken = time
-            if metric_data['metric_type_id'] > 9:
-                raise Exception('That is not a valid health metric type.')
+            new_metric.metric_type_id = metric_data['metric_type_id']
             
             db.session.add(new_metric)
             db.session.commit()

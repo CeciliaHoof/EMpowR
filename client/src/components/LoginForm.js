@@ -67,28 +67,26 @@ function LoginForm() {
       {!hasAccount && (
         <>
           <Form.Field>
-            <label style={{ fontSize: "1.5vh" }}>First Name</label>
             <Form.Input
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               value={formik.values.first_name}
               name="first_name"
               type="text"
-              style={{ height: "3.5vh" }}
+              label="Last Name"
             />
             {formik.errors.first_name && formik.touched.first_name && (
               <span style={{ color: "red" }}>{formik.errors.first_name}</span>
             )}
           </Form.Field>
           <Form.Field>
-            <label style={{ fontSize: "1.5vh" }}>Last Name</label>
             <Form.Input
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               value={formik.values.last_name}
               name="last_name"
               type="text"
-              style={{ height: "3.5vh" }}
+              label="Last Name"
             />
             {formik.errors.last_name && formik.touched.last_name && (
               <span style={{ color: "red" }}>{formik.errors.last_name}</span>
@@ -97,28 +95,26 @@ function LoginForm() {
         </>
       )}
       <Form.Field>
-        <label style={{ fontSize: "1.5vh" }}>Email Address</label>
         <Form.Input
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
           value={formik.values.username}
+          label="Email Address"
           name="email"
-          type="email"
-          style={{ height: "3.5vh" }}
+          type="email"       
         ></Form.Input>
         {formik.errors.email && formik.touched.email && (
           <span style={{ color: "red" }}>{formik.errors.email}</span>
         )}
       </Form.Field>
       <Form.Field>
-        <label style={{ fontSize: "1.5vh" }}>Password</label>
         <Form.Input
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
           value={formik.values.password}
           name="password"
           type="password"
-          style={{ height: "3.5vh" }}
+          label="Password"         
         />
         {formik.errors.password && formik.touched.password && (
           <span style={{ color: "red" }}>{formik.errors.password}</span>
@@ -133,13 +129,11 @@ function LoginForm() {
             </span>
           ))}
         <div className="centered_text">
-          <Form.Button style={{ fontSize: "1.5vh" }} type="submit">
+          <Form.Button  type="submit">
             {hasAccount ? "Login" : "Create Account"}
           </Form.Button>
-
           <span
             onClick={() => setHasAccount(!hasAccount)}
-            style={{ fontSize: "1.5vh" }}
           >
             {!hasAccount
               ? "Already have an Account? Click Here!"

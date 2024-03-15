@@ -22,6 +22,8 @@ function App() {
       if (r.ok) {
         r.json().then((data) => {
           setUser(data);
+          setHealthMetrics(data.health_metrics)
+          setPrescriptions(data.prescriptions)
         });
       } else {
         setUser(null);
@@ -29,33 +31,26 @@ function App() {
     });
   }, []);
 
-  useEffect(() => {
-    fetch("/health_metrics")
-      .then((r) => r.json())
-      .then((data) => setHealthMetrics(data));
-
-    fetch("/prescriptions")
-      .then((r) => r.json())
-      .then((data) => setPrescriptions(data));
-  }, [user]);
-
   if (!user) {
     return (
-      <Container>
         <Login />
-      </Container>
     );
   }
 
   return (
     <Container>
+      <Sidebar>
+        <h1>HealthSync</h1>
+        <h3>{`Welcome, ${user.first_name}`}</h3>
       <NavMenu />
+      </Sidebar>
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/medications" element={<Medications />} />
         <Route path="/prescriptions" element={<Prescriptions />} />
         <Route path="/error" element={<ErrorPage />} />
       </Routes>
+      
     </Container>
   );
 }
@@ -64,4 +59,12 @@ export default App;
 
 const Container = styled.div`
   height: 100vh;
+  display: flex;
+  gap: 1vw
 `;
+
+const Sidebar = styled.div`
+  height: 100%;
+  background-color: #7E93A8;
+  padding: 0.5%
+`
