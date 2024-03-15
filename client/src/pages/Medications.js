@@ -19,9 +19,11 @@ function Medications() {
   const medicationsDisplay = medications
   .filter((med) => {
     if (searchBy === "generic") {
-      return med.generic_name.includes(searchQuery);
+      return med.generic_name.toUpperCase().includes(searchQuery.toUpperCase());
     } else if (searchBy === "brand") {
-      return med.brand_name.includes(searchQuery);
+      return med.brand_name.toUpperCase().includes(searchQuery.toUpperCase());
+    } else {
+      return med
     }
   })
   .map((med) => (

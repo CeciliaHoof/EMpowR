@@ -4,7 +4,7 @@ import { useContext } from "react";
 import { UserContext } from "../context/user";
   
 function NavMenu(){
-    const { user, setUser } = useContext(UserContext)
+    const { setUser } = useContext(UserContext)
 
     function handleLogout(){
         fetch('/logout', {

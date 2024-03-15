@@ -1,12 +1,18 @@
-import { Item } from "semantic-ui-react";
+import { Item, Modal } from "semantic-ui-react";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
-function Medication({ generic_name, brand_name, id }) {
-    const navigate = useNavigate()
+import PrescriptionForm from "./PrescriptionForm";
 
-    function handleClick(){
-        navigate(`/medications/${id}`)
-    }
+function Medication({ generic_name, brand_name, prescription, id }) {
+  const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
+
+  function handleClick() {
+    prescription
+      ? navigate(`/prescriptions/${id}`)
+      : navigate(`/medications/${id}`);
+  }
   return (
     <Item>
       <Item.Content>
@@ -14,7 +20,19 @@ function Medication({ generic_name, brand_name, id }) {
         <Item.Meta>{brand_name}</Item.Meta>
         <Item.Extra style={{ textAlign: "right", cursor: "default" }}>
           <span onClick={handleClick}>View Details</span>
-          <span>Add Prescription</span>
+          {!prescription && (
+            <Modal
+              onClose={() => setOpen(false)}
+              onOpen={() => setOpen(true)}
+              open={open}
+              trigger={<span>Add Prescription</span>}
+              header={`Enter Prescription Details for ${generic_name} / ${brand_name}`}
+              content={
+                <PrescriptionForm close={setOpen} method={"POST"} medId={id} />
+              }
+              style={{ textAlign: "center" }}
+            />
+          )}
         </Item.Extra>
       </Item.Content>
     </Item>

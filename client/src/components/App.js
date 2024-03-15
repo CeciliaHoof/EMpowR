@@ -7,34 +7,33 @@ import Dashboard from "../pages/Dashboard";
 import ErrorPage from "../pages/ErrorPage";
 import Medications from "../pages/Medications";
 import Prescriptions from "../pages/Prescriptions";
-import MedicationDetails from "./MedicationDetails"
+import MedicationDetails from "./MedicationDetails";
+import PrescriptionDetails from "./PrescriptionDetails";
 import { UserContext } from "../context/user";
 import { HealthMetricsContext } from "../context/healthMetrics";
 import { PrescriptionsContext } from "../context/prescriptions";
 
 function App() {
   const { user, setUser } = useContext(UserContext);
-  const { healthMetrics, setHealthMetrics } = useContext(HealthMetricsContext);
-  const { prescriptions, setPrescriptions } = useContext(PrescriptionsContext);
+  const { setHealthMetrics } = useContext(HealthMetricsContext);
+  const { setPrescriptions } = useContext(PrescriptionsContext);
 
   useEffect(() => {
     fetch("/check_session").then((r) => {
       if (r.ok) {
         r.json().then((data) => {
           setUser(data);
-          setHealthMetrics(data.health_metrics)
-          setPrescriptions(data.prescriptions)
+          setHealthMetrics(data.health_metrics);
+          setPrescriptions(data.prescriptions);
         });
       } else {
         setUser(null);
       }
     });
-  }, []);
+  }, [setHealthMetrics, setPrescriptions, setUser]);
 
   if (!user) {
-    return (
-        <Login />
-    );
+    return <Login />;
   }
 
   return (
@@ -42,7 +41,7 @@ function App() {
       <Sidebar>
         <h1>HealthSync</h1>
         <h3>{`Welcome, ${user.first_name}`}</h3>
-      <NavMenu />
+        <NavMenu />
       </Sidebar>
       <Routes>
         <Route path="/" element={<Dashboard />} />
@@ -50,8 +49,8 @@ function App() {
         <Route path="/prescriptions" element={<Prescriptions />} />
         <Route path="/error" element={<ErrorPage />} />
         <Route path="/medications/:id" element={<MedicationDetails />} />
+        <Route path="/prescriptions/:id" element={<PrescriptionDetails />} />
       </Routes>
-      
     </Container>
   );
 }
@@ -61,11 +60,11 @@ export default App;
 const Container = styled.div`
   height: 100vh;
   display: flex;
-  gap: 1vw
+  gap: 1vw;
 `;
 
 const Sidebar = styled.div`
   height: 100%;
-  background-color: #7E93A8;
-  padding: 0.5%
-`
+  background-color: #7e93a8;
+  padding: 0.5%;
+`;
