@@ -7,19 +7,10 @@ import "react-datetime/css/react-datetime.css";
 import moment from "moment";
 import { UserContext } from "../context/user";
 
-function HealthMetricForm({ close, addMetric }) {
+function HealthMetricForm({ close, addMetric, method, metric, onEdit }) {
   const { user, setUser } = useContext(UserContext);
-
-  const initialState = {
-    content: "",
-    comment: "",
-    metric_type_id: "",
-    time_taken: "",
-    user_id: user.id,
-  };
-
+  const [selectedMetricType, setSelectedMetricType] = useState(metric ? metric.metric_type : {});
   const [metricTypes, setMetricTypes] = useState([]);
-  const [selectedMetricType, setSelectedMetricType] = useState({});
   const [systolic, setSystolic] = useState("");
   const [diastolic, setDiastolic] = useState("");
 
@@ -28,6 +19,23 @@ function HealthMetricForm({ close, addMetric }) {
       .then((r) => r.json())
       .then((data) => setMetricTypes(data));
   }, []);
+
+  let initialState;
+
+  if (metric) {
+    initialState = {
+      content: metric.content,
+      comment: metric.comment,
+      metric_type_id: metric.metric_type_id,
+      time_taken: metric.time_taken,
+      user_id: metric.user_id}
+  } else { initialState = {
+    content: "",
+    comment: "",
+    metric_type_id: "",
+    time_taken: "",
+    user_id: user.id,
+  };}
 
   const handleChangeMetricType = (event, { value }) => {
     setSelectedMetricType(metricTypes.find((metric) => metric.id === value));
@@ -42,7 +50,7 @@ function HealthMetricForm({ close, addMetric }) {
   const validationSchema = yup.object().shape({
     content: yup.string().required("Content is required"),
     time_taken: yup.date().required("Time taken is required"),
-    metric_type_id: yup.string().required("Metric type is required.")
+    metric_type_id: yup.string().required("Metric type is required."),
   });
 
   const formik = useFormik({
@@ -66,27 +74,51 @@ function HealthMetricForm({ close, addMetric }) {
           content: values.content.toString(),
         };
       }
-      fetch("/health_metrics", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(postData),
-      })
-        .then((resp) => {
-          if (resp.ok) {
-            resp.json().then((data) => {
-              addMetric(data);
-              formik.resetForm();
-              close(false);
-            });
-          } else {
-            resp.json().then((data) => {
-              formik.setErrors(data);
-            });
-          }
+      if (method === "POST") {
+        fetch("/health_metrics", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(postData),
         })
-        .finally(() => {
-          setSubmitting(false);
-        });
+          .then((resp) => {
+            if (resp.ok) {
+              resp.json().then((data) => {
+                addMetric(data);
+                formik.resetForm();
+                close(false);
+              });
+            } else {
+              resp.json().then((data) => {
+                formik.setErrors(data);
+              });
+            }
+          })
+          .finally(() => {
+            setSubmitting(false);
+          });
+      } else {
+        fetch(`/health_metrics/${metric.id}`, {
+          method: "PATCH",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(postData),
+        })
+          .then((resp) => {
+            if (resp.ok) {
+              resp.json().then((data) => {
+                onEdit(data);
+                formik.resetForm();
+                close(false);
+              });
+            } else {
+              resp.json().then((data) => {
+                formik.setErrors(data);
+              });
+            }
+          })
+          .finally(() => {
+            setSubmitting(false);
+          });
+      }
     },
   });
 
@@ -111,7 +143,7 @@ function HealthMetricForm({ close, addMetric }) {
         <Form.Select
           label="Metric Type"
           options={metric_options}
-          placeholder="Select Metric Type"
+          placeholder={metric ? metric.metric_type.metric_type : "Select Metric Type"}
           onChange={handleChangeMetricType}
         />
         <span style={{ color: "red" }}>{formik.errors.metric_type_id}</span>
@@ -129,7 +161,7 @@ function HealthMetricForm({ close, addMetric }) {
             />
             <span>/</span>
             <Input
-              placeholder="DBP"
+              placeholder={"DBP"}
               type="number"
               min="0"
               value={diastolic}
@@ -175,7 +207,7 @@ function HealthMetricForm({ close, addMetric }) {
       <Form.Field>
         <Datetime
           inputProps={{
-            placeholder: "Select Time",
+            placeholder: metric ? metric.time_taken : "Select Time",
           }}
           isValidDate={valid}
           value={formik.values.taken_time}
