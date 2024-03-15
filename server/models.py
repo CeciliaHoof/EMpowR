@@ -90,7 +90,6 @@ class Prescription(db.Model, SerializerMixin):
     frequency = db.Column(db.String, nullable=False)
     route = db.Column(db.String, nullable=False)
     time_of_day = db.Column(db.String, nullable=False)
-    prescribed_on = db.Column(db.DateTime)
     created_at = db.Column(db.DateTime, server_default = db.func.now())
     updated_at =  db.Column(db.DateTime, onupdate = db.func.now())
 

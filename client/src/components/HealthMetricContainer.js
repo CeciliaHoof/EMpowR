@@ -25,9 +25,16 @@ function HealthMetricContainer({ script }) {
       return metric
     }
   })
+  .sort((metricA, metricB) => {
+    const timeA = new Date(metricA.time_taken)
+    const timeB = new Date(metricB.time_taken)
+
+    return timeB - timeA
+  })
   .map((metric) => (
     <HealthMetric metric={metric} key={metric.id} handleDelete={onDeleteMetric}/>
-  ));
+  ))
+  
 
   return (
     <Segment style={{ height: "100%", overflowY: "auto" }}>
