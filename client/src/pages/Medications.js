@@ -21,7 +21,7 @@ function Medications() {
     if (searchBy === "generic") {
       return med.generic_name.toUpperCase().includes(searchQuery.toUpperCase());
     } else if (searchBy === "brand") {
-      return med.brand_name.toUpperCase().includes(searchQuery.toUpperCase());
+      return med.brand_names.toUpperCase().includes(searchQuery.toUpperCase());
     } else {
       return med
     }
@@ -30,7 +30,7 @@ function Medications() {
     <Medication
       key={med.id}
       generic_name={med.generic_name}
-      brand_name={med.brand_name}
+      brand_names={med.brand_names}
       id={med.id}
     />
   ));

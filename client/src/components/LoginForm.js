@@ -73,7 +73,7 @@ function LoginForm() {
               value={formik.values.first_name}
               name="first_name"
               type="text"
-              label="Last Name"
+              label="First Name"
             />
             {formik.errors.first_name && formik.touched.first_name && (
               <span style={{ color: "red" }}>{formik.errors.first_name}</span>

@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import PrescriptionForm from "./PrescriptionForm";
 
-function Medication({ generic_name, brand_name, prescription, id }) {
+function Medication({ generic_name, brand_names, prescription, id }) {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
@@ -17,7 +17,7 @@ function Medication({ generic_name, brand_name, prescription, id }) {
     <Item>
       <Item.Content>
         <Item.Header>{generic_name}</Item.Header>
-        <Item.Meta>{brand_name}</Item.Meta>
+        <Item.Meta>{brand_names}</Item.Meta>
         <Item.Extra style={{ textAlign: "right", cursor: "default" }}>
           <span onClick={handleClick}>View Details</span>
           {!prescription && (
@@ -26,7 +26,7 @@ function Medication({ generic_name, brand_name, prescription, id }) {
               onOpen={() => setOpen(true)}
               open={open}
               trigger={<span>Add Prescription</span>}
-              header={`Enter Prescription Details for ${generic_name} / ${brand_name}`}
+              header={`Enter Prescription Details for ${generic_name}`}
               content={
                 <PrescriptionForm close={setOpen} method={"POST"} medId={id} />
               }
