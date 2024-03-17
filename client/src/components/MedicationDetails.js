@@ -7,7 +7,7 @@ function MedicationDetails() {
 
     const [medication, setMedication] = useState({})
     
-    const { generic_name, brand_name, pharm_class, route, dosage_and_administration, indications_and_usage, boxed_warning } = medication
+    const { generic_name, brand_names, drug_class, box_warning, indications, dosages, contraindications_and_cautions, adverse_effects, administration} = medication
     useEffect(() => {
         fetch(`/medications/${id}`)
             .then(resp => resp.json())
@@ -17,14 +17,18 @@ function MedicationDetails() {
     return(
         <MainContainer>
             <h1>{generic_name}</h1>
-            <h2>Brand Name: {brand_name}</h2>
+            <h2>Brand Names: {brand_names}</h2>
             <div>
-                {pharm_class && <h3 style={{display: 'inline', paddingRight: '1.5em'}}>Class: {pharm_class}</h3> } 
-                <h3 style={{display: 'inline'}}>Route: {route}</h3>
+                <h3 style={{display: 'inline', paddingRight: '1.5em'}}>Class: {drug_class}</h3>
             </div>
-            {boxed_warning && <p style={{color: 'red'}}><strong>BOX WARNING: </strong> {boxed_warning}</p>}
-            <p><strong>Dosage: </strong> {dosage_and_administration}</p>
-            <p><strong>Indications:</strong> {indications_and_usage}</p>
+            {box_warning && <p style={{color: 'red'}}><strong>BOX WARNING: </strong> {box_warning}</p>}
+            <p><strong>Dosage: </strong> {dosages}</p>
+            <p><strong>Indications:</strong> {indications}</p>
+            {administration && <p>Administration: {administration}</p>}
+
+            <p>Contraindications: {contraindications_and_cautions}</p>
+            <p>Adverse Effects: {adverse_effects}</p>
+
 
         </MainContainer>
     )

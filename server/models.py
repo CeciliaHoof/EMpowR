@@ -63,24 +63,21 @@ class Medication(db.Model, SerializerMixin):
 
     id = db.Column(db.Integer, primary_key = True)
     generic_name = db.Column(db.String)
-    brand_name = db.Column(db.String)
-    pharm_class = db.Column(db.String)
-    route = db.Column(db.String)
-    description = db.Column(db.String)
-    boxed_warning = db.Column(db.String)
-    indications_and_usage = db.Column(db.String)
-    dosage_and_administration = db.Column(db.String)
-    warnings_and_cautions = db.Column(db.String)
-    adverse_reactions = db.Column(db.String)
-    pregnancy = db.Column(db.String)
-    contraindications = db.Column(db.String)
+    brand_names = db.Column(db.String)
+    drug_class = db.Column(db.String)
+    box_warning = db.Column(db.String)
+    indications = db.Column(db.String)
+    dosages = db.Column(db.String)
+    contraindications_and_cautions = db.Column(db.String)
+    adverse_effects = db.Column(db.String)
+    administration = db.Column(db.String)
 
     prescriptions = db.relationship('Prescription', back_populates = 'medication')
 
     serialize_rules = ('-prescriptions.medication', )
 
     def __repr__(self):
-        return f"< Medication {self.id} | {self.generic_name} | {self.brand_name} >"
+        return f"< Medication {self.id} | {self.generic_name} >"
     
 class Prescription(db.Model, SerializerMixin):
     __tablename__ = 'prescriptions'
