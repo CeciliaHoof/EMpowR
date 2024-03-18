@@ -4,9 +4,13 @@ import { useFormik } from "formik";
 import * as yup from "yup";
 
 import { UserContext } from "../context/user";
+import { PrescriptionsContext } from "../context/prescriptions";
+import { HealthMetricsContext } from "../context/healthMetrics";
 
 function LoginForm() {
   const { setUser } = useContext(UserContext);
+  const { setHealthMetrics } = useContext(HealthMetricsContext);
+  const { setPrescriptions } = useContext(PrescriptionsContext);
   const [hasAccount, setHasAccount] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
@@ -47,8 +51,10 @@ function LoginForm() {
         body: JSON.stringify(values, null, 2),
       }).then((r) => {
         if (r.ok) {
-          r.json().then((user) => {
-            setUser(user);
+          r.json().then((data) => {
+            setUser(data);
+            setHealthMetrics(data.health_metrics);
+            setPrescriptions(data.prescriptions);
           });
         } else {
           r.json().then((errors) => {

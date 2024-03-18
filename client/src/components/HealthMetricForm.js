@@ -5,9 +5,17 @@ import * as yup from "yup";
 import Datetime from "react-datetime";
 import "react-datetime/css/react-datetime.css";
 import moment from "moment";
+import "react-toastify/dist/ReactToastify.css";
 import { UserContext } from "../context/user";
 
-function HealthMetricForm({ close, addMetric, method, metric, onEdit }) {
+function HealthMetricForm({
+  hideForm,
+  addMetric,
+  method,
+  metric,
+  onEdit,
+  formType,
+}) {
   const { user } = useContext(UserContext);
   const [selectedMetricType, setSelectedMetricType] = useState(
     metric ? metric.metric_type : {}
@@ -97,7 +105,7 @@ function HealthMetricForm({ close, addMetric, method, metric, onEdit }) {
               resp.json().then((data) => {
                 addMetric(data);
                 formik.resetForm();
-                close(false);
+                hideForm(false);
               });
             } else {
               resp.json().then((data) => {
@@ -119,7 +127,7 @@ function HealthMetricForm({ close, addMetric, method, metric, onEdit }) {
               resp.json().then((data) => {
                 onEdit(data);
                 formik.resetForm();
-                close(false);
+                hideForm(false);
               });
             } else {
               resp.json().then((data) => {
@@ -134,11 +142,21 @@ function HealthMetricForm({ close, addMetric, method, metric, onEdit }) {
     },
   });
 
-  const metric_options = metricTypes.map((metric) => ({
-    key: metric.id,
-    text: metric.metric_type,
-    value: metric.id,
-  }));
+  const metric_options = metricTypes
+    .filter((metric) => {
+      if (formType === "vitals") {
+        return metric.id <= 5;
+      } else if (formType === "prescription") {
+        return metric.id === 6;
+      } else {
+        return metric.id > 6;
+      }
+    })
+    .map((metric) => ({
+      key: metric.id,
+      text: metric.metric_type,
+      value: metric.id,
+    }));
 
   const medications = user.prescriptions.map(
     (prescription) => prescription.medication
@@ -151,106 +169,109 @@ function HealthMetricForm({ close, addMetric, method, metric, onEdit }) {
   }));
 
   return (
-    <Form onSubmit={formik.handleSubmit}>
-      <Form.Group inline>
-        <Form.Select
-          label="Metric Type"
-          options={metric_options}
-          placeholder={
-            metric ? metric.metric_type.metric_type : "Select Metric Type"
-          }
-          onChange={handleChangeMetricType}
-        />
-        <span style={{ color: "red" }}>{formik.errors.metric_type_id}</span>
-        {selectedMetricType.id === 1 && (
-          <>
-            <Input
-              placeholder="SBP"
-              type="number"
-              min="0"
-              value={systolic}
-              onChange={(e) => setSystolic(e.target.value.toString())}
-              onBlur={formik.handleBlur}
-              name="systolic"
-              style={{ width: "5em" }}
-            />
-            <span>/</span>
-            <Input
-              placeholder={"DBP"}
-              type="number"
-              min="0"
-              value={diastolic}
-              onChange={(e) => {
-                setDiastolic(e.target.value.toString());
-                formik.values.content = `${systolic}/${diastolic}`;
-              }}
-              onBlur={formik.handleBlur}
-              name="diastolic"
-              style={{ width: "5em" }}
-            />
-            <span style={{ color: "red" }}>{formik.errors.content}</span>
-          </>
+      <Form onSubmit={formik.handleSubmit} style={{ marginTop: "2em" }}>
+        <Form.Group inline>
+          <Form.Select
+            label="Metric Type"
+            options={metric_options}
+            placeholder={
+              metric ? metric.metric_type.metric_type : "Select Metric Type"
+            }
+            onChange={handleChangeMetricType}
+          />
+          <span style={{ color: "red" }}>{formik.errors.metric_type_id}</span>
+          {selectedMetricType.id === 1 && (
+            <>
+              <Input
+                placeholder="SBP"
+                type="number"
+                min="0"
+                value={systolic}
+                onChange={(e) => setSystolic(e.target.value.toString())}
+                onBlur={formik.handleBlur}
+                name="systolic"
+                style={{ width: "5em" }}
+              />
+              <span>/</span>
+              <Input
+                placeholder={"DBP"}
+                type="number"
+                min="0"
+                value={diastolic}
+                onChange={(e) => {
+                  setDiastolic(e.target.value.toString());
+                  formik.values.content = `${systolic}/${diastolic}`;
+                }}
+                onBlur={formik.handleBlur}
+                name="diastolic"
+                style={{ width: "5em" }}
+              />
+              <span style={{ color: "red" }}>{formik.errors.content}</span>
+            </>
+          )}
+          {selectedMetricType.id === 6 && (
+            <>
+              <Form.Select
+                label="Medication"
+                options={medicationOptions}
+                placeholder="Select Medication"
+                value={medication}
+                onChange={(e, { value }) => {
+                  setMedication(value);
+                  formik.setFieldValue("content", value);
+                }}
+                onBlur={formik.handleBlur}
+                name="content"
+              />
+              <span style={{ color: "red" }}>{formik.errors.content}</span>
+            </>
+          )}
+          {selectedMetricType.id !== 1 && selectedMetricType.id !== 6 && (
+            <Form.Field>
+              <Input
+                type={selectedMetricType.id < 6 ? "number" : "text"}
+                min="0"
+                max={selectedMetricType.id === 4 ? "10" : null}
+                placeholder="Enter Value"
+                value={formik.values.content}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                name="content"
+              />
+              <span style={{ color: "red" }}>{formik.errors.content}</span>
+            </Form.Field>
+          )}
+        </Form.Group>
+        <Form.Field>
+          <Datetime
+            inputProps={{
+              placeholder: metric ? metric.time_taken : "Select Time",
+            }}
+            isValidDate={valid}
+            value={formik.values.taken_time}
+            onChange={(date) => formik.setFieldValue("time_taken", date)}
+            onBlur={formik.handleBlur}
+            dateFormat="MM-DD-YYYY"
+          />
+          <span style={{ color: "red" }}>{formik.errors.time_taken}</span>
+        </Form.Field>
+        <Form.Field>
+          <TextArea
+            label="comment"
+            placeholder="Enter Additional Comments"
+            value={formik.values.comment}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            name="comment"
+          />
+        </Form.Field>
+        {formik.errors && (
+          <span style={{ color: "red" }}>{formik.errors.error}</span>
         )}
-        {selectedMetricType.id === 6 && (
-          <>
-            <Form.Select
-              label="Medication"
-              options={medicationOptions}
-              placeholder="Select Medication"
-              value={medication}
-              onChange={(e, { value }) => {
-                setMedication(value);
-                formik.setFieldValue("content", value);
-              }}
-              onBlur={formik.handleBlur}
-              name="content"
-            />
-            <span style={{ color: "red" }}>{formik.errors.content}</span>
-          </>
-        )}
-        {selectedMetricType.id !== 1 && selectedMetricType.id !== 6 && (
-          <Form.Field>
-            <Input
-              type={selectedMetricType.id < 6 ? "number" : "text"}
-              min="0"
-              placeholder="Enter Value"
-              value={formik.values.content}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              name="content"
-            />
-            <span style={{ color: "red" }}>{formik.errors.content}</span>
-          </Form.Field>
-        )}
-      </Form.Group>
-      <Form.Field>
-        <Datetime
-          inputProps={{
-            placeholder: metric ? metric.time_taken : "Select Time",
-          }}
-          isValidDate={valid}
-          value={formik.values.taken_time}
-          onChange={(date) => formik.setFieldValue("time_taken", date)}
-          onBlur={formik.handleBlur}
-          dateFormat="MM-DD-YYYY"
-        />
-        <span style={{ color: "red" }}>{formik.errors.time_taken}</span>
-      </Form.Field>
-      <Form.Field>
-        <TextArea
-          label="comment"
-          placeholder="Enter Additional Comments"
-          value={formik.values.comment}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-          name="comment"
-        />
-      </Form.Field>
-      {formik.errors && (
-        <span style={{ color: "red" }}>{formik.errors.error}</span>
-      )}
-      <Button type="submit">Submit</Button>
-    </Form>
+        <Button type="submit">Submit</Button>
+        <Button onClick={() => hideForm(false)}>Cancel</Button>
+      </Form>
+
   );
 }
 
