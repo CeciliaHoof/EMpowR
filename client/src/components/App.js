@@ -12,6 +12,7 @@ import PrescriptionDetails from "./PrescriptionDetails";
 import { UserContext } from "../context/user";
 import { HealthMetricsContext } from "../context/healthMetrics";
 import { PrescriptionsContext } from "../context/prescriptions";
+import { ToastContainer } from "react-toastify";
 
 function App() {
   const { user, setUser } = useContext(UserContext);
@@ -37,6 +38,7 @@ function App() {
   }
 
   return (
+    <>
     <Container>
       <Sidebar>
         <h1>HealthSync</h1>
@@ -52,6 +54,8 @@ function App() {
         <Route path="/prescriptions/:id" element={<PrescriptionDetails />} />
       </Routes>
     </Container>
+    <ToastContainer />
+    </>
   );
 }
 
