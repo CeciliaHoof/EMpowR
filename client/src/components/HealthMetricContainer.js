@@ -13,7 +13,7 @@ function HealthMetricContainer({ script }) {
   const [open, setOpen] = useState(false);
   const [type, setType] = useState("");
 
-  function onAddMetric(metric, method) {
+  function onAddMetric(metric) {
     setHealthMetrics([...healthMetrics, metric]);
     toast.success("Metric Successfully Created.");
   }
