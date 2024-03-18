@@ -15,7 +15,7 @@ function PrescriptionDetails() {
   const [isLoading, setIsLoading] = useState(true);
   const [open, setOpen] = useState(false);
 
-  const { medication, route, dosage, time_of_day, frequency, prescribed_on } =
+  const { medication, route, dosage, time_of_day, frequency } =
     prescription;
 
     const navigate = useNavigate()
@@ -61,7 +61,7 @@ function PrescriptionDetails() {
           <Item>
             <Item.Content>
               <Item.Header>
-                {medication.generic_name}: {medication.brand_name}
+                {medication.generic_name}: {medication.brand_names}
               </Item.Header>
               <Item.Meta>Prescription Details</Item.Meta>
               <Item.Description>
@@ -84,11 +84,6 @@ function PrescriptionDetails() {
                     <strong>Time of Day: </strong> {time_of_day}
                   </p>
                 </div>
-                {prescribed_on && (
-                  <p>
-                    <strong>Prescribed On: </strong> {prescribed_on}
-                  </p>
-                )}
               </Item.Description>
               <Item.Extra>
                 <Modal

@@ -46,18 +46,19 @@ if __name__ == '__main__':
 
             dosages = ""
             for i, text in enumerate(dosage_list):
-                if i == len(dosage_list) - 1 or not text.endswith(": "):
-                    dosages += text + ". "
+                if not text.endswith(": "):
+                    dosages += text + "! "
                 else:
                     dosages += text
 
             use_elements = dose_adult.find('div').find_next_siblings('h3')
             uses = []
+            to_exclude = ['Dosage Modifications', 'Dosing Considerations', 'Dosing Modifications', 'Administration', 'Dose considerations', 'Conversion to Extended Release Form', 'IV intermittent infusions', 'Primary Prevention', 'Off-label Uses']
             for element in use_elements:
-                if element.get_text(strip=True) == 'Dosage Modifications' or element.get_text(strip=True) == 'Dosing Considerations':
+                if element.get_text(strip=True) in to_exclude:
                     break
                 uses.append(element.get_text(strip=True))
-            uses = ", ".join(uses)
+            uses = ". ".join(uses)
 
             adverse_effects = doc.select('#content_4')[0].find('h2', string='Adverse Effects').find_next_sibling('div')
             adverse_effects_list = []

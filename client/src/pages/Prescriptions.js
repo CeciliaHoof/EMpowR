@@ -71,4 +71,5 @@ const SearchContainer = styled.div`
   text-align: center;
   height: 25%;
   background-color: #b6cbe0;
+  margin-left: -1vw;
 `;
