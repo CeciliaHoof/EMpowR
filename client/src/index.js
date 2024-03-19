@@ -7,18 +7,21 @@ import App from "./components/App";
 import { UserProvider } from "./context/user";
 import { HealthMetricsProvider } from "./context/healthMetrics";
 import { PrescriptionsProvider } from "./context/prescriptions";
+import { MedicationsProvider } from "./context/medications";
 import "./index.css";
 
 const container = document.getElementById("root");
 const root = createRoot(container);
 root.render(
   <Router>
-    <PrescriptionsProvider>
-      <HealthMetricsProvider>
-        <UserProvider>
-          <App />
-        </UserProvider>
-      </HealthMetricsProvider>
-    </PrescriptionsProvider>
+    <MedicationsProvider>
+      <PrescriptionsProvider>
+        <HealthMetricsProvider>
+          <UserProvider>
+            <App />
+          </UserProvider>
+        </HealthMetricsProvider>
+      </PrescriptionsProvider>
+    </MedicationsProvider>
   </Router>
 );

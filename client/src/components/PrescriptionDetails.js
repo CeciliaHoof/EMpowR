@@ -1,24 +1,23 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
-import { Item, Modal, Icon } from "semantic-ui-react";
+import { Item, Icon, Popup } from "semantic-ui-react";
+import { toast } from "react-toastify";
 import { PrescriptionsContext } from "../context/prescriptions";
 import HealthMetricContainer from "./HealthMetricContainer";
 import PrescriptionForm from "./PrescriptionForm";
 
-
 function PrescriptionDetails() {
   const { id } = useParams();
-  const { prescriptions, setPrescriptions } = useContext(PrescriptionsContext)
+  const { prescriptions, setPrescriptions } = useContext(PrescriptionsContext);
 
   const [prescription, setPrescription] = useState({});
   const [isLoading, setIsLoading] = useState(true);
-  const [open, setOpen] = useState(false);
+  const [formOpen, setFormOpen] = useState(false);
 
-  const { medication, route, dosage, time_of_day, frequency } =
-    prescription;
+  const { medication, route, dosage, frequency } = prescription;
 
-    const navigate = useNavigate()
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch(`/prescriptions/${id}`)
@@ -32,24 +31,27 @@ function PrescriptionDetails() {
   if (isLoading) {
     return <div>Loading...</div>;
   }
-  function handleDelete(){
-    const updatedPrescriptions = prescriptions.filter(script => script.id !== prescription.id)
-    setPrescriptions(updatedPrescriptions)
+  function handleDelete() {
+    const updatedPrescriptions = prescriptions.filter(
+      (script) => script.id !== prescription.id
+    );
+    setPrescriptions(updatedPrescriptions);
+    toast.success("Prescription Successfully Deleted.")
   }
-  function handleClick(){
-    fetch(`/prescriptions/${id}`,{
-        method: 'DELETE',
+  function handleClick() {
+    fetch(`/prescriptions/${id}`, {
+      method: "DELETE",
     })
-    .then(resp =>{
-        if (resp.ok){
-            handleDelete()
-            navigate('/prescriptions')
-            console.log("Deleted Prescription Successfully")
+      .then((resp) => {
+        if (resp.ok) {
+          handleDelete();
+          navigate("/prescriptions");
+          console.log("Deleted Prescription Successfully");
         } else {
-            console.error("Failed to delete care.")
+          console.error("Failed to delete care.");
         }
-    })
-    .catch((error) => {
+      })
+      .catch((error) => {
         console.error("error while deleting care", error);
       });
   }
@@ -80,39 +82,40 @@ function PrescriptionDetails() {
                     <strong>Frequency: </strong>
                     {frequency}
                   </p>
-                  <p style={{ display: "inline-block" }}>
-                    <strong>Time of Day: </strong> {time_of_day}
-                  </p>
                 </div>
               </Item.Description>
               <Item.Extra>
-                <Modal
-                  onClose={() => setOpen(false)}
-                  onOpen={() => setOpen(true)}
-                  open={open}
-                  trigger={<Icon name="pencil" />}
-                  header="Enter Prescription Details"
-                  content={
-                    <PrescriptionForm
-                      close={setOpen}
-                      onEdit={setPrescription}
-                      prescription={prescription}
-                      method={"PATCH"}
-                    />
+                <Popup
+                  size="tiny"
+                  content="Edit Prescription"
+                  trigger={
+                    <Icon name="pencil" onClick={() => setFormOpen(true)} />
                   }
-                  style={{ textAlign: "center" }}
                 />
-                <Icon name="trash" onClick={handleClick} />
+                <Popup
+                  size="tiny"
+                  content="Delete Prescription"
+                  trigger={
+                    <Icon name="trash" onClick={handleClick} />
+                  }
+                />
               </Item.Extra>
             </Item.Content>
           </Item>
         </Item.Group>
       </DetailContainer>
+      {formOpen && (
+        <PrescriptionForm
+          close={setFormOpen}
+          onEdit={setPrescription}
+          prescription={prescription}
+          method={"PATCH"}
+        />
+      )}
       <HealthMetricContainer script={medication.generic_name} />
     </Container>
   );
 }
-
 export default PrescriptionDetails;
 
 const Container = styled.div`
@@ -123,6 +126,6 @@ const Container = styled.div`
 const DetailContainer = styled.div`
   height: 25%;
   background-color: #b6cbe0;
-  padding: 1em;
-  margin-left: -1vw;
+  margin: 3rem 1rem 2rem 1rem;
+  padding: 0.5rem;
 `;
