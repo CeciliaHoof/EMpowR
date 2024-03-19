@@ -12,12 +12,15 @@ import PrescriptionDetails from "./PrescriptionDetails";
 import { UserContext } from "../context/user";
 import { HealthMetricsContext } from "../context/healthMetrics";
 import { PrescriptionsContext } from "../context/prescriptions";
+import { MedicationsContext } from "../context/medications";
 import { ToastContainer } from "react-toastify";
+
 
 function App() {
   const { user, setUser } = useContext(UserContext);
   const { setHealthMetrics } = useContext(HealthMetricsContext);
   const { setPrescriptions } = useContext(PrescriptionsContext);
+  const { setMedications } = useContext(MedicationsContext)
 
   useEffect(() => {
     fetch("/check_session").then((r) => {
@@ -31,7 +34,10 @@ function App() {
         setUser(null);
       }
     });
-  }, [setHealthMetrics, setPrescriptions, setUser]);
+    fetch("/medications")
+      .then((r) => r.json())
+      .then(data => setMedications(data))
+  }, [setHealthMetrics, setPrescriptions, setMedications, setUser]);
 
   if (!user) {
     return <Login />;
@@ -65,6 +71,7 @@ const Container = styled.div`
   height: 100vh;
   display: flex;
   gap: 1vw;
+  margin-right: 1vw;
 `;
 
 const Sidebar = styled.div`

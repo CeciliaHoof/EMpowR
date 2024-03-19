@@ -161,11 +161,11 @@ function HealthMetricForm({
   const medications = user.prescriptions.map(
     (prescription) => prescription.medication
   );
+  
   const medicationOptions = medications.map((med) => ({
     key: med.generic_name,
     text: med.generic_name,
     value: med.generic_name,
-    name: "content", // Ensure that the name attribute matches the name of your field
   }));
 
   return (

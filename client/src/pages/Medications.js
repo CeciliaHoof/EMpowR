@@ -1,21 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState, useContext } from "react";
 import styled from "styled-components";
 import { Item, Segment } from "semantic-ui-react";
 
 import MedicationSearch from "../components/MedicationSearch";
 import Medication from "../components/Medication";
+import { MedicationsContext } from "../context/medications";
 
 function Medications() {
-  const [medications, setMedications] = useState([]);
+  const { medications } = useContext(MedicationsContext);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchBy, setSearchBy] = useState("generic");
-
-  useEffect(() => {
-    fetch("/medications")
-      .then((resp) => resp.json())
-      .then((data) => setMedications(data));
-  }, []);
-
+  
   const medicationsDisplay = medications
   .filter((med) => {
     if (searchBy === "generic") {
@@ -71,5 +66,6 @@ const SearchContainer = styled.div`
   text-align: center;
   height: 25%;
   background-color: #b6cbe0;
-  margin-left: -1vw;
+  margin: 3rem 1rem 2rem 1rem;
+  padding: 2rem 0.5rem 1rem;
 `;

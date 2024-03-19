@@ -37,58 +37,60 @@ function MedicationDetails() {
     .map((brand) => <List.Item key={brand}>{brand}</List.Item>);
 
   const filteredIndications = indications
-    .split('. ')
-    .filter((indication) => {return !indication.includes("Orphan") && indication !== ""})
+    .split(". ")
+    .filter((indication) => {
+      return !indication.includes("Orphan") && indication !== "";
+    })
     .map((indication) => <List.Item key={indication}>{indication}</List.Item>);
 
-    function splitDosages(inputString) {
-      const parts = inputString.split('! ');
-      return parts.map((part) => part.trim());
-    }
+  function splitDosages(inputString) {
+    const parts = inputString.split("! ");
+    return parts.map((part) => part.trim());
+  }
 
-    function groupDosages(parts) {
-      const groups = [];
-      let currentGroup = "";
+  function groupDosages(parts) {
+    const groups = [];
+    let currentGroup = "";
 
-      for (const part of parts) {
-        if (part.includes(":")) {
-          if (currentGroup) {
-            groups.push(currentGroup.trim());
-          }
-          currentGroup = part;
-        } else {
-          currentGroup += `, ${part}`;
+    for (const part of parts) {
+      if (part.includes(":")) {
+        if (currentGroup) {
+          groups.push(currentGroup.trim());
         }
+        currentGroup = part;
+      } else {
+        currentGroup += `, ${part}`;
       }
-
-      if (currentGroup) {
-        groups.push(currentGroup.trim());
-      }
-
-      return groups;
     }
 
-    function createDosagesLists(groupedParts) {
-      return groupedParts.map((group) => {
-        const [medication, dosages] = group.split(":");
-        console.log(medication, dosages)
-        const dosageItems = dosages
-          .split(",")
-          .map((dosage) => (
-            <List.Item key={`${dosage.trim()}${medication}`}>
-              {dosage.trim()}
-            </List.Item>
-          ));
-        return (
-          <div key={medication} style={{ marginBottom: "1em" }}>
-            {medication}:<List bulleted>{dosageItems}</List>
-          </div>
-        );
-      });
+    if (currentGroup) {
+      groups.push(currentGroup.trim());
     }
-    const doses = splitDosages(dosages);
-    const groupedDosages = groupDosages(doses.slice(0, -1));
-    const dosageDisplay = createDosagesLists(groupedDosages);
+
+    return groups;
+  }
+
+  function createDosagesLists(groupedParts) {
+    return groupedParts.map((group) => {
+      const [medication, dosages] = group.split(":");
+      console.log(medication, dosages);
+      const dosageItems = dosages
+        .split(",")
+        .map((dosage) => (
+          <List.Item key={`${dosage.trim()}${medication}`}>
+            {dosage.trim()}
+          </List.Item>
+        ));
+      return (
+        <div key={medication} style={{ marginBottom: "1em" }}>
+          {medication}:<List bulleted>{dosageItems}</List>
+        </div>
+      );
+    });
+  }
+  const doses = splitDosages(dosages);
+  const groupedDosages = groupDosages(doses.slice(0, -1));
+  const dosageDisplay = createDosagesLists(groupedDosages);
 
   let adminDisplay;
   if (administration) {
@@ -145,20 +147,18 @@ function MedicationDetails() {
       ),
     },
   ];
-  {
-    administration
-      ? panes.splice(1, 0, {
-          menuItem: "Administration",
-          render: () => (
-            <Tab.Pane attached={false}>
-              <div style={{ marginBottom: "0.5em", fontSize: "1.2rem" }}>
-                <strong>Administration Instructions:</strong>
-              </div>
-              <List>{adminDisplay}</List>
-            </Tab.Pane>
-          ),
-        })
-      : (panes = panes);
+  if (administration) {
+    panes.splice(1, 0, {
+      menuItem: "Administration",
+      render: () => (
+        <Tab.Pane attached={false}>
+          <div style={{ marginBottom: "0.5em", fontSize: "1.2rem" }}>
+            <strong>Administration Instructions:</strong>
+          </div>
+          <List>{adminDisplay}</List>
+        </Tab.Pane>
+      ),
+    });
   }
 
   return (
