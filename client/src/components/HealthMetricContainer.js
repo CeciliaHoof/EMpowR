@@ -6,11 +6,6 @@ import { HealthMetricsContext } from "../context/healthMetrics";
 function HealthMetricContainer({ script }) {
   const { healthMetrics, setHealthMetrics } = useContext(HealthMetricsContext);
 
-  function onDeleteMetric(metric) {
-    const updatedMetrics = healthMetrics.filter((hm) => hm.id !== metric.id);
-    setHealthMetrics(updatedMetrics);
-  }
-
   const metricsDisplay = healthMetrics
     .filter((metric) => {
       if (script) {
