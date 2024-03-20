@@ -1,15 +1,16 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { Feed, Icon, Image } from "semantic-ui-react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import HealthMetricForm from "./HealthMetricForm";
+import { HealthMetricsContext } from "../context/healthMetrics";
 import health_metric_icon from "../assets/health_metric_icon.png";
 import prescription_icon from "../assets/prescription_icon.png";
 import symptom_icon from "../assets/symptom_icon.png";
+import HealthMetricForm from "./HealthMetricForm";
 
 function HealthMetric({ metric, handleDelete }) {
-  const [metricDisplay, setMetricDisplay] = useState(metric);
-  const { comment, metric_type, time_taken, content } = metricDisplay;
+  const { healthMetrics, setHealthMetrics } = useContext(HealthMetricsContext)
+  const { comment, metric_type, time_taken, content } = metric;
   const [isEditing, setIsEditing] = useState(false);
 
   function successfulDelete() {
@@ -17,9 +18,16 @@ function HealthMetric({ metric, handleDelete }) {
   }
 
   function handleEdit(metric){
-    setMetricDisplay(metric)
+    const updatedMetrics = healthMetrics.filter((hm) => hm.id != metric.id)
+    setHealthMetrics([...updatedMetrics, metric])
     toast.success("Metric Successfully Updated.")
   }
+
+  function handleDelete(metric) {
+    const updatedMetrics = healthMetrics.filter((hm) => hm.id !== metric.id);
+    setHealthMetrics(updatedMetrics);
+  }
+
   function handleClick() {
     fetch(`/health_metrics/${metric.id}`, {
       method: "DELETE",
@@ -39,20 +47,16 @@ function HealthMetric({ metric, handleDelete }) {
   const moment = require("moment");
   const formattedDate = moment(time_taken).format("MM-DD-YYYY hh:mm A");
 
-  let formType;
   let metricImage;
-  if (metric_type.id <= 5) {
-    formType = "vitals";
+  if (metric_type.id <= 7) {
     metricImage = (
       <Image src={health_metric_icon} alt="health_metric_icon" wrapped />
     );
-  } else if (metric_type.id === 6) {
-    formType = "prescription";
+  } else if (metric_type.id === 8) {
     metricImage = (
       <Image src={prescription_icon} alt="prescription_icon" wrapped />
     );
   } else {
-    formType = "symptoms";
     metricImage = <Image src={symptom_icon} alt="symptom_icon" wrapped />;
   }
   return (
@@ -80,8 +84,7 @@ function HealthMetric({ metric, handleDelete }) {
                 hideForm={setIsEditing}
                 onEdit={handleEdit}
                 metric={metric}
-                method={"PATCH"}
-                formType={formType}
+                method='PATCH'
               />
             </>
           )}

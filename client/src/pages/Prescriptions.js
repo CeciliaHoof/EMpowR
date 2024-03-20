@@ -23,7 +23,7 @@ function Prescriptions() {
           .toUpperCase()
           .includes(searchQuery.toUpperCase());
       } else if (searchBy === "brand") {
-        return script.medication.brand_name
+        return script.medication.brand_names
           .toUpperCase()
           .includes(searchQuery.toUpperCase());
       } else {
