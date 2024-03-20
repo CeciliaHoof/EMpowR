@@ -27,17 +27,20 @@ if __name__ == '__main__':
         RR = MetricType(metric_type = 'Respiratory Rate', green_params = 12, yellow_params = 21, red_params = 30, units='breaths per minute')
         metric_types.append(RR)
         
+        BLOOD_OXYGEN = MetricType(metric_type = 'Blood Oxygen', units='%')
+        metric_types.append(BLOOD_OXYGEN)
+        
         PAIN = MetricType(metric_type = 'Pain Level', green_params = 0, yellow_params = 4, red_params = 7, units='out of 10')
         metric_types.append(PAIN)
 
+        TEMPERATURE = MetricType(metric_type = 'Temperature', units='°F')
+        metric_types.append(TEMPERATURE)
+
         BG = MetricType(metric_type = 'Blood Glucose', green_params = 80, yellow_params = 100, red_params = 150, units='mg/dL')
         metric_types.append(BG)
-
+        
         MED = MetricType(metric_type = 'Medication Taken')
         metric_types.append(MED)
-
-        LF = MetricType(metric_type = 'Lifestyle Factors')
-        metric_types.append(LF)
 
         SYM = MetricType(metric_type = 'Symptom')
         metric_types.append(SYM)

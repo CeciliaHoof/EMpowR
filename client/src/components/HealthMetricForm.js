@@ -1,10 +1,11 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useContext } from "react";
 import { Form, Input, TextArea, Button } from "semantic-ui-react";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import Datetime from "react-datetime";
 import "react-datetime/css/react-datetime.css";
 import moment from "moment";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { UserContext } from "../context/user";
 
@@ -17,110 +18,99 @@ function HealthMetricForm({
   formType,
 }) {
   const { user } = useContext(UserContext);
-  const [selectedMetricType, setSelectedMetricType] = useState(
-    metric ? metric.metric_type : {}
-  );
-  const [metricTypes, setMetricTypes] = useState([]);
-  const [systolic, setSystolic] = useState("");
-  const [diastolic, setDiastolic] = useState("");
-  const [medication, setMedication] = useState("");
-
-  useEffect(() => {
-    fetch("/metric_types")
-      .then((r) => r.json())
-      .then((data) => setMetricTypes(data));
-  }, []);
 
   let initialState;
-
-  if (metric) {
+  if (!metric) {
+    if (formType === "vitals") {
+      initialState = {
+        BP: "",
+        HR: "",
+        RR: "",
+        SPO2: "",
+        pain: "",
+        temp: "",
+        glucose: "",
+        time_taken: "",
+        comment: "",
+      };
+    } else if (formType === "prescription") {
+      initialState = {
+        medication: "",
+        time_taken: "",
+        comment: "",
+      };
+    } else if (formType === "symptoms") {
+      initialState = {
+        symptom: "",
+        time_taken: "",
+      };
+    }
+  } else if (metric) {
     initialState = {
       content: metric.content,
-      comment: metric.comment,
-      metric_type_id: metric.metric_type_id,
       time_taken: metric.time_taken,
-      user_id: metric.user_id,
-    };
-  } else {
-    initialState = {
-      content: "",
-      comment: "",
-      metric_type_id: "",
-      time_taken: "",
-      user_id: user.id,
+      comment: metric.comment ? metric.comment : "",
     };
   }
 
-  const handleChangeMetricType = (event, { value }) => {
-    setSelectedMetricType(metricTypes.find((metric) => metric.id === value));
-    formik.values.metric_type_id = value;
-  };
-
-  const today = moment();
-  const valid = function (current) {
-    return current.isBefore(today);
-  };
-
-  const validationSchema = yup.object().shape({
-    content: yup.string().required("Content is required"),
-    time_taken: yup.date().required("Time taken is required"),
-    metric_type_id: yup.string().required("Metric type is required."),
-  });
+  let validationSchema;
+  if (!metric) {
+    if (formType === "vitals") {
+      validationSchema = yup.object().shape({
+        BP: yup.string().matches(/\//, 'Field must contain "/" character'),
+        HR: yup.string(),
+        RR: yup.string(),
+        temp: yup.string(),
+        SPO2: yup.string(),
+        pain: yup.string(),
+        glucose: yup.string(),
+        time_taken: yup.date().required("Time taken is required"),
+        comment: yup.string(),
+      });
+    } else if (formType === "prescription") {
+      validationSchema = yup.object().shape({
+        medication: yup.string().required("Medication is required"),
+        time_taken: yup.date().required("Time taken is required"),
+        comment: yup.string(),
+      });
+    } else if (formType === "symptoms") {
+      validationSchema = yup.object().shape({
+        symptom: yup.string().required("Symptom is required"),
+        time_taken: yup.date().required("Time taken is required"),
+      });
+    }
+  } else {
+    if (metric.metric_type_id === 1) {
+      validationSchema = yup.object().shape({
+        content: yup.string().matches(/\//, 'Field must contain "/" character'),
+        time_taken: yup.date().required("Time taken is required"),
+        comment: yup.string(),
+      });
+    } else {
+      validationSchema = yup.object().shape({
+        content: yup.string().required("Content is required"),
+        time_taken: yup.date().required("Time taken is required"),
+        comment: yup.string(),
+      });
+    }
+  }
 
   const formik = useFormik({
     initialValues: initialState,
     validationSchema: validationSchema,
-    onSubmit: (values, { setSubmitting }) => {
+    onSubmit: async (values, { setSubmitting }) => {
       const formattedDateTime = moment(values.time_taken).format(
         "MM-DD-YYYY HH:mm"
       );
-      let postData;
-      if (selectedMetricType.id === 1) {
-        postData = {
-          ...values,
-          content: `${systolic}/${diastolic}`,
-          time_taken: formattedDateTime,
-        };
-      } else if (selectedMetricType.id === 6) {
-        postData = {
-          ...values,
-          content: medication,
-          time_taken: formattedDateTime,
-        };
-      } else {
-        postData = {
+      if (method === "PATCH") {
+        const patchData = {
           ...values,
           time_taken: formattedDateTime,
-          content: values.content.toString(),
         };
-      }
-      if (method === "POST") {
-        fetch("/health_metrics", {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify(postData),
-        })
-          .then((resp) => {
-            if (resp.ok) {
-              resp.json().then((data) => {
-                addMetric(data);
-                formik.resetForm();
-                hideForm(false);
-              });
-            } else {
-              resp.json().then((data) => {
-                formik.setErrors(data);
-              });
-            }
-          })
-          .finally(() => {
-            setSubmitting(false);
-          });
-      } else {
         fetch(`/health_metrics/${metric.id}`, {
           method: "PATCH",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify(postData),
+          body: JSON.stringify(patchData),
         })
           .then((resp) => {
             if (resp.ok) {
@@ -139,29 +129,104 @@ function HealthMetricForm({
             setSubmitting(false);
           });
       }
+      let postData;
+      let x = 1;
+      let metricsToAdd = [];
+      const fetchPromises = [];
+      if (formType === "vitals") {
+        for (const [key, value] of Object.entries(formik.values).slice(0, 7)) {
+          if (value) {
+            postData = {
+              content: value,
+              metric_type_id: x,
+              comment: formik.values.comment,
+              time_taken: formattedDateTime,
+              user_id: user.id,
+            };
+            fetchPromises.push(
+              fetch("/health_metrics", {
+                method: "POST",
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify(postData),
+              }).then((resp) => {
+                if (resp.ok) {
+                  return resp.json();
+                } else {
+                  resp.json().then((data) => {
+                    formik.setErrors(data);
+                  });
+                }
+              })
+            );
+          }
+          x++;
+        }
+        try {
+          const responses = await Promise.all(fetchPromises);
+          responses.forEach((data) => {
+            metricsToAdd.push(data);
+          });
+          addMetric(metricsToAdd);
+          formik.resetForm(initialState);
+          hideForm(false);
+        } catch (error) {
+          console.error(error);
+          toast.error("Error creating metrics.");
+        }
+        setSubmitting(false);
+      } else {
+        if (formType === "prescription") {
+          postData = {
+            content: formik.values.medication,
+            time_taken: formattedDateTime,
+            comment: formik.values.comment,
+            metric_type_id: 8,
+            user_id: user.id,
+          };
+        } else if (formType === "symptoms") {
+          console.log("SYMPTOM");
+          postData = {
+            content: formik.values.symptom,
+            time_taken: formattedDateTime,
+            metric_type_id: 9,
+            user_id: user.id,
+          };
+        }
+
+        fetch("/health_metrics", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(postData),
+        })
+          .then((resp) => {
+            if (resp.ok) {
+              resp.json().then((data) => {
+                addMetric([data]);
+                formik.resetForm();
+                hideForm(false);
+              });
+            } else {
+              resp.json().then((data) => {
+                formik.setErrors(data);
+              });
+            }
+          })
+          .finally(() => {
+            setSubmitting(false);
+          });
+      }
     },
   });
 
-  const metric_options = metricTypes
-    .filter((metric) => {
-      if (formType === "vitals") {
-        return metric.id <= 5;
-      } else if (formType === "prescription") {
-        return metric.id === 6;
-      } else {
-        return metric.id > 6;
-      }
-    })
-    .map((metric) => ({
-      key: metric.id,
-      text: metric.metric_type,
-      value: metric.id,
-    }));
+  const today = moment();
+  const valid = function (current) {
+    return current.isBefore(today);
+  };
 
   const medications = user.prescriptions.map(
     (prescription) => prescription.medication
   );
-  
+
   const medicationOptions = medications.map((med) => ({
     key: med.generic_name,
     text: med.generic_name,
@@ -169,109 +234,217 @@ function HealthMetricForm({
   }));
 
   return (
-      <Form onSubmit={formik.handleSubmit} style={{ marginTop: "2em" }}>
-        <Form.Group inline>
-          <Form.Select
-            label="Metric Type"
-            options={metric_options}
-            placeholder={
-              metric ? metric.metric_type.metric_type : "Select Metric Type"
-            }
-            onChange={handleChangeMetricType}
-          />
-          <span style={{ color: "red" }}>{formik.errors.metric_type_id}</span>
-          {selectedMetricType.id === 1 && (
-            <>
-              <Input
-                placeholder="SBP"
-                type="number"
-                min="0"
-                value={systolic}
-                onChange={(e) => setSystolic(e.target.value.toString())}
-                onBlur={formik.handleBlur}
-                name="systolic"
-                style={{ width: "5em" }}
-              />
-              <span>/</span>
-              <Input
-                placeholder={"DBP"}
-                type="number"
-                min="0"
-                value={diastolic}
-                onChange={(e) => {
-                  setDiastolic(e.target.value.toString());
-                  formik.values.content = `${systolic}/${diastolic}`;
-                }}
-                onBlur={formik.handleBlur}
-                name="diastolic"
-                style={{ width: "5em" }}
-              />
-              <span style={{ color: "red" }}>{formik.errors.content}</span>
-            </>
-          )}
-          {selectedMetricType.id === 6 && (
-            <>
-              <Form.Select
-                label="Medication"
-                options={medicationOptions}
-                placeholder="Select Medication"
-                value={medication}
-                onChange={(e, { value }) => {
-                  setMedication(value);
-                  formik.setFieldValue("content", value);
-                }}
-                onBlur={formik.handleBlur}
-                name="content"
-              />
-              <span style={{ color: "red" }}>{formik.errors.content}</span>
-            </>
-          )}
-          {selectedMetricType.id !== 1 && selectedMetricType.id !== 6 && (
+    <Form onSubmit={formik.handleSubmit} style={{ marginTop: "1em" }}>
+      <Form.Group widths="equal">
+        {formType === "vitals" && !metric && (
+          <>
             <Form.Field>
+              <label>Blood Pressure</label>
               <Input
-                type={selectedMetricType.id < 6 ? "number" : "text"}
-                min="0"
-                max={selectedMetricType.id === 4 ? "10" : null}
-                placeholder="Enter Value"
-                value={formik.values.content}
+                placeholder="SBP/DBP"
+                type="text"
+                value={formik.values.BP}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                name="content"
+                name="BP"
               />
-              <span style={{ color: "red" }}>{formik.errors.content}</span>
+              {formik.touched.BP && formik.errors.BP && (
+                <span style={{ color: "red" }}>{formik.errors.BP}</span>
+              )}
             </Form.Field>
-          )}
-        </Form.Group>
-        <Form.Field>
-          <Datetime
-            inputProps={{
-              placeholder: metric ? metric.time_taken : "Select Time",
-            }}
-            isValidDate={valid}
-            value={formik.values.taken_time}
-            onChange={(date) => formik.setFieldValue("time_taken", date)}
-            onBlur={formik.handleBlur}
-            dateFormat="MM-DD-YYYY"
-          />
-          <span style={{ color: "red" }}>{formik.errors.time_taken}</span>
-        </Form.Field>
-        <Form.Field>
-          <TextArea
-            label="comment"
-            placeholder="Enter Additional Comments"
-            value={formik.values.comment}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            name="comment"
-          />
-        </Form.Field>
-        {formik.errors && (
-          <span style={{ color: "red" }}>{formik.errors.error}</span>
+            <Form.Field>
+              <label>Heart Rate</label>
+              <Input
+                placeholder="HR"
+                type="number"
+                min="0"
+                max="200"
+                value={formik.values.HR}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                name="HR"
+              />
+            </Form.Field>
+            <Form.Field>
+              <label>Respiratory Rate</label>
+              <Input
+                placeholder="RR"
+                type="number"
+                min="0"
+                max="200"
+                value={formik.values.RR}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                name="RR"
+              />
+            </Form.Field>
+            <Form.Field>
+              <label>Blood Oxygen</label>
+              <Input
+                placeholder="SpO2"
+                type="number"
+                min="0"
+                max="100"
+                value={formik.values.SPO2}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                name="SPO2"
+              />
+            </Form.Field>
+            <Form.Field>
+              <label>Temperature</label>
+              <Input
+                placeholder="°F"
+                type="text"
+                value={formik.values.temp}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                name="temp"
+              />
+            </Form.Field>
+            <Form.Field>
+              <label>Pain Level</label>
+              <Input
+                placeholder="0 to 10"
+                type="number"
+                min="0"
+                max="10"
+                value={formik.values.pain}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                name="pain"
+              />
+            </Form.Field>
+            <Form.Field>
+              <label>Blood Glucose</label>
+              <Form.Input
+                placeholder="mg/dL"
+                type="number"
+                min="0"
+                value={formik.values.glucose}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                name="glucose"
+              />
+            </Form.Field>
+          </>
         )}
-        <Button type="submit">Submit</Button>
-        <Button onClick={() => hideForm(false)}>Cancel</Button>
-      </Form>
-
+        {formType === "prescription" && !metric && (
+          <Form.Field>
+            <label>Select Medication</label>
+            <Form.Select
+              options={medicationOptions}
+              placeholder="Select Medication"
+              value={formik.values.medication}
+              onChange={(e, { value }) => {
+                formik.setFieldValue("medication", value);
+              }}
+              name="medication"
+            />
+            {formik.touched.medication && formik.errors.medication && (
+              <span style={{ color: "red" }}>{formik.errors.medication}</span>
+            )}
+          </Form.Field>
+        )}
+        {formType === "symptoms" && !metric && (
+          <Form.Field>
+            <label>Other Symptoms</label>
+            <Form.TextArea
+              placeholder="lightheaded, fatigue, cough, etc."
+              type="number"
+              min="0"
+              value={formik.values.symptom}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              name="symptom"
+            />
+          </Form.Field>
+        )}
+        {metric && metric.metric_type_id <= 7 && (
+          <Form.Field>
+            <label>{metric.metric_type.metric_type}</label>
+            <Form.Input
+              type={
+                metric.metric_type_id !== 6 && metric.metric_type_id !== 1
+                  ? "number"
+                  : "text"
+              }
+              value={formik.values.content}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              name="content"
+            />
+          </Form.Field>
+        )}
+        {metric && metric.metric_type_id === 8 && (
+          <Form.Field>
+            <label>{metric.metric_type.metric_type}</label>
+            <Form.Select
+              options={medicationOptions}
+              placeholder="Select Medication"
+              value={formik.values.content}
+              onChange={(e, { value }) => {
+                formik.setFieldValue("content", value);
+              }}
+              name="content"
+            />
+          </Form.Field>
+        )}
+        {metric && metric.metric_type_id === 9 && (
+          <Form.Field>
+            <label>{metric.metric_type.metric_type}</label>
+            <Form.TextArea
+              placeholder="lightheaded, fatigue, cough, etc."
+              type="number"
+              min="0"
+              value={formik.values.content}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              name="content"
+            />
+          </Form.Field>
+        )}
+      </Form.Group>
+      <Form.Field>
+        <Datetime
+          inputProps={{
+            placeholder: metric ? metric.time_taken : "Select Date and Time",
+          }}
+          isValidDate={valid}
+          value={formik.values.taken_time}
+          onChange={(date) => formik.setFieldValue("time_taken", date)}
+          onBlur={formik.handleBlur}
+          dateFormat="MM-DD-YYYY"
+          name="time_taken"
+        />
+        {formik.touched.time_taken && formik.errors.time_taken && (
+          <span style={{ color: "red" }}>
+            Date and time are required. They must be in MM-DD-YYYY HH:MM AM/PM
+            format.
+          </span>
+        )}
+      </Form.Field>
+      {formType !== "symptoms" ||
+        (metric && metric.metric_type_id !== 9 && (
+          <Form.Field>
+            <Form.TextArea
+              label="comment"
+              placeholder="Enter Additional Comments"
+              value={formik.values.comment}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              name="comment"
+            />
+          </Form.Field>
+        ))}
+      {formik.errors && (
+        <span style={{ color: "red" }}>{formik.errors.error}</span>
+      )}
+      <Button type="submit">Submit</Button>
+      <Button type="button" onClick={() => hideForm(false)}>
+        Cancel
+      </Button>
+    </Form>
   );
 }
 
