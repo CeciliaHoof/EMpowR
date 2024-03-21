@@ -9,7 +9,7 @@ import symptom_icon from "../assets/symptom_icon.png";
 import HealthMetricForm from "./HealthMetricForm";
 
 function HealthMetric({ metric, handleDelete }) {
-  const { healthMetrics, setHealthMetrics } = useContext(HealthMetricsContext)
+  const { healthMetrics, setHealthMetrics } = useContext(HealthMetricsContext);
   const { comment, metric_type, time_taken, content } = metric;
   const [isEditing, setIsEditing] = useState(false);
 
@@ -17,10 +17,10 @@ function HealthMetric({ metric, handleDelete }) {
     toast.success("Metric Successfully Deleted.");
   }
 
-  function handleEdit(metric){
-    const updatedMetrics = healthMetrics.filter((hm) => hm.id != metric.id)
-    setHealthMetrics([...updatedMetrics, metric])
-    toast.success("Metric Successfully Updated.")
+  function handleEdit(metric) {
+    const updatedMetrics = healthMetrics.filter((hm) => hm.id != metric.id);
+    setHealthMetrics([...updatedMetrics, metric]);
+    toast.success("Metric Successfully Updated.");
   }
 
   function handleDelete(metric) {
@@ -62,7 +62,7 @@ function HealthMetric({ metric, handleDelete }) {
   return (
     <>
       <Feed.Event>
-        <Feed.Label>{metricImage}</Feed.Label>
+        <Feed.Label data-html2canvas-ignore="true">{metricImage}</Feed.Label>
         <Feed.Content>
           {!isEditing ? (
             <>
@@ -73,10 +73,10 @@ function HealthMetric({ metric, handleDelete }) {
                   : `${metric_type.metric_type}: ${content}`}
               </Feed.Summary>
               {comment && <Feed.Extra text>{comment}</Feed.Extra>}
-              <Feed.Meta>
+              <Feed.Meta data-html2canvas-ignore="true">
                 <Icon name="pencil" onClick={() => setIsEditing(true)} />
                 <Icon name="trash" onClick={handleClick} />
-              </Feed.Meta>{" "}
+              </Feed.Meta>
             </>
           ) : (
             <>
@@ -84,7 +84,8 @@ function HealthMetric({ metric, handleDelete }) {
                 hideForm={setIsEditing}
                 onEdit={handleEdit}
                 metric={metric}
-                method='PATCH'
+                method="PATCH"
+                data-html2canvas-ignore="true"
               />
             </>
           )}
