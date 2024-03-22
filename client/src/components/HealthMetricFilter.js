@@ -27,37 +27,38 @@ function HealthMetricFilter({ filterMetric, onMetricChange, filterDate, onDateCh
   prescriptionOptions.unshift({key: 'All', value: 'All', text: 'All'})
   
   return (
+    <>
+    <p style={{textAlign: "left", marginBottom: '0', marginLeft:'0.2rem', fontSize: '1rem'}}>Filter Health Metrics</p>
     <Form size='mini'>
       <Form.Group widths='equal'>
       <Form.Field>
-        <label>Select Metric Type</label>
       <Form.Select
+        placeholder="Select Metric Type"
         options={metricOptions}
         value={filterMetric}
-        onChange={(e, { value }) => onMetricChange(value)}
+        onChange={(e, { value }) => { onMetricChange(value); onPrescriptionChange('') }}
       />
       </Form.Field>
-      
       <Form.Field>
-        <label>Select Start Date</label>
         <Datetime
+          inputProps={{placeholder: 'Select Start Date'}}
           isValidDate={valid}
           timeFormat={false}
           value={filterDate}
           onChange={(e) => onDateChange(e)}
         />
       </Form.Field>
-      </Form.Group>
       {filterMetric === 'Medication Taken' && <Form.Field>
-        <label>Select Prescription</label>
         <Form.Select 
+          placeholder="Select Prescription"
           options={prescriptionOptions}
           value={filterPrescription}
           onChange={(e, { value }) => onPrescriptionChange(value)}
-
         />
       </Form.Field>}
+      </Form.Group>
     </Form>
+    </>
   );
 }
 

@@ -16,7 +16,7 @@ function HealthMetrics() {
   const [open, setOpen] = useState(false);
   const [formType, setFormType] = useState("");
   const [selectedMetricType, setSelectedMetricType] = useState("");
-  const [selectedPrescription, setSelectedPrescription] = useState("All")
+  const [selectedPrescription, setSelectedPrescription] = useState("")
   const [selectedDate, setSelectedDate] = useState('')
 
   function onAddMetric(metricsList) {
@@ -110,6 +110,6 @@ const FilterContainer = styled.div`
   text-align: center;
   height: 25%;
   background-color: #b6cbe0;
-  margin: 3rem 1rem 1rem 1rem;
-  padding: 2rem;
+  margin: 3rem 1rem 2rem 1rem;
+  padding: 2.5rem 0.5rem 1rem;
 `;
