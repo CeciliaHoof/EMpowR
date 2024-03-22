@@ -1,20 +1,24 @@
 import React, { useContext, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import styled from "styled-components";
-import NavMenu from "./NavMenu";
+import { ToastContainer } from "react-toastify";
+
 import Login from "../pages/Login";
 import Dashboard from "../pages/Dashboard";
 import ErrorPage from "../pages/ErrorPage";
 import Medications from "../pages/Medications";
 import Prescriptions from "../pages/Prescriptions";
+import HealthMetrics from "../pages/HealthMetrics";
+
+import NavMenu from "./NavMenu";
 import MedicationDetails from "./MedicationDetails";
 import PrescriptionDetails from "./PrescriptionDetails";
+
 import { UserContext } from "../context/user";
 import { HealthMetricsContext } from "../context/healthMetrics";
 import { PrescriptionsContext } from "../context/prescriptions";
 import { MedicationsContext } from "../context/medications";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+
 
 
 function App() {
@@ -48,7 +52,7 @@ function App() {
     <>
     <Container>
       <Sidebar>
-        <h1>HealthSync</h1>
+        <h1>EMpowR</h1>
         <h3>{`Welcome, ${user.first_name}`}</h3>
         <NavMenu />
       </Sidebar>
@@ -56,6 +60,7 @@ function App() {
         <Route path="/" element={<Dashboard />} />
         <Route path="/medications" element={<Medications />} />
         <Route path="/prescriptions" element={<Prescriptions />} />
+        <Route path="/health_metrics" element={<HealthMetrics />} />
         <Route path="/error" element={<ErrorPage />} />
         <Route path="/medications/:id" element={<MedicationDetails />} />
         <Route path="/prescriptions/:id" element={<PrescriptionDetails />} />
@@ -71,8 +76,8 @@ export default App;
 const Container = styled.div`
   height: 100vh;
   display: flex;
-  gap: 1vw;
-  margin-right: 1vw;
+  gap: 1rem;
+  margin-right: 1rem;
 `;
 
 const Sidebar = styled.div`

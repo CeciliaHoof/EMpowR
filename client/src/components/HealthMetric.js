@@ -8,7 +8,7 @@ import prescription_icon from "../assets/prescription_icon.png";
 import symptom_icon from "../assets/symptom_icon.png";
 import HealthMetricForm from "./HealthMetricForm";
 
-function HealthMetric({ metric, handleDelete }) {
+function HealthMetric({ metric }) {
   const { healthMetrics, setHealthMetrics } = useContext(HealthMetricsContext);
   const { comment, metric_type, time_taken, content } = metric;
   const [isEditing, setIsEditing] = useState(false);
@@ -18,7 +18,7 @@ function HealthMetric({ metric, handleDelete }) {
   }
 
   function handleEdit(metric) {
-    const updatedMetrics = healthMetrics.filter((hm) => hm.id != metric.id);
+    const updatedMetrics = healthMetrics.filter((hm) => hm.id !== metric.id);
     setHealthMetrics([...updatedMetrics, metric]);
     toast.success("Metric Successfully Updated.");
   }
@@ -46,13 +46,13 @@ function HealthMetric({ metric, handleDelete }) {
   }
   const moment = require("moment");
   const formattedDate = moment(time_taken).format("MM-DD-YYYY hh:mm A");
-
+  
   let metricImage;
-  if (metric_type.id <= 7) {
+  if (metric_type.id <= 8) {
     metricImage = (
       <Image src={health_metric_icon} alt="health_metric_icon" wrapped />
     );
-  } else if (metric_type.id === 8) {
+  } else if (metric_type.id === 9) {
     metricImage = (
       <Image src={prescription_icon} alt="prescription_icon" wrapped />
     );

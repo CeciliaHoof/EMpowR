@@ -1,7 +1,11 @@
 import React from "react";
 import { BrowserRouter as Router } from "react-router-dom";
 import "semantic-ui-css/semantic.min.css";
+import "react-datepicker/dist/react-datepicker.css";
+import "react-toastify/dist/ReactToastify.css";
+import "react-datetime/css/react-datetime.css";
 import { createRoot } from "react-dom/client";
+
 
 import App from "./components/App";
 import { UserProvider } from "./context/user";
