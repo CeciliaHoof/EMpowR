@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useRef } from "react";
 import { Segment, Feed, Button } from "semantic-ui-react";
 import HealthMetric from "./HealthMetric";
 import html2canvas from "html2canvas";
@@ -7,9 +7,15 @@ import PDFDisplay from "./PDFDisplay";
 import { HealthMetricsContext } from "../context/healthMetrics";
 import { UserContext } from "../context/user";
 
-function HealthMetricContainer({ script }) {
-  const { user } = useContext(UserContext)
+function HealthMetricContainer({
+  script,
+  filterMetricType,
+  filterDate,
+  filterPrescription,
+}) {
+  const { user } = useContext(UserContext);
   const { healthMetrics } = useContext(HealthMetricsContext);
+  const pdfRef = useRef(null)
 
   const metricsDisplay = healthMetrics
     .filter((metric) => {
@@ -19,6 +25,18 @@ function HealthMetricContainer({ script }) {
         return metric;
       }
     })
+    .filter((metric) => {
+      if (filterMetricType === "All") {
+        return metric;
+      } else if (filterMetricType === "Medication Taken") {
+        return filterPrescription === "All"
+          ? metric.metric_type.metric_type.includes("Medication Taken")
+          : metric.content.includes(filterPrescription);
+      } else {
+        return metric.metric_type.metric_type.includes(filterMetricType);
+      }
+    })
+    .filter((metric) => !filterDate ? metric : new Date(metric.time_taken) >= filterDate)
     .sort((metricA, metricB) => {
       const timeA = new Date(metricA.time_taken);
       const timeB = new Date(metricB.time_taken);
@@ -27,7 +45,7 @@ function HealthMetricContainer({ script }) {
     });
 
   function downloadPDF() {
-    const input = document.getElementById("pdf-content");
+    const input = pdfRef.current;
     html2canvas(input, {
       onclone: function (clonedDoc) {
         clonedDoc.getElementById("pdf-content").style.display = "block";
@@ -83,7 +101,7 @@ function HealthMetricContainer({ script }) {
         );
       }
 
-      pdf.save('health_metrics.pdf');
+      pdf.save("health_metrics.pdf");
     });
   }
   return (
@@ -95,13 +113,17 @@ function HealthMetricContainer({ script }) {
           ))}
         </Feed>
       </Segment>
-      <div id="pdf-content" style={{ display: "none" }}>
-      <h2>{user.first_name} {user.last_name}'s Health Metrics</h2>
+      <div ref={pdfRef} id='pdf-content' style={{ display: "none" }}>
+        <h2>
+          {user.first_name} {user.last_name}'s Health Metrics
+        </h2>
         {metricsDisplay.map((metric) => (
           <PDFDisplay metric={metric} key={metric.id} />
         ))}
       </div>
-      <Button onClick={downloadPDF}>Download PDF of Health Metrics</Button>
+      <div style={{textAlign: 'center', marginBottom: '1rem'}}>
+      <Button onClick={downloadPDF} size="small">Download PDF of Currently Displayed Health Metrics</Button>
+      </div>
     </>
   );
 }

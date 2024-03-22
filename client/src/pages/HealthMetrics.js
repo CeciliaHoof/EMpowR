@@ -1,7 +1,7 @@
 import { useContext, useState } from "react";
 import styled from "styled-components";
 import { Image, Popup } from "semantic-ui-react";
-import { toast } from 'react-toastify'
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import HealthMetricContainer from "../components/HealthMetricContainer";
 import HealthMetricForm from "../components/HealthMetricForm";
@@ -12,25 +12,36 @@ import symptom_icon from "../assets/symptom_icon.png";
 import { HealthMetricsContext } from "../context/healthMetrics";
 
 function HealthMetrics() {
-    const { healthMetrics, setHealthMetrics } = useContext(HealthMetricsContext);
-    const [open, setOpen] = useState(false);
-    const [formType, setFormType] = useState("");
-    const [filterBy, setFilterBy] = useState('All')
+  const { healthMetrics, setHealthMetrics } = useContext(HealthMetricsContext);
+  const [open, setOpen] = useState(false);
+  const [formType, setFormType] = useState("");
+  const [selectedMetricType, setSelectedMetricType] = useState("");
+  const [selectedPrescription, setSelectedPrescription] = useState("All")
+  const [selectedDate, setSelectedDate] = useState('')
 
-    function onAddMetric(metricsList) {
-        setHealthMetrics([...healthMetrics, ...metricsList]);
-        metricsList.forEach(metric => toast.success("Metric Successfully Created."));
-      }
-    
-      function handleClick(string) {
-        setOpen(true);
-        setFormType(string);
-      }
+  function onAddMetric(metricsList) {
+    setHealthMetrics([...healthMetrics, ...metricsList]);
+    metricsList.forEach((metric) =>
+      toast.success("Metric Successfully Created.")
+    );
+  }
 
-    return (
+  function handleClick(string) {
+    setOpen(true);
+    setFormType(string);
+  }
+
+  return (
     <MainContainer>
       <FilterContainer>
-        <HealthMetricFilter filterMetric={filterBy} onChangeFilter={setFilterBy}/>
+        <HealthMetricFilter
+          filterMetric={selectedMetricType}
+          onMetricChange={setSelectedMetricType}
+          filterDate={selectedDate}
+          onDateChange={setSelectedDate}
+          filterPrescription={selectedPrescription}
+          onPrescriptionChange={setSelectedPrescription}
+        />
       </FilterContainer>
       <IconContainer>
         <Popup
@@ -78,12 +89,12 @@ function HealthMetrics() {
           formType={formType}
         />
       )}
-      <HealthMetricContainer />
+      <HealthMetricContainer filterMetricType={selectedMetricType} filterDate={selectedDate} filterPrescription={selectedPrescription}/>
     </MainContainer>
   );
 }
 
-export default HealthMetrics
+export default HealthMetrics;
 
 const MainContainer = styled.div`
   display: flex;
