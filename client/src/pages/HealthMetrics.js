@@ -5,6 +5,7 @@ import { toast } from 'react-toastify'
 import "react-toastify/dist/ReactToastify.css";
 import HealthMetricContainer from "../components/HealthMetricContainer";
 import HealthMetricForm from "../components/HealthMetricForm";
+import HealthMetricFilter from "../components/HealthMetricFilter";
 import health_metric_icon from "../assets/health_metric_icon.png";
 import prescription_icon from "../assets/prescription_icon.png";
 import symptom_icon from "../assets/symptom_icon.png";
@@ -14,6 +15,7 @@ function HealthMetrics() {
     const { healthMetrics, setHealthMetrics } = useContext(HealthMetricsContext);
     const [open, setOpen] = useState(false);
     const [formType, setFormType] = useState("");
+    const [filterBy, setFilterBy] = useState('All')
 
     function onAddMetric(metricsList) {
         setHealthMetrics([...healthMetrics, ...metricsList]);
@@ -27,6 +29,9 @@ function HealthMetrics() {
 
     return (
     <MainContainer>
+      <FilterContainer>
+        <HealthMetricFilter filterMetric={filterBy} onChangeFilter={setFilterBy}/>
+      </FilterContainer>
       <IconContainer>
         <Popup
           size="tiny"
@@ -89,4 +94,11 @@ const IconContainer = styled.div`
   width: 100%;
   margin-top: 1rem;
   margin-bottom: -1rem;
+`;
+const FilterContainer = styled.div`
+  text-align: center;
+  height: 25%;
+  background-color: #b6cbe0;
+  margin: 3rem 1rem 1rem 1rem;
+  padding: 2rem;
 `;

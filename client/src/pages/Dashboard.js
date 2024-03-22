@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { Card } from "semantic-ui-react";
 
 import Snapshot from "../components/Snapshot";
-import MetricChart from "../components/MetricChart";
+import HealthMetricChart from "../components/HealthMetricChart";
 
 import { HealthMetricsContext } from "../context/healthMetrics";
 import { PrescriptionsContext } from "../context/prescriptions";
@@ -34,7 +34,7 @@ function Dashboard() {
           <Snapshot num={numMetrics} type={"Health Metrics"} />
         </Card.Group>
       </SnapshotContainer>
-      <MetricChart />
+      <HealthMetricChart />
     </MainContainer>
   );
 }
@@ -51,6 +51,6 @@ const SnapshotContainer = styled.div`
   justify-content: center;
   background-color: #b6cbe0;
   margin: 3rem 1rem 2rem 1rem;
-  padding: 2rem 0.5rem 1rem;
+  padding: 1rem;
 `;
 

@@ -88,12 +88,16 @@ function MetricChart() {
       filteredMetrics = [...sortedMetrics];
   }
 
+  let startDate;
+  let endDate;
   let allDates = [];
-  const startDate = moment(filteredMetrics[0].time_taken);
-  const endDate = moment(
-    filteredMetrics[filteredMetrics.length - 1].time_taken
-  );
-
+  if (filteredMetrics.length === 0) {
+    startDate = today.getTime() - 1 * 24 + 60 * 60 * 1000;
+    endDate = today;
+  } else {
+    startDate = moment(filteredMetrics[0].time_taken);
+    endDate = moment(filteredMetrics[filteredMetrics.length - 1].time_taken);
+  }
   if (display !== "day") {
     while (startDate <= endDate) {
       allDates.push(formatDate(startDate, "MM-DD-YYYY"));
@@ -112,12 +116,13 @@ function MetricChart() {
     datasets: [],
   };
 
-  const bpMetrics = healthMetrics.filter(
+  const bpMetrics = filteredMetrics.filter(
     (metric) => metric.metric_type_id === 1
   );
+
   if (bpMetrics.length > 0) {
-    const sbpData = [];
-    const dbpData = [];
+    let sbpData = [];
+    let dbpData = [];
     let addedDates = {};
     bpMetrics.forEach((metric) => {
       let formattedDate;
@@ -249,6 +254,7 @@ function MetricChart() {
           />
         </Form.Group>
       </Form>
+      {healthMetrics.length === 0 && <p>Once you have Health Metrics logged in our system, come back here to view a graph of your Health Metric data.</p>}
       <ChartWrapper>
         <Line data={data} options={options}></Line>
       </ChartWrapper>
