@@ -36,47 +36,40 @@ function HealthMetricContainer({ script }) {
       const image = { type: "jpeg", quality: 0.98 };
       const margin = [0.5, 0.5];
 
-      var imgWidth = 8.5;
-      var pageHeight = 11;
+      const imgWidth = 8.5;
+      let pageHeight = 11;
 
-      var innerPageWidth = imgWidth - margin[0] * 2;
-      var innerPageHeight = pageHeight - margin[1] * 2;
+      const innerPageWidth = imgWidth - margin[0] * 2;
+      const innerPageHeight = pageHeight - margin[1] * 2;
 
-      // Calculate the number of pages.
-      var pxFullHeight = canvas.height;
-      var pxPageHeight = Math.floor(canvas.width * (pageHeight / imgWidth));
-      var nPages = Math.ceil(pxFullHeight / pxPageHeight);
+      const pxFullHeight = canvas.height;
+      const pxPageHeight = Math.floor(canvas.width * (pageHeight / imgWidth));
+      const nPages = Math.ceil(pxFullHeight / pxPageHeight);
 
-      // Define pageHeight separately so it can be trimmed on the final page.
-      var pageHeight = innerPageHeight;
+      pageHeight = innerPageHeight;
 
-      // Create a one-page canvas to split up the full image.
-      var pageCanvas = document.createElement("canvas");
-      var pageCtx = pageCanvas.getContext("2d");
+      const pageCanvas = document.createElement("canvas");
+      const pageCtx = pageCanvas.getContext("2d");
       pageCanvas.width = canvas.width;
       pageCanvas.height = pxPageHeight;
 
-      // Initialize the PDF.
-      var pdf = new jsPDF("p", "in", [8.5, 11]);
+      const pdf = new jsPDF("p", "in", [8.5, 11]);
 
-      for (var page = 0; page < nPages; page++) {
-        // Trim the final page to reduce file size.
+      for (let page = 0; page < nPages; page++) {
         if (page === nPages - 1 && pxFullHeight % pxPageHeight !== 0) {
           pageCanvas.height = pxFullHeight % pxPageHeight;
           pageHeight = (pageCanvas.height * innerPageWidth) / pageCanvas.width;
         }
 
-        // Display the page.
-        var w = pageCanvas.width;
-        var h = pageCanvas.height;
+        const w = pageCanvas.width;
+        const h = pageCanvas.height;
         pageCtx.fillStyle = "white";
         pageCtx.fillRect(0, 0, w, h);
         pageCtx.drawImage(canvas, 0, page * pxPageHeight, w, h, 0, 0, w, h);
 
-        // Add the page to the PDF.
         if (page > 0) pdf.addPage();
         debugger;
-        var imgData = pageCanvas.toDataURL(
+        const imgData = pageCanvas.toDataURL(
           "image/" + image.type,
           image.quality
         );

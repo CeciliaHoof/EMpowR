@@ -17,8 +17,11 @@ function NavMenu(){
             <Menu.Item as={NavLink} to='/'>
                 Dashboard
             </Menu.Item>
+            <Menu.Item as={NavLink} to='/health_metrics'>
+                Health Metrics
+            </Menu.Item>
             <Menu.Item as={NavLink} to='/prescriptions'>
-                Your Prescriptions
+                Prescriptions
             </Menu.Item>
             <Menu.Item as={NavLink} to='/medications'>
                 Medication Search

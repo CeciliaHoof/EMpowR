@@ -1,9 +1,8 @@
-import { useState, useContext } from "react";
-import { Form, Input, TextArea, Button } from "semantic-ui-react";
+import { useContext } from "react";
+import { Form, Input, Button } from "semantic-ui-react";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import Datetime from "react-datetime";
-import "react-datetime/css/react-datetime.css";
 import moment from "moment";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -30,6 +29,7 @@ function HealthMetricForm({
         pain: "",
         temp: "",
         glucose: "",
+        weight: "",
         time_taken: "",
         comment: "",
       };
@@ -128,92 +128,96 @@ function HealthMetricForm({
           .finally(() => {
             setSubmitting(false);
           });
-      }
-      let postData;
-      let x = 1;
-      let metricsToAdd = [];
-      const fetchPromises = [];
-      if (formType === "vitals") {
-        for (const [key, value] of Object.entries(formik.values).slice(0, 7)) {
-          if (value) {
+      } else {
+        let postData;
+        let x = 1;
+        let metricsToAdd = [];
+        const fetchPromises = [];
+        if (formType === "vitals") {
+          for (const [key, value] of Object.entries(formik.values).slice(
+            0,
+            8
+          )) {
+            if (value) {
+              postData = {
+                content: value,
+                metric_type_id: x,
+                comment: formik.values.comment,
+                time_taken: formattedDateTime,
+                user_id: user.id,
+              };
+              fetchPromises.push(
+                fetch("/health_metrics", {
+                  method: "POST",
+                  headers: { "content-type": "application/json" },
+                  body: JSON.stringify(postData),
+                }).then((resp) => {
+                  if (resp.ok) {
+                    return resp.json();
+                  } else {
+                    resp.json().then((data) => {
+                      formik.setErrors(data);
+                    });
+                  }
+                })
+              );
+            }
+            x++;
+          }
+          try {
+            const responses = await Promise.all(fetchPromises);
+            responses.forEach((data) => {
+              metricsToAdd.push(data);
+            });
+            addMetric(metricsToAdd);
+            formik.resetForm(initialState);
+            hideForm(false);
+          } catch (error) {
+            console.error(error);
+            toast.error("Error creating metrics.");
+          }
+          setSubmitting(false);
+        } else {
+          if (formType === "prescription") {
             postData = {
-              content: value,
-              metric_type_id: x,
-              comment: formik.values.comment,
+              content: formik.values.medication,
               time_taken: formattedDateTime,
+              comment: formik.values.comment,
+              metric_type_id: 9,
               user_id: user.id,
             };
-            fetchPromises.push(
-              fetch("/health_metrics", {
-                method: "POST",
-                headers: { "content-type": "application/json" },
-                body: JSON.stringify(postData),
-              }).then((resp) => {
-                if (resp.ok) {
-                  return resp.json();
-                } else {
-                  resp.json().then((data) => {
-                    formik.setErrors(data);
-                  });
-                }
-              })
-            );
+          } else if (formType === "symptoms") {
+            console.log("SYMPTOM");
+            postData = {
+              content: formik.values.symptom,
+              time_taken: formattedDateTime,
+              metric_type_id: 10,
+              user_id: user.id,
+            };
           }
-          x++;
-        }
-        try {
-          const responses = await Promise.all(fetchPromises);
-          responses.forEach((data) => {
-            metricsToAdd.push(data);
-          });
-          addMetric(metricsToAdd);
-          formik.resetForm(initialState);
-          hideForm(false);
-        } catch (error) {
-          console.error(error);
-          toast.error("Error creating metrics.");
-        }
-        setSubmitting(false);
-      } else {
-        if (formType === "prescription") {
-          postData = {
-            content: formik.values.medication,
-            time_taken: formattedDateTime,
-            comment: formik.values.comment,
-            metric_type_id: 8,
-            user_id: user.id,
-          };
-        } else if (formType === "symptoms") {
-          console.log("SYMPTOM");
-          postData = {
-            content: formik.values.symptom,
-            time_taken: formattedDateTime,
-            metric_type_id: 9,
-            user_id: user.id,
-          };
-        }
 
-        fetch("/health_metrics", {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify(postData),
-        })
-          .then((resp) => {
-            if (resp.ok) {
-              resp.json().then((data) => {
-                addMetric([data]);
-                formik.resetForm();
-                hideForm(false);
-              });
-            } else {
-              resp.json().then((data) => {
-                formik.setErrors(data);
-              });
-            }
+          fetch("/health_metrics", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify(postData),
           })
-          .finally(() => {
-            setSubmitting(false);
-          });
+            .then((resp) => {
+              if (resp.ok) {
+                resp.json().then((data) => {
+                  addMetric([data]);
+                  formik.resetForm();
+                  hideForm(false);
+                });
+              } else {
+                resp.json().then((data) => {
+                  formik.setErrors(data);
+                });
+              }
+            })
+            .finally(() => {
+              setSubmitting(false);
+            });
+        }
       }
     },
   });
@@ -232,12 +236,12 @@ function HealthMetricForm({
     text: med.generic_name,
     value: med.generic_name,
   }));
-
+  
   return (
     <Form onSubmit={formik.handleSubmit} style={{ marginTop: "1em" }}>
-      <Form.Group widths="equal">
-        {formType === "vitals" && !metric && (
-          <>
+      {formType === "vitals" && !metric && (
+        <>
+          <Form.Group widths="equal">
             <Form.Field>
               <label>Blood Pressure</label>
               <Input
@@ -302,6 +306,8 @@ function HealthMetricForm({
                 name="temp"
               />
             </Form.Field>
+          </Form.Group>
+          <Form.Group widths="equal">
             <Form.Field>
               <label>Pain Level</label>
               <Input
@@ -327,84 +333,96 @@ function HealthMetricForm({
                 name="glucose"
               />
             </Form.Field>
-          </>
-        )}
-        {formType === "prescription" && !metric && (
-          <Form.Field>
-            <label>Select Medication</label>
-            <Form.Select
-              options={medicationOptions}
-              placeholder="Select Medication"
-              value={formik.values.medication}
-              onChange={(e, { value }) => {
-                formik.setFieldValue("medication", value);
-              }}
-              name="medication"
-            />
-            {formik.touched.medication && formik.errors.medication && (
-              <span style={{ color: "red" }}>{formik.errors.medication}</span>
-            )}
-          </Form.Field>
-        )}
-        {formType === "symptoms" && !metric && (
-          <Form.Field>
-            <label>Other Symptoms</label>
-            <Form.TextArea
-              placeholder="lightheaded, fatigue, cough, etc."
-              type="number"
-              min="0"
-              value={formik.values.symptom}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              name="symptom"
-            />
-          </Form.Field>
-        )}
-        {metric && metric.metric_type_id <= 7 && (
-          <Form.Field>
-            <label>{metric.metric_type.metric_type}</label>
-            <Form.Input
-              type={
-                metric.metric_type_id !== 6 && metric.metric_type_id !== 1
-                  ? "number"
-                  : "text"
-              }
-              value={formik.values.content}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              name="content"
-            />
-          </Form.Field>
-        )}
-        {metric && metric.metric_type_id === 8 && (
-          <Form.Field>
-            <label>{metric.metric_type.metric_type}</label>
-            <Form.Select
-              options={medicationOptions}
-              placeholder="Select Medication"
-              value={formik.values.content}
-              onChange={(e, { value }) => {
-                formik.setFieldValue("content", value);
-              }}
-              name="content"
-            />
-          </Form.Field>
-        )}
-        {metric && metric.metric_type_id === 9 && (
-          <Form.Field>
-            <label>{metric.metric_type.metric_type}</label>
-            <Form.TextArea
-              placeholder="lightheaded, fatigue, cough, etc."
-              type="number"
-              min="0"
-              value={formik.values.content}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              name="content"
-            />
-          </Form.Field>
-        )}
-      </Form.Group>
+            <Form.Field>
+              <label>Weight</label>
+              <Form.Input
+                placeholder="lbs"
+                type="number"
+                min="0"
+                value={formik.values.weight}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                name="weight"
+              />
+            </Form.Field>
+          </Form.Group>
+        </>
+      )}
+      {formType === "prescription" && !metric && (
+        <Form.Field>
+          <label>Select Medication</label>
+          <Form.Select
+            options={medicationOptions}
+            placeholder="Select Medication"
+            value={formik.values.medication}
+            onChange={(e, { value }) => {
+              formik.setFieldValue("medication", value);
+            }}
+            name="medication"
+          />
+          {formik.touched.medication && formik.errors.medication && (
+            <span style={{ color: "red" }}>{formik.errors.medication}</span>
+          )}
+        </Form.Field>
+      )}
+      {formType === "symptoms" && !metric && (
+        <Form.Field>
+          <label>Other Symptoms</label>
+          <Form.TextArea
+            placeholder="lightheaded, fatigue, cough, etc."
+            type="number"
+            min="0"
+            value={formik.values.symptom}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            name="symptom"
+          />
+        </Form.Field>
+      )}
+      {metric && metric.metric_type_id <= 8 && (
+        <Form.Field>
+          <label>{metric.metric_type.metric_type}</label>
+          <Form.Input
+            type={
+              metric.metric_type_id !== 6 && metric.metric_type_id !== 1
+                ? "number"
+                : "text"
+            }
+            value={formik.values.content}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            name="content"
+          />
+        </Form.Field>
+      )}
+      {metric && metric.metric_type_id === 9 && (
+        <Form.Field>
+          <label>{metric.metric_type.metric_type}</label>
+          <Form.Select
+            options={medicationOptions}
+            placeholder="Select Medication"
+            value={formik.values.content}
+            onChange={(e, { value }) => {
+              formik.setFieldValue("content", value);
+            }}
+            name="content"
+          />
+        </Form.Field>
+      )}
+      {metric && metric.metric_type_id === 10 && (
+        <Form.Field>
+          <label>{metric.metric_type.metric_type}</label>
+          <Form.TextArea
+            placeholder="lightheaded, fatigue, cough, etc."
+            type="number"
+            min="0"
+            value={formik.values.content}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            name="content"
+          />
+        </Form.Field>
+      )}
       <Form.Field>
         <Datetime
           inputProps={{
@@ -424,19 +442,19 @@ function HealthMetricForm({
           </span>
         )}
       </Form.Field>
-      {formType !== "symptoms" ||
-        (metric && metric.metric_type_id !== 9 && (
-          <Form.Field>
-            <Form.TextArea
-              label="comment"
-              placeholder="Enter Additional Comments"
-              value={formik.values.comment}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              name="comment"
-            />
-          </Form.Field>
-        ))}
+      {((formType && formType !== "symptoms" ) ||
+        (metric && metric.metric_type_id < 10)) && (
+        <Form.Field>
+          <Form.TextArea
+            label="Comment"
+            placeholder="Enter Additional Details. Did you have to take a different dose of your medication? Did you do anything in response to a certain vital sign?"
+            value={formik.values.comment}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            name="comment"
+          />
+        </Form.Field>
+      )}
       {formik.errors && (
         <span style={{ color: "red" }}>{formik.errors.error}</span>
       )}

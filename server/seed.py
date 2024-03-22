@@ -38,7 +38,10 @@ if __name__ == '__main__':
 
         BG = MetricType(metric_type = 'Blood Glucose', green_params = 80, yellow_params = 100, red_params = 150, units='mg/dL')
         metric_types.append(BG)
-        
+
+        WEIGHT = MetricType(metric_type = 'Weight', units = 'lbs')
+        metric_types.append(WEIGHT)
+
         MED = MetricType(metric_type = 'Medication Taken')
         metric_types.append(MED)
 

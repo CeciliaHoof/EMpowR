@@ -1,12 +1,20 @@
 import prescription_icon from "../assets/prescription_icon.png";
 import health_metric_icon from "../assets/health_metric_icon.png"
-import { Button, Card, Image } from "semantic-ui-react";
+import { Card, Image } from "semantic-ui-react";
+import { useNavigate } from "react-router-dom";
 
 function Snapshot({ num, type }) {
+  const navigate = useNavigate()
+
+  function handleClick(){
+    type === 'Prescriptions'
+      ? navigate(`/prescriptions`)
+      : navigate(`/health_metrics`);
+  }
   return (
     <Card>
       <Card.Content>
-        {type === "prescriptions" ?
+        {type === "Prescriptions" ?
         <Image
             floated="left"
             src = {prescription_icon}
@@ -17,11 +25,11 @@ function Snapshot({ num, type }) {
         />
         }
         <Card.Header>
-        {`You have ${num} ${type} saved!`}
+        {`You have ${num} ${type.toLowerCase()} saved!`}
         </Card.Header>
         </Card.Content>
         <Card.Content extra style={{textAlign: 'center'}}>
-            <Button>{`View ${type}`}</Button>
+            <span onClick={handleClick}>{`View ${type}`}</span>
         </Card.Content>
       
     </Card>
