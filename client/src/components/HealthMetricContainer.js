@@ -1,5 +1,6 @@
 import { useContext, useRef } from "react";
-import { Segment, Feed, Button } from "semantic-ui-react";
+import { Container, Button } from "@mui/material"
+import { useTheme } from "@mui/material/styles";
 import HealthMetric from "./HealthMetric";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
@@ -16,6 +17,7 @@ function HealthMetricContainer({
   const { user } = useContext(UserContext);
   const { healthMetrics } = useContext(HealthMetricsContext);
   const pdfRef = useRef(null);
+  const theme = useTheme();
 
   const metricsDisplay = healthMetrics
     .filter((metric) => {
@@ -128,13 +130,11 @@ function HealthMetricContainer({
   }
   return (
     <>
-      <Segment style={{ height: "100%", overflowY: "auto" }}>
-        <Feed>
+      <Container sx={{height: "35rem", width: "100%", overflowY: "auto", margin: "1rem 1rem"}}>
           {metricsDisplay.map((metric) => (
             <HealthMetric metric={metric} key={metric.id} />
           ))}
-        </Feed>
-      </Segment>
+      </Container>
       <div ref={pdfRef} id="pdf-content" style={{ display: "none" }}>
         <h2 style={{ marginBottom: "2px" }}>
           {user.first_name} {user.last_name}'s Health Metrics
@@ -146,7 +146,8 @@ function HealthMetricContainer({
       </div>
       {!script && (
         <div style={{ textAlign: "center", marginBottom: "1rem" }}>
-          <Button onClick={downloadPDF} size="small">
+          <Button onClick={downloadPDF} size="small" variant="contained"
+            sx={{ backgroundColor: theme.palette.primary.dark}}>
             Download PDF of Currently Displayed Health Metrics
           </Button>
         </div>

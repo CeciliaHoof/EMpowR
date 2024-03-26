@@ -1,14 +1,15 @@
-import { useContext, useState } from "react";
-import styled from "styled-components";
-import { Image, Popup } from "semantic-ui-react";
+import { useContext, useState, useEffect } from "react";
+import { Container, IconButton, Tooltip } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import moment from "moment";
 import HealthMetricContainer from "../components/HealthMetricContainer";
 import HealthMetricForm from "../components/HealthMetricForm";
 import HealthMetricFilter from "../components/HealthMetricFilter";
-import health_metric_icon from "../assets/health_metric_icon.png";
-import prescription_icon from "../assets/prescription_icon.png";
-import symptom_icon from "../assets/symptom_icon.png";
+import LocalPharmacyIcon from "@mui/icons-material/LocalPharmacy";
+import MonitorHeartIcon from "@mui/icons-material/MonitorHeart";
+import HealingIcon from '@mui/icons-material/Healing';
 import { HealthMetricsContext } from "../context/healthMetrics";
 
 function HealthMetrics() {
@@ -16,8 +17,18 @@ function HealthMetrics() {
   const [open, setOpen] = useState(false);
   const [formType, setFormType] = useState("");
   const [selectedMetricType, setSelectedMetricType] = useState("");
-  const [selectedPrescription, setSelectedPrescription] = useState("")
-  const [selectedDate, setSelectedDate] = useState('')
+  const [selectedPrescription, setSelectedPrescription] = useState("");
+  const [selectedDate, setSelectedDate] = useState(moment());
+
+  const theme = useTheme();
+
+  useEffect(() => {
+    if (healthMetrics.length > 0) {
+      setSelectedDate(moment(healthMetrics[0].time_taken));
+    } else {
+      setSelectedDate(moment());
+    }
+  }, [healthMetrics]);
 
   function onAddMetric(metricsList) {
     setHealthMetrics([...healthMetrics, ...metricsList]);
@@ -32,8 +43,15 @@ function HealthMetrics() {
   }
 
   return (
-    <MainContainer>
-      <FilterContainer>
+    <Container sx={{ display: "flex", flexDirection: "column", width: "100%" }}>
+      <Container
+        sx={{
+          textAlign: "center",
+          backgroundColor: theme.palette.primary.light,
+          padding: "1rem 0.5rem 2rem",
+          width: "80%",
+        }}
+      >
         <HealthMetricFilter
           filterMetric={selectedMetricType}
           onMetricChange={setSelectedMetricType}
@@ -42,45 +60,35 @@ function HealthMetrics() {
           filterPrescription={selectedPrescription}
           onPrescriptionChange={setSelectedPrescription}
         />
-      </FilterContainer>
-      <IconContainer>
-        <Popup
-          size="tiny"
-          content="Record Other Symptoms"
-          trigger={
-            <Image
-              floated="right"
-              src={symptom_icon}
-              alt="symptom_icon"
-              onClick={() => handleClick("symptoms")}
-            />
-          }
-        />
-        <Popup
-          size="tiny"
-          content="Record taking a Prescription"
-          trigger={
-            <Image
-              floated="right"
-              src={prescription_icon}
-              alt="prescription_icon"
-              onClick={() => handleClick("prescription")}
-            />
-          }
-        />
-        <Popup
-          size="tiny"
-          content="Record Vital Signs, Pain Level, Blood Glucose and Weight"
-          trigger={
-            <Image
-              floated="right"
-              src={health_metric_icon}
-              alt="health_metric_icon"
-              onClick={() => handleClick("vitals")}
-            />
-          }
-        />
-      </IconContainer>
+      </Container>
+      <Container
+        sx={{ width: "100%", margin: "1rem -2rem -1.4rem 2rem"}}
+      >
+        <Tooltip title="Record Other Symptoms">
+          <IconButton
+            onClick={() => handleClick("symptoms")}
+            sx={{ float: "right" }}
+          >
+            <HealingIcon fontSize="large" sx={{color: theme.palette.primary.light}}/>
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Record taking a Prescription">
+          <IconButton
+            onClick={() => handleClick("prescription")}
+            sx={{ float: "right" }}
+          >
+            <LocalPharmacyIcon fontSize="large" sx={{color: theme.palette.primary.main}}/>
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Record Vital Signs, Pain Level, Blood Glucose and Weight">
+          <IconButton
+            onClick={() => handleClick("vitals")}
+            sx={{ float: "right" }}
+          >
+            <MonitorHeartIcon fontSize="large" sx={{color: theme.palette.primary.dark}}/>
+          </IconButton>
+        </Tooltip>
+      </Container>
       {open && (
         <HealthMetricForm
           hideForm={setOpen}
@@ -89,27 +97,13 @@ function HealthMetrics() {
           formType={formType}
         />
       )}
-      <HealthMetricContainer filterMetricType={selectedMetricType} filterDate={selectedDate} filterPrescription={selectedPrescription}/>
-    </MainContainer>
+      <HealthMetricContainer
+        filterMetricType={selectedMetricType}
+        filterDate={selectedDate}
+        filterPrescription={selectedPrescription}
+      />
+    </Container>
   );
 }
 
 export default HealthMetrics;
-
-const MainContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-`;
-const IconContainer = styled.div`
-  width: 100%;
-  margin-top: 1rem;
-  margin-bottom: -1rem;
-`;
-const FilterContainer = styled.div`
-  text-align: center;
-  height: 25%;
-  background-color: #b6cbe0;
-  margin: 3rem 1rem 2rem 1rem;
-  padding: 2.5rem 0.5rem 1rem;
-`;

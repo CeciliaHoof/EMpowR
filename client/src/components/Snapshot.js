@@ -1,37 +1,35 @@
-import prescription_icon from "../assets/prescription_icon.png";
-import health_metric_icon from "../assets/health_metric_icon.png"
-import { Card, Image } from "semantic-ui-react";
+import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { Card, CardContent, Divider, Typography } from '@mui/material'
+import { useTheme } from "@mui/material/styles";
+import LocalPharmacyIcon from '@mui/icons-material/LocalPharmacy';
+import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
+import { CurrentPageContext } from "../context/currentPage"
 
 function Snapshot({ num, type }) {
+  const { setCurrentPage } = useContext(CurrentPageContext)
   const navigate = useNavigate()
+  const theme = useTheme()
 
   function handleClick(){
     type === 'Prescriptions'
-      ? navigate(`/prescriptions`)
-      : navigate(`/health_metrics`);
+      ? navigate(`/prescriptions`) 
+      : navigate(`/health_metrics`)
+    setCurrentPage(type)
   }
   return (
-    <Card>
-      <Card.Content>
-        {type === "Prescriptions" ?
-        <Image
-            floated="left"
-            src = {prescription_icon}
-        />:
-        <Image
-            floated="left"
-            src = {health_metric_icon}
-        />
+    <Card sx={{ maxWidth: '22rem'}}>
+      <CardContent style={{ textAlign: 'center' }}>
+        {type === 'Prescriptions' ?
+          <LocalPharmacyIcon fontSize="large" sx={{ color: theme.palette.primary.light }}/>:
+          <MonitorHeartIcon fontSize="large" sx={{ color: theme.palette.primary.light }}/>  
         }
-        <Card.Header>
-        {`You have ${num} ${type.toLowerCase()} saved!`}
-        </Card.Header>
-        </Card.Content>
-        <Card.Content extra style={{textAlign: 'center'}}>
-            <span onClick={handleClick}>{`View ${type}`}</span>
-        </Card.Content>
-      
+        <Typography variant="h5" component="div">{`You have ${num} ${type.toLowerCase()} saved!`}</Typography>
+      <Divider sx={{ marginBottom: '0.3rem'}}/>
+        <Typography variant="body2" onClick={handleClick} style={{ cursor: 'pointer' }}>
+          {`View ${type}`}
+        </Typography>
+      </CardContent>
     </Card>
   );
 }

@@ -1,36 +1,45 @@
-import { NavLink } from "react-router-dom";
-import { Menu } from "semantic-ui-react"
 import { useContext } from "react";
-import { UserContext } from "../context/user";
-  
-function NavMenu(){
-    const { setUser } = useContext(UserContext)
+import { NavLink } from "react-router-dom";
+import {
+  List,
+  ListItem,
+  ListItemText,
+  ListItemButton,
+} from "@mui/material";
+import { CurrentPageContext } from "../context/currentPage";
 
-    function handleLogout(){
-        fetch('/logout', {
-            method: 'DELETE'
-        })
-        setUser(null)
-    }
-    return(
-        <Menu pointing vertical>
-            <Menu.Item as={NavLink} to='/'>
-                Dashboard
-            </Menu.Item>
-            <Menu.Item as={NavLink} to='/health_metrics'>
-                Health Metrics
-            </Menu.Item>
-            <Menu.Item as={NavLink} to='/prescriptions'>
-                Prescriptions
-            </Menu.Item>
-            <Menu.Item as={NavLink} to='/medications'>
-                Medication Search
-            </Menu.Item>
-            <Menu.Item onClick={handleLogout}>
-               Logout
-            </Menu.Item>
-        </Menu>
-    )
+function NavMenu() {
+  const { setCurrentPage } = useContext(CurrentPageContext)
+  
+  function handleClick(page){
+    setCurrentPage(page)
+  }
+
+  return (
+      <List>
+        <ListItem disablePadding as={NavLink} to="/">
+          <ListItemButton onClick={() => handleClick("Dashboard")}>
+            <ListItemText primary="Dashboard" />
+          </ListItemButton>
+        </ListItem >
+        <ListItem disablePadding as={NavLink} to="/health_metrics">
+          <ListItemButton onClick={() => handleClick("Health Metrics")}>
+            <ListItemText primary="Health Metrics" />
+          </ListItemButton>
+        </ListItem >
+        <ListItem disablePadding as={NavLink} to="/prescriptions">
+          <ListItemButton onClick={() => handleClick("Prescriptions")}>
+            <ListItemText primary="Prescriptions" />
+          </ListItemButton>
+        </ListItem >
+        <ListItem disablePadding as={NavLink} to="/medications">
+          <ListItemButton onClick={() => handleClick("Medications")}>
+            <ListItemText primary="Medication Search" />
+          </ListItemButton>
+        </ListItem>
+      </List>
+      
+  );
 }
 
-export default NavMenu
+export default NavMenu;

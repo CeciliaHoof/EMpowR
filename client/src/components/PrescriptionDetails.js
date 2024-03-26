@@ -1,8 +1,9 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
-import styled from "styled-components";
-import { Item, Icon, Popup } from "semantic-ui-react";
-import { toast } from "react-toastify";
+import { Card, CardContent, Snackbar, IconButton, Container, Typography } from "@mui/material";
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { useTheme } from "@mui/material/styles";
 import { PrescriptionsContext } from "../context/prescriptions";
 import HealthMetricContainer from "./HealthMetricContainer";
 import PrescriptionForm from "./PrescriptionForm";
@@ -14,10 +15,12 @@ function PrescriptionDetails() {
   const [prescription, setPrescription] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [formOpen, setFormOpen] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   const { medication, route, dosage, frequency } = prescription;
 
   const navigate = useNavigate();
+  const theme = useTheme();
 
   useEffect(() => {
     fetch(`/prescriptions/${id}`)
@@ -28,16 +31,22 @@ function PrescriptionDetails() {
       });
   }, [id]);
 
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
+  };
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
+
   function handleDelete() {
     const updatedPrescriptions = prescriptions.filter(
       (script) => script.id !== prescription.id
     );
     setPrescriptions(updatedPrescriptions);
-    toast.success("Prescription Successfully Deleted.")
+    setSnackbarOpen(true);
   }
+
   function handleClick() {
     fetch(`/prescriptions/${id}`, {
       method: "DELETE",
@@ -57,53 +66,64 @@ function PrescriptionDetails() {
   }
 
   return (
-    <Container>
-      <DetailContainer>
-        <Item.Group>
-          <Item>
-            <Item.Content>
-              <Item.Header>
-                {medication.generic_name}: {medication.brand_names}
-              </Item.Header>
-              <Item.Meta>Prescription Details</Item.Meta>
-              <Item.Description>
-                <div>
-                  <p style={{ display: "inline-block", marginRight: "2em" }}>
-                    <strong>Route: </strong>
-                    {route}
-                  </p>
-                  <p style={{ display: "inline-block" }}>
-                    <strong>Dosage: </strong>
-                    {dosage}
-                  </p>
-                </div>
-                <div>
-                  <p style={{ display: "inline-block", marginRight: "2em" }}>
-                    <strong>Frequency: </strong>
-                    {frequency}
-                  </p>
-                </div>
-              </Item.Description>
-              <Item.Extra>
-                <Popup
-                  size="tiny"
-                  content="Edit Prescription"
-                  trigger={
-                    <Icon name="pencil" onClick={() => setFormOpen(true)} />
-                  }
-                />
-                <Popup
-                  size="tiny"
-                  content="Delete Prescription"
-                  trigger={
-                    <Icon name="trash" onClick={handleClick} />
-                  }
-                />
-              </Item.Extra>
-            </Item.Content>
-          </Item>
-        </Item.Group>
-      </DetailContainer>
+    <Container sx={{ display: "flex", flexDirection: "column", width: "100%" }}>
+      <Container
+        sx={{
+          width: '80%',
+        }}
+      >
+        <Card sx={{ backgroundColor: theme.palette.primary.light, borderRadius: 0 }}>
+          <CardContent>
+            <Typography variant="h5" component="div">
+              {medication.generic_name}
+            </Typography>
+            <Typography color="textSecondary">
+              {medication.brand_names}
+            </Typography>
+            <div style={{ display: "flex", gap: theme.spacing(1), justifyContent: "right"}}>
+            <IconButton
+              size="small"
+              floated='right'
+              onClick={() => setFormOpen(true)}
+              aria-label="Edit Prescription"
+            >
+              <EditIcon />
+            </IconButton>
+            <IconButton
+              size="small"
+              floated='right'
+              onClick={handleClick}
+              aria-label="Delete Prescription"
+            >
+              <DeleteIcon />
+            </IconButton>
+            </div>
+            <Container sx={{backgroundColor: 'white'}}>
+            <Typography color="textSecondary" gutterBottom>
+              Prescription Details
+            </Typography>
+
+            <Container> 
+              <p style={{ display: "inline-block", marginRight: "2em" }}>
+                <strong>Route: </strong>
+                {route}
+              </p>
+              <p style={{ display: "inline-block" }}>
+                <strong>Dosage: </strong>
+                {dosage}
+              </p>
+            </Container>
+            <Container>
+              <p style={{ display: "inline-block", marginRight: "2em" }}>
+                <strong>Frequency: </strong>
+                {frequency}
+              </p>
+            </Container>
+            </Container>
+          </CardContent>
+        </Card>
+
+      </Container>
       {formOpen && (
         <PrescriptionForm
           close={setFormOpen}
@@ -113,19 +133,16 @@ function PrescriptionDetails() {
         />
       )}
       <HealthMetricContainer script={medication.generic_name} />
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        message="Prescription Successfully Deleted"
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+      </Snackbar>
     </Container>
   );
 }
-export default PrescriptionDetails;
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-`;
-const DetailContainer = styled.div`
-  height: 25%;
-  background-color: #b6cbe0;
-  margin: 3rem 1rem 2rem 1rem;
-  padding: 0.5rem;
-`;
+export default PrescriptionDetails;

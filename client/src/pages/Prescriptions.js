@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
-import styled from "styled-components";
-import { Segment, Item, Button } from "semantic-ui-react";
+import { Button, Container } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import { PrescriptionsContext } from "../context/prescriptions";
 import MedicationSearch from "../components/MedicationSearch";
 import Medication from "../components/Medication";
@@ -11,6 +11,8 @@ function Prescriptions() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchBy, setSearchBy] = useState("generic");
   const [formOpen, setFormOpen] = useState(false);
+
+  const theme = useTheme();
 
   if (!prescriptions) {
     return <h1>Loading</h1>;
@@ -49,8 +51,15 @@ function Prescriptions() {
   }
 
   return (
-    <Container>
-      <SearchContainer>
+    <Container sx={{ display: "flex", flexDirection: "column", width: "100%" }}>
+      <Container
+        sx={{
+          textAlign: "center",
+          backgroundColor: theme.palette.primary.light,
+          padding: "2rem 0.5rem 1rem",
+          width: "80%",
+        }}
+      >
         <MedicationSearch
           onSearch={handleSearch}
           searchFor={searchQuery}
@@ -58,36 +67,26 @@ function Prescriptions() {
           searchBy={searchBy}
           prescriptions={true}
         />
-      </SearchContainer>
+      </Container>
       {formOpen ? (
         <PrescriptionForm method={"POST"} close={setFormOpen} />
       ) : (
-        <div style={{ textAlign: "center", marginBottom: "1rem" }}>
+        <Container sx={{ textAlign: "center", margin: "1rem 0" }}>
           <Button
-            size="mini"
+            size="small"
             onClick={() => setFormOpen(true)}
-            content="Add Prescription"
-          />
-        </div>
+            variant="contained"
+            sx={{ backgroundColor: theme.palette.primary.dark}}
+          >
+            Add Prescription
+          </Button>
+        </Container>
       )}
-      <Segment style={{ height: "100%", width: "100%", overflowY: "auto" }}>
-        <Item.Group divided>{prescriptionsDisplay}</Item.Group>
-      </Segment>
+      <Container sx={{ height: "40rem", width: "100%", overflowY: "auto", margin: "0 1rem"}}>
+        <div>{prescriptionsDisplay}</div>
+      </Container>
     </Container>
   );
 }
 
 export default Prescriptions;
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-`;
-const SearchContainer = styled.div`
-  text-align: center;
-  height: 25%;
-  background-color: #b6cbe0;
-  margin: 3rem 1rem 2rem 1rem;
-  padding: 2rem 0.5rem 1rem;
-`;

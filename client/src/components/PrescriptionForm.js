@@ -1,8 +1,7 @@
 import { useContext } from "react";
-import { Form, Button } from "semantic-ui-react";
+import { Button, Container, TextField, MenuItem, Grid } from "@mui/material";
 import { useFormik } from "formik";
 import * as yup from "yup";
-import styled from "styled-components";
 import { toast } from "react-toastify";
 import { UserContext } from "../context/user";
 import { PrescriptionsContext } from "../context/prescriptions";
@@ -22,7 +21,7 @@ function PrescriptionForm({ close, method, prescription, onEdit }) {
         route: prescription.route,
         time_of_day: prescription.time_of_day,
         user_id: user.id,
-        medication_id: prescription.medication_id,
+        medication_id: prescription.medication.generic_name,
       })
     : (initialState = {
         dosage: "",
@@ -44,25 +43,27 @@ function PrescriptionForm({ close, method, prescription, onEdit }) {
     "As needed(PRN)",
     "With Meals",
   ];
-  const userMedications = prescriptions.map(
-    (prescription) => prescription.medication_id
-  );
+
+  let userMedications;
+
+  !prescription
+    ? (userMedications = prescriptions.map(
+        (prescription) => prescription.medication_id
+      ))
+    : (userMedications = []);
 
   const medicationOptions = medications
     .filter((medication) => !userMedications.includes(medication.id))
-    .map((medication) => {
-      let brand_name = medication.brand_names.split(", ")[0];
-      return {
-        key: medication.id,
-        text: `${medication.generic_name}: ${brand_name}`,
-        value: medication.id,
-      };
-    });
+    .map((medication) => ({
+      value: medication.generic_name,
+      label: `${medication.generic_name}: ${
+        medication.brand_names.split(", ")[0]
+      }`,
+    }));
 
-  const frequency_options = frequencies.map((frequency) => ({
-    key: frequency,
-    text: frequency,
+  const frequencyOptions = frequencies.map((frequency) => ({
     value: frequency,
+    label: frequency,
   }));
 
   const validationSchema = yup.object().shape({
@@ -76,11 +77,15 @@ function PrescriptionForm({ close, method, prescription, onEdit }) {
     initialValues: initialState,
     validationSchema: validationSchema,
     onSubmit: (values, { setSubmitting }) => {
+      const selectedMedication = medications.find(
+        (medication) => medication.generic_name === formik.values.medication_id
+      );
+      const requestData = { ...values, medication_id: selectedMedication.id };
       if (method === "POST") {
         fetch("/prescriptions", {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify(values, null, 2),
+          body: JSON.stringify(requestData),
         })
           .then((resp) => {
             if (resp.ok) {
@@ -88,7 +93,7 @@ function PrescriptionForm({ close, method, prescription, onEdit }) {
                 setPrescriptions([...prescriptions, data]);
                 formik.resetForm();
                 close(false);
-                toast.success('Prescription Successfully Added.')
+                toast.success("Prescription Successfully Added.");
               });
             } else {
               resp.json().then((data) => {
@@ -103,7 +108,7 @@ function PrescriptionForm({ close, method, prescription, onEdit }) {
         fetch(`/prescriptions/${prescription.id}`, {
           method: "PATCH",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify(values, null, 2),
+          body: JSON.stringify(requestData),
         })
           .then((resp) => {
             if (resp.ok) {
@@ -111,7 +116,7 @@ function PrescriptionForm({ close, method, prescription, onEdit }) {
                 onEdit(data);
                 formik.resetForm();
                 close(false);
-                toast.success('Prescription Successfully Updated')
+                toast.success("Prescription Successfully Updated");
               });
             } else {
               resp.json().then((data) => {
@@ -127,99 +132,107 @@ function PrescriptionForm({ close, method, prescription, onEdit }) {
   });
 
   return (
-    <FormContainer>
-      <Form onSubmit={formik.handleSubmit}>
-        <Form.Group widths="equal">
-          <Form.Field>
-            <label>Medication</label>
-            <Form.Dropdown
-              search
-              selection
-              fluid
-              placeholder={
-                prescription
-                  ? `${prescription.medication.generic_name}: ${
-                      prescription.medication.brand_names.split(", ")[0]
-                    }`
-                  : null
-              }
-              options={medicationOptions}
+    <Container sx={{ margin: "2rem 0 2rem 0" }}>
+      <form onSubmit={formik.handleSubmit}>
+        <Grid container spacing={2} rowSpacing={1}>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              select
+              fullWidth
+              label="Medication"
+              variant="outlined"
+              margin="normal"
+              name="medication_id"
               value={formik.values.medication_id}
-              onChange={(e, { value }) => {
-                formik.setFieldValue("medication_id", value);
-              }}
-              onBlur={(e, { name }) => formik.handleBlur(name)}
-              name="medication"
-            />
-            {formik.touched.medication_id && formik.errors.medication_id && (
-              <span style={{ color: "red" }}>
-                {formik.errors.medication_id}
-              </span>
-            )}
-          </Form.Field>
-          <Form.Field>
-            <label>Dosage</label>
-            <Form.Input
-              fluid
+              onChange={formik.handleChange}
+              error={
+                formik.touched.medication_id &&
+                Boolean(formik.errors.medication_id)
+              }
+              helperText={
+                formik.touched.medication_id && formik.errors.medication_id
+              }
+            >
+              {medicationOptions.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.label}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label="Dosage"
+              variant="outlined"
+              margin="normal"
+              name="dosage"
               value={formik.values.dosage}
               onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              name="dosage"
+              error={formik.touched.dosage && Boolean(formik.errors.dosage)}
+              helperText={formik.touched.dosage && formik.errors.dosage}
             />
-            {formik.touched.dosage && formik.errors.dosage && (
-              <span style={{ color: "red" }}>{formik.errors.dosage}</span>
-            )}
-          </Form.Field>
-          <Form.Field>
-            <label>Route</label>
-            <Form.Input
-              fluid
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label="Route"
+              variant="outlined"
+              margin="normal"
+              name="route"
               value={formik.values.route}
               onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              name="route"
+              error={formik.touched.route && Boolean(formik.errors.route)}
+              helperText={formik.touched.route && formik.errors.route}
             />
-            {formik.touched.route && formik.errors.route && (
-              <span style={{ color: "red" }}>{formik.errors.route}</span>
-            )}
-          </Form.Field>
-          <Form.Field>
-            <label>Frequency</label>
-            <Form.Dropdown
-              fluid
-              selection
-              options={frequency_options}
-              value={formik.values.frequency}
-              onChange={(e, { value }) => {
-                formik.setFieldValue("frequency", value);
-              }}
-              onBlur={(e, { name }) => formik.handleBlur(name)}
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              select
+              fullWidth
+              label="Frequency"
+              variant="outlined"
+              margin="normal"
               name="frequency"
-            />
-            {formik.touched.frequency && formik.errors.frequency && (
-              <span style={{ color: "red" }}>{formik.errors.frequency}</span>
-            )}
-          </Form.Field>
-        </Form.Group>
-        {formik.errors && (
-          <span style={{ color: "red" }}>{formik.errors.error}</span>
-        )}
-        <div style={{ textAlign: "center" }}>
-          <Button size="small" type="submit">
+              value={formik.values.frequency}
+              onChange={formik.handleChange}
+              error={
+                formik.touched.frequency && Boolean(formik.errors.frequency)
+              }
+              helperText={formik.touched.frequency && formik.errors.frequency}
+            >
+              {frequencyOptions.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.label}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
+        </Grid>
+        <Grid item xs={12}>
+        <div style={{ textAlign: "center", marginTop: '0.5rem' }}>
+          <Button
+            size="small"
+            variant="contained"
+            color="primary"
+            type="submit"
+            sx={{ marginRight: "1rem" }}
+          >
             Submit
           </Button>
-          <Button size="small" onClick={() => close(false)}>
+          <Button
+            size="small"
+            variant="contained"
+            color="primary"
+            onClick={() => close(false)}
+          >
             Cancel
           </Button>
-        </div>
-      </Form>
-    </FormContainer>
+          </div>
+          </Grid>
+      </form>
+    </Container>
   );
 }
 
 export default PrescriptionForm;
-
-const FormContainer = styled.div`
-  margin: 0 1rem 1rem 1rem;
-  padding: 0 0.5rem 0 0.5rem;
-`;

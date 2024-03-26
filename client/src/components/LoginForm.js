@@ -1,16 +1,25 @@
 import React, { useContext, useState } from "react";
-import { Form } from "semantic-ui-react";
+import {
+  Button,
+  Box,
+  TextField,
+  Grid,
+  Typography,
+  FormHelperText,
+} from "@mui/material";
 import { useFormik } from "formik";
 import * as yup from "yup";
 
 import { UserContext } from "../context/user";
 import { PrescriptionsContext } from "../context/prescriptions";
 import { HealthMetricsContext } from "../context/healthMetrics";
+import { CurrentPageContext } from "../context/currentPage";
 
 function LoginForm() {
   const { setUser } = useContext(UserContext);
   const { setHealthMetrics } = useContext(HealthMetricsContext);
   const { setPrescriptions } = useContext(PrescriptionsContext);
+  const { setCurrentPage } = useContext(CurrentPageContext);
   const [hasAccount, setHasAccount] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
@@ -55,6 +64,7 @@ function LoginForm() {
             setUser(data);
             setHealthMetrics(data.health_metrics);
             setPrescriptions(data.prescriptions);
+            setCurrentPage("Dashboard");
           });
         } else {
           r.json().then((errors) => {
@@ -66,88 +76,110 @@ function LoginForm() {
   });
 
   return (
-    <Form onSubmit={formik.handleSubmit}>
-      <h3 className="centered_text">
+    <Box
+      component="form"
+      onSubmit={formik.handleSubmit}
+      autoComplete="off"
+      sx={{ margin: "1em", textAlign: 'center', backgroundColor: 'white', padding: '0.5rem'  }}
+    >
+      <Typography variant="h6" component="h1" sx={{color: '#1976d2', marginBottom: '0.75rem'}}>
         {hasAccount ? "Login" : "Create Account"}
-      </h3>
-      {!hasAccount && (
-        <>
-          <Form.Field>
-            <Form.Input
+      </Typography>
+      <Grid container justifyContent={"center"} spacing={0.5}>
+        {!hasAccount && (
+          <>
+            <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="First Name"
+                  variant="outlined"
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  value={formik.values.first_name}
+                  name="first_name"
+                  type="text"
+                />
+                {formik.errors.first_name && formik.touched.first_name ? (
+                  <FormHelperText style={{ color: "red" }}>
+                    {formik.errors.first_name}
+                  </FormHelperText>
+                ) : (
+                  <FormHelperText> </FormHelperText>
+                )}
+            </Grid>
+            <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="Last Name"
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  value={formik.values.last_name}
+                  name="last_name"
+                  type="text"
+                />
+                {formik.errors.last_name && formik.touched.last_name ? (
+                  <FormHelperText style={{ color: "red" }}>
+                    {formik.errors.last_name}
+                  </FormHelperText>
+                ) : (
+                  <FormHelperText> </FormHelperText>
+                )}
+            </Grid>
+          </>
+        )}
+        <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Email Address"
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              value={formik.values.first_name}
-              name="first_name"
-              type="text"
-              label="First Name"
+              value={formik.values.username}
+              name="email"
+              type="email"
             />
-            {formik.errors.first_name && formik.touched.first_name && (
-              <span style={{ color: "red" }}>{formik.errors.first_name}</span>
+            {formik.errors.email && formik.touched.email ? (
+              <FormHelperText style={{ color: "red" }}>
+                {formik.errors.email}
+              </FormHelperText>
+            ) : (
+              <FormHelperText> </FormHelperText>
             )}
-          </Form.Field>
-          <Form.Field>
-            <Form.Input
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              value={formik.values.last_name}
-              name="last_name"
-              type="text"
-              label="Last Name"
-            />
-            {formik.errors.last_name && formik.touched.last_name && (
-              <span style={{ color: "red" }}>{formik.errors.last_name}</span>
-            )}
-          </Form.Field>
-        </>
-      )}
-      <Form.Field>
-        <Form.Input
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-          value={formik.values.username}
-          label="Email Address"
-          name="email"
-          type="email"       
-        ></Form.Input>
-        {formik.errors.email && formik.touched.email && (
-          <span style={{ color: "red" }}>{formik.errors.email}</span>
-        )}
-      </Form.Field>
-      <Form.Field>
-        <Form.Input
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-          value={formik.values.password}
-          name="password"
-          type="password"
-          label="Password"         
-        />
-        {formik.errors.password && formik.touched.password && (
-          <span style={{ color: "red" }}>{formik.errors.password}</span>
-        )}
-      </Form.Field>
-      <Form.Field>
-        {submitted &&
-          formik.errors &&
-          Object.values(formik.errors).map((error) => (
-            <span key={error} style={{ color: "red" }}>
-              {error}
-            </span>
-          ))}
-        <div className="centered_text">
-          <Form.Button  type="submit">
-            {hasAccount ? "Login" : "Create Account"}
-          </Form.Button>
-          <span
-            onClick={() => setHasAccount(!hasAccount)}
-          >
-            {!hasAccount
-              ? "Already have an Account? Click Here!"
-              : "Don't have account yet? Click here to create an account."}
-          </span>
-        </div>
-      </Form.Field>
-    </Form>
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            label="Password"
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            value={formik.values.password}
+            name="password"
+            type="password"
+          />
+          {formik.errors.password && formik.touched.password ?
+            <FormHelperText sx={{ color: "red" }}>{formik.errors.password}</FormHelperText> : <FormHelperText> </FormHelperText>
+          }
+        </Grid>
+          {submitted &&
+            formik.errors &&
+            Object.values(formik.errors).map((error) => (
+              <Typography variant="body1" component="span" key={error} style={{ color: "red" }}>
+                {error}
+              </Typography>
+            ))}
+          <Grid item xs={12}>
+            <Button type="submit" variant="contained" sx={{ marginTop:"0.5rem"}}>
+              {hasAccount ? "Login" : "Create Account"}
+            </Button>
+          </Grid>
+          <Grid item xs={12}>
+            <Button onClick={() => setHasAccount(!hasAccount)}>
+              {!hasAccount
+                ? "Already have an Account? Click Here!"
+                : "Don't have account yet? Click here to one."}
+            </Button>
+          </Grid>
+      </Grid>
+    </Box>
   );
 }
 

@@ -1,14 +1,28 @@
 import { useParams } from "react-router-dom";
+import PropTypes from "prop-types";
 import { useContext, useEffect, useState } from "react";
-import styled from "styled-components";
-import { Item, List, Segment, Tab } from "semantic-ui-react";
+import { useTheme } from "@mui/material/styles";
+
+import {
+  Card,
+  CardContent,
+  Container,
+  Typography,
+  List,
+  ListItem,
+  Box,
+  Tabs,
+  Tab,
+} from "@mui/material";
 import { UserContext } from "../context/user";
 
 function MedicationDetails() {
   const { user } = useContext(UserContext);
   const { id } = useParams();
+  const theme = useTheme();
 
   const [medication, setMedication] = useState({});
+  const [value, setValue] = useState(0);
 
   const {
     generic_name,
@@ -32,16 +46,30 @@ function MedicationDetails() {
   }
 
   const brandNamesArray = brand_names.split(", ");
-  const brandNamesDisplay = brandNamesArray
-    .slice(0, 10)
-    .map((brand) => <List.Item key={brand}>{brand}</List.Item>);
+  const brandNamesDisplay = brandNamesArray.slice(0, 10).map((brand, index) => (
+    <>
+      <span>{brand}</span>
+      {index < brandNamesArray.length - 2 && (
+        <Box component="span" sx={{ display: "inline-block", mx: "2px" }}>
+          •
+        </Box>
+      )}
+    </>
+  ));
 
-  const filteredIndications = indications
-    .split(". ")
-    .filter((indication) => {
-      return !indication.includes("Orphan") && indication !== "";
-    })
-    .map((indication) => <List.Item key={indication}>{indication}</List.Item>);
+  const filteredIndications = indications.split(". ").filter((indication) => {
+    return !indication.includes("Orphan") && indication !== "";
+  });
+  const indicationsDisplay = filteredIndications.map((indication, index) => (
+    <>
+      <span>{indication}</span>
+      {index < filteredIndications.length - 1 && (
+        <Box component="span" sx={{ display: "inline-block", mx: "2px" }}>
+          •
+        </Box>
+      )}
+    </>
+  ));
 
   function splitDosages(inputString) {
     const parts = inputString.split("! ");
@@ -73,17 +101,16 @@ function MedicationDetails() {
   function createDosagesLists(groupedParts) {
     return groupedParts.map((group) => {
       const [medication, dosages] = group.split(":");
-      console.log(medication, dosages);
       const dosageItems = dosages
         .split(",")
         .map((dosage) => (
-          <List.Item key={`${dosage.trim()}${medication}`}>
+          <ListItem key={`${dosage.trim()}${medication}`}>
             {dosage.trim()}
-          </List.Item>
+          </ListItem>
         ));
       return (
         <div key={medication} style={{ marginBottom: "1em" }}>
-          {medication}:<List bulleted>{dosageItems}</List>
+          {medication}:<List>{dosageItems}</List>
         </div>
       );
     });
@@ -97,146 +124,168 @@ function MedicationDetails() {
     adminDisplay = administration
       .split(". ")
       .map((instruction) => (
-        <List.Item key={instruction}>{instruction}</List.Item>
+        <ListItem key={instruction}>{instruction}</ListItem>
       ));
   }
 
   const contraindicationDisplay = contraindications_and_cautions
     .split(". ")
     .map((contraindication) => (
-      <List.Item key={contraindication}>{contraindication}</List.Item>
+      <ListItem key={contraindication}>{contraindication}</ListItem>
     ));
 
   const adverseEffects = adverse_effects
     .split(". ")
     .filter((effect) => effect !== "")
-    .map((effect) => <List.Item key={effect}>{effect}</List.Item>);
+    .map((effect) => <ListItem key={effect}>{effect}</ListItem>);
 
-  let panes = [
-    {
-      menuItem: "Dosage",
-      render: () => (
-        <Tab.Pane attached={false}>
-          <div style={{ marginBottom: "0.5em", fontSize: "1.2rem" }}>
-            <strong>Dosage Forms:</strong>
-          </div>
-          {dosageDisplay}
-        </Tab.Pane>
-      ),
-    },
-    {
-      menuItem: "Contraindications",
-      render: () => (
-        <Tab.Pane attached={false}>
-          <div style={{ marginBottom: "0.5em", fontSize: "1.2rem" }}>
-            <strong>Contraindications and Precautions:</strong>
-          </div>
-          <List>{contraindicationDisplay}</List>
-        </Tab.Pane>
-      ),
-    },
-    {
-      menuItem: "Adverse Effects",
-      render: () => (
-        <Tab.Pane attached={false}>
-          <div style={{ marginBottom: "0.5em", fontSize: "1.2rem" }}>
-            <strong>Adverse Effects:</strong>
-          </div>
-          <List bulleted>{adverseEffects}</List>
-        </Tab.Pane>
-      ),
-    },
-  ];
-  if (administration) {
-    panes.splice(1, 0, {
-      menuItem: "Administration",
-      render: () => (
-        <Tab.Pane attached={false}>
-          <div style={{ marginBottom: "0.5em", fontSize: "1.2rem" }}>
-            <strong>Administration Instructions:</strong>
-          </div>
-          <List>{adminDisplay}</List>
-        </Tab.Pane>
-      ),
-    });
+  function CustomTabPanel(props) {
+    const { children, value, index, ...other } = props;
+
+    return (
+      <div
+        role="tabpanel"
+        hidden={value !== index}
+        id={`simple-tabpanel-${index}`}
+        aria-labelledby={`simple-tab-${index}`}
+        {...other}
+      >
+        {value === index && (
+          <Box sx={{ p: 3 }}>
+            <Typography>{children}</Typography>
+          </Box>
+        )}
+      </div>
+    );
+  }
+
+  CustomTabPanel.propTypes = {
+    children: PropTypes.node,
+    index: PropTypes.number.isRequired,
+    value: PropTypes.number.isRequired,
+  };
+
+  function a11yProps(index) {
+    return {
+      id: `med-detail-tab-${index}`,
+      "aria-controls": `med-detail-tabpanel-${index}`,
+    };
+  }
+
+  function handleChange(event, newValue) {
+    setValue(newValue);
   }
 
   return (
-    <Container>
-      <DetailContainer>
-        <Item.Group>
-          <Item>
-            <Item.Content>
-              <Item.Header>{generic_name}</Item.Header>
-              <Item.Meta>Medication Details</Item.Meta>
-              <Item.Description>
-                <div>
-                  <p
-                    style={{
-                      fontSize: "1rem",
-                      display: "inline-block",
-                      marginRight: "0.2em",
-                    }}
-                  >
-                    <strong>Common Brand Names: </strong>
-                  </p>
-                  <List bulleted horizontal>
-                    {brandNamesDisplay}
-                  </List>
-                </div>
-                <p
-                  style={{
-                    fontSize: "1rem",
-                  }}
-                >
+    <Container
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        width: "100%",
+      }}
+    >
+      <Container
+        sx={{
+          width: "80%",
+          marginBottom: "1rem",
+        }}
+      >
+        <Card
+          sx={{ backgroundColor: theme.palette.primary.light, borderRadius: 0 }}
+        >
+          <CardContent>
+            <Typography variant="h5" component="div">
+              {generic_name}
+            </Typography>
+            <Typography color="textSecondary" gutterBottom>
+              {brandNamesDisplay}
+            </Typography>
+            <Container sx={{ backgroundColor: "white" }}>
+              <Typography color="textSecondary" gutterBottom>
+                Medication Details
+              </Typography>
+
+              <Container>
+                <p>
                   <strong>Drug Class: </strong>
                   {drug_class}
                 </p>
-                <p
-                  style={{
-                    display: "inline-block",
-                    fontSize: "1rem",
-                    marginRight: "0.2em",
-                  }}
-                >
+                <p>
                   <strong>Indications and Uses: </strong>
+                  {indicationsDisplay}
                 </p>
-                <List bulleted horizontal>
-                  {filteredIndications}
-                </List>
-              </Item.Description>
-            </Item.Content>
-          </Item>
-        </Item.Group>
-      </DetailContainer>
-      <Segment style={{ height: "100%", width: "100%", overflowY: "auto" }}>
-        <Tab menu={{ secondary: true, pointing: true }} panes={panes} />
-      </Segment>
+              </Container>
+            </Container>
+          </CardContent>
+        </Card>
+      </Container>
+      <Container
+        sx={{
+          height: "33rem",
+          width: "100%",
+          overflowY: "auto",
+          paddingLeft: "calc(100vw - 100%)",
+        }}
+      >
+        <Box sx={{ width: "100%" }}>
+          <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+            <Tabs
+              value={value}
+              onChange={handleChange}
+              aria-label="medication detail tabs"
+            >
+              <Tab label="Dosage" {...a11yProps(0)} />
+              {administration && (
+                <Tab label="Administration" {...a11yProps(1)} />
+              )}
+              <Tab label="Contraindications" {...a11yProps(2)} />
+              <Tab label="Adverse Effects" {...a11yProps(3)} />
+            </Tabs>
+          </Box>
+          <CustomTabPanel value={value} index={0}>
+            <div style={{ marginBottom: "0.5em", fontSize: "1.2rem" }}>
+              <strong>Dosage Forms:</strong>
+            </div>
+            {dosageDisplay}
+          </CustomTabPanel>
+          <CustomTabPanel value={value} index={1}>
+            <div style={{ marginBottom: "0.5em", fontSize: "1.2rem" }}>
+              <strong>Administration Instructions:</strong>
+            </div>
+            <List>{adminDisplay}</List>
+          </CustomTabPanel>
+          <CustomTabPanel value={value} index={2}>
+            <div style={{ marginBottom: "0.5em", fontSize: "1.2rem" }}>
+              <strong>Contraindications and Precautions:</strong>
+            </div>
+            <List>{contraindicationDisplay}</List>
+          </CustomTabPanel>
+          <CustomTabPanel value={value} index={3}>
+            <div style={{ marginBottom: "0.5em", fontSize: "1.2rem" }}>
+              <strong>Adverse Effects:</strong>
+            </div>
+            <List bulleted>{adverseEffects}</List>
+          </CustomTabPanel>
+        </Box>
+      </Container>
       {box_warning && (
-        <p
-          style={{
+        <Container
+          sx={{
             color: "red",
-            marginBottom: "1em",
-            paddingLeft: "0.5em",
+            margin: "1em 0",
+            paddingLeft: "calc(100vw - 100%)",
             borderLeft: "0.5em solid red",
+            maxHeight: "5rem",
+            overflowY: "auto",
           }}
         >
-          <strong>BOX WARNING: </strong> {box_warning}
-        </p>
+          <Box sx={{ width: "100%" }}>
+            <strong>BOX WARNING: </strong> {box_warning}
+          </Box>
+        </Container>
       )}
     </Container>
   );
 }
 
 export default MedicationDetails;
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-`;
-const DetailContainer = styled.div`
-  background-color: #b6cbe0;
-  padding: 1em;
-  margin-left: -1vw;
-`;

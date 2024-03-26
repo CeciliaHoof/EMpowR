@@ -1,4 +1,4 @@
-import { Form, Checkbox } from "semantic-ui-react";
+import { FormControl, RadioGroup, Radio, TextField, FormControlLabel, Grid } from "@mui/material"; // Importing necessary Material-UI components
 
 function MedicationSearch({
   onSearch,
@@ -11,43 +11,30 @@ function MedicationSearch({
   prescriptions
     ? (label = "Search your Prescriptions")
     : (label = "Search Medications");
-  return (
-    <>
-      <p style={{textAlign: "left", marginBottom: '0', marginLeft:'0.2rem', fontSize: '1rem'}}>{label}</p>
-      <Form>
-        <Form.Input
 
+  return (
+    <Grid container spacing={2}>
+      <Grid item xs={12} >
+        <TextField
+          fullWidth
+          variant="standard"
           type="text"
-          name="search"
+          label={label}
           value={searchFor}
           onChange={(e) => onSearch(e.target.value)}
+          sx={{ backgroundColor: 'white'}}
         />
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <Form.Group>
-            <Form.Field>
-              <Checkbox
-                radio
-                label="Generic Name"
-                name="generic"
-                value="generic"
-                checked={searchBy === "generic"}
-                onChange={(e, data) => onSearchBySelection(data.value)}
-              />
-            </Form.Field>
-            <Form.Field>
-              <Checkbox
-                radio
-                label="Brand Name"
-                name="brand"
-                value="brand"
-                checked={searchBy === "brand"}
-                onChange={(e, data) => onSearchBySelection(data.value)}
-              />
-            </Form.Field>
-          </Form.Group>
-        </div>
-      </Form>
-    </>
+      </Grid>
+      <Grid item xs={12} >
+        <FormControl component="fieldset">
+          <RadioGroup row value={searchBy} onChange={(e) => onSearchBySelection(e.target.value)}>
+            <FormControlLabel value="generic" control={<Radio />} label="Generic Name" />
+            <FormControlLabel value="brand" control={<Radio />} label="Brand Name" />
+          </RadioGroup>
+        </FormControl>
+      </Grid>
+    </Grid>
   );
 }
+
 export default MedicationSearch;

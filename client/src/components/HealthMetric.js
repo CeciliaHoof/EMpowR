@@ -1,17 +1,27 @@
 import { useState, useContext } from "react";
-import { Feed, Icon, Image } from "semantic-ui-react";
+import {
+  Typography,
+  Grid,
+  Card,
+  CardContent,
+  IconButton,
+} from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+import LocalPharmacyIcon from "@mui/icons-material/LocalPharmacy";
+import MonitorHeartIcon from "@mui/icons-material/MonitorHeart";
+import HealingIcon from "@mui/icons-material/Healing";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { HealthMetricsContext } from "../context/healthMetrics";
-import health_metric_icon from "../assets/health_metric_icon.png";
-import prescription_icon from "../assets/prescription_icon.png";
-import symptom_icon from "../assets/symptom_icon.png";
 import HealthMetricForm from "./HealthMetricForm";
 
 function HealthMetric({ metric }) {
   const { healthMetrics, setHealthMetrics } = useContext(HealthMetricsContext);
   const { comment, metric_type, time_taken, content } = metric;
   const [isEditing, setIsEditing] = useState(false);
+  const theme = useTheme();
 
   function successfulDelete() {
     toast.success("Metric Successfully Deleted.");
@@ -46,52 +56,114 @@ function HealthMetric({ metric }) {
   }
   const moment = require("moment");
   const formattedDate = moment(time_taken).format("MM-DD-YYYY hh:mm A");
-  
-  let metricImage;
+
+  let metricIcon;
   if (metric_type.id <= 8) {
-    metricImage = (
-      <Image src={health_metric_icon} alt="health_metric_icon" wrapped />
+    metricIcon = (
+      <MonitorHeartIcon
+        fontSize="large"
+        sx={{
+          color: theme.palette.primary.dark,
+          display: "block",
+          margin: "auto",
+          maxWidth: "100%",
+          maxHeight: "100%",
+          float: "left",
+        }}
+      />
     );
   } else if (metric_type.id === 9) {
-    metricImage = (
-      <Image src={prescription_icon} alt="prescription_icon" wrapped />
+    metricIcon = (
+      <LocalPharmacyIcon
+        fontSize="large"
+        sx={{
+          color: theme.palette.primary.main,
+          display: "block",
+          margin: "auto",
+          maxWidth: "100%",
+          maxHeight: "100%",
+          float: "left",
+        }}
+      />
     );
   } else {
-    metricImage = <Image src={symptom_icon} alt="symptom_icon" wrapped />;
+    metricIcon = (
+      <HealingIcon
+        fontSize="large"
+        sx={{
+          color: theme.palette.primary.light,
+          display: "block",
+          margin: "auto",
+          maxWidth: "100%",
+          maxHeight: "100%",
+          float: "left",
+        }}
+      />
+    );
   }
+
   return (
-    <>
-      <Feed.Event>
-        <Feed.Label data-html2canvas-ignore="true">{metricImage}</Feed.Label>
-        <Feed.Content>
-          {!isEditing ? (
-            <>
-              <Feed.Date>{formattedDate}</Feed.Date>
-              <Feed.Summary>
-                {metric_type.units
-                  ? `${metric_type.metric_type}: ${content} ${metric_type.units}.`
-                  : `${metric_type.metric_type}: ${content}`}
-              </Feed.Summary>
-              {comment && <Feed.Extra text>{comment}</Feed.Extra>}
-              <Feed.Meta data-html2canvas-ignore="true">
-                <Icon name="pencil" onClick={() => setIsEditing(true)} />
-                <Icon name="trash" onClick={handleClick} />
-              </Feed.Meta>
-            </>
-          ) : (
-            <>
-              <HealthMetricForm
-                hideForm={setIsEditing}
-                onEdit={handleEdit}
-                metric={metric}
-                method="PATCH"
-                data-html2canvas-ignore="true"
-              />
-            </>
-          )}
-        </Feed.Content>
-      </Feed.Event>
-    </>
+    <Grid container spacing={2} alignContent={"center"} justifyContent={"flex-start"}>
+    <Grid item xs={12}>
+      <Card>
+        <CardContent>
+          <Grid container alignItems={"flex-start"} spacing={1}>
+            <Grid item>
+                {metricIcon}
+            </Grid>
+            {!isEditing ? (
+              <Grid container direction="column" item xs>
+                <Grid item xs>
+                  <Typography variant="h6" component="span">
+                    {metric_type.units
+                      ? `${metric_type.metric_type}: ${content} ${metric_type.units}.`
+                      : `${metric_type.metric_type}: ${content}`}
+                  </Typography>
+                  <Typography
+                    variant="body1"
+                    component="span"
+                    sx={{ marginLeft: "1rem" }}
+                  >
+                    {formattedDate}
+                  </Typography>
+  
+                  {comment && <Typography variant="body1"><strong>Comment: </strong>{comment}</Typography>}
+                </Grid>
+                <Grid item>
+                  <IconButton
+                    size="small"
+                    onClick={() => setIsEditing(true)}
+                    aria-label="Edit Prescription"
+                  >
+                    <EditIcon />
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    floated="right"
+                    onClick={handleClick}
+                    aria-label="Delete Prescription"
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </Grid>
+              </Grid>
+            ) : (
+              <Grid item xs={12}>
+                <HealthMetricForm
+                  hideForm={setIsEditing}
+                  onEdit={handleEdit}
+                  metric={metric}
+                  method="PATCH"
+                  data-html2canvas-ignore="true"
+                />
+              </Grid>
+            )}
+          </Grid>
+        </CardContent>
+      </Card>
+    </Grid>
+  </Grid>
+  
   );
 }
 
