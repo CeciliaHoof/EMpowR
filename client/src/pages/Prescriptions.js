@@ -1,12 +1,17 @@
 import { useContext, useState } from "react";
-import { Button, Container } from "@mui/material";
+import {
+  Button,
+  Container,
+  Box,
+  Grid,
+} from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { PrescriptionsContext } from "../context/prescriptions";
 import MedicationSearch from "../components/MedicationSearch";
 import Medication from "../components/Medication";
 import PrescriptionForm from "../components/PrescriptionForm";
 
-function Prescriptions() {
+function Prescriptions({ setSnackbar }) {
   const { prescriptions } = useContext(PrescriptionsContext);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchBy, setSearchBy] = useState("generic");
@@ -51,41 +56,50 @@ function Prescriptions() {
   }
 
   return (
-    <Container sx={{ display: "flex", flexDirection: "column", width: "100%" }}>
+    <>
       <Container
-        sx={{
-          textAlign: "center",
-          backgroundColor: theme.palette.primary.light,
-          padding: "2rem 0.5rem 1rem",
-          width: "80%",
-        }}
+        sx={{ display: "flex", flexDirection: "column", width: "100%" }}
       >
-        <MedicationSearch
-          onSearch={handleSearch}
-          searchFor={searchQuery}
-          onSearchBySelection={handleSearchBy}
-          searchBy={searchBy}
-          prescriptions={true}
-        />
-      </Container>
-      {formOpen ? (
-        <PrescriptionForm method={"POST"} close={setFormOpen} />
-      ) : (
-        <Container sx={{ textAlign: "center", margin: "1rem 0" }}>
-          <Button
-            size="small"
-            onClick={() => setFormOpen(true)}
-            variant="contained"
-            sx={{ backgroundColor: theme.palette.primary.dark}}
-          >
-            Add Prescription
-          </Button>
+        <Container
+          sx={{
+            textAlign: "center",
+            backgroundColor: theme.palette.primary.light,
+            padding: "2rem 0.5rem 1rem",
+            width: "80%",
+            margin: "auto",
+          }}
+        >
+          <MedicationSearch
+            onSearch={handleSearch}
+            searchFor={searchQuery}
+            onSearchBySelection={handleSearchBy}
+            searchBy={searchBy}
+            prescriptions={true}
+          />
         </Container>
-      )}
-      <Container sx={{ height: "40rem", width: "100%", overflowY: "auto", margin: "0 1rem"}}>
-        <div>{prescriptionsDisplay}</div>
+        {formOpen ? (
+          <PrescriptionForm
+            method={"POST"}
+            close={setFormOpen}
+            setSnackbar={setSnackbar}
+          />
+        ) : (
+          <Container sx={{ textAlign: "center", margin: "1rem 0" }}>
+            <Button
+              size="small"
+              onClick={() => setFormOpen(true)}
+              variant="contained"
+              sx={{ backgroundColor: theme.palette.primary.dark }}
+            >
+              Add Prescription
+            </Button>
+          </Container>
+        )}
+        <Box sx={{ height: "33rem", width: "100%", overflowY: "scroll" }}>
+          <Grid container>{prescriptionsDisplay}</Grid>
+        </Box>
       </Container>
-    </Container>
+    </>
   );
 }
 

@@ -78,8 +78,7 @@ function HealthMetricForm({
   metric,
   onEdit,
   formType,
-  successMessage,
-  showSnackBar
+  setSnackbar
 }) {
   const { user } = useContext(UserContext);
 
@@ -179,8 +178,7 @@ function HealthMetricForm({
               metricsToAdd.push(data);
             });
             addMetric(metricsToAdd);
-            successMessage("Metric Successfully Added")
-            showSnackBar(true)
+            setSnackbar("Metric Successfully Added")
             formik.resetForm(initialState);
             hideForm(false);
           } catch (error) {
@@ -214,8 +212,7 @@ function HealthMetricForm({
               if (resp.ok) {
                 resp.json().then((data) => {
                   addMetric([data]);
-                  successMessage("Metric Successfully Added")
-                  showSnackBar(true)
+                  setSnackbar("Metric Successfully Added")
                   formik.resetForm();
                   hideForm(false);
                 });

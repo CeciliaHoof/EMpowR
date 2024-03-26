@@ -21,7 +21,7 @@ function Medication({ generic_name, brand_names, prescription, id }) {
 
   return (
     <Grid item xs={12}>
-      <Card variant="outlined">
+      <Card variant="outlined" sx={{width: '100%'}}>
         <CardContent>
           <Typography variant="h6">{generic_name}</Typography>
           <Typography variant="body2" color="textSecondary">

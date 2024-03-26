@@ -1,5 +1,5 @@
 import { useContext, useRef } from "react";
-import { Container, Button } from "@mui/material";
+import { Button, Grid, Box } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import HealthMetric from "./HealthMetric";
 import html2canvas from "html2canvas";
@@ -13,8 +13,7 @@ function HealthMetricContainer({
   filterMetricType,
   filterDate,
   filterPrescription,
-  successMessage,
-  showSnackBar,
+  setSnackbar
 }) {
   const { user } = useContext(UserContext);
   const { healthMetrics } = useContext(HealthMetricsContext);
@@ -23,9 +22,8 @@ function HealthMetricContainer({
   
   function handleSnackBar(string){
     string === 'delete' ?
-    successMessage("Metric Successfully Deleted"):
-    successMessage("Metric Successfully Updated")
-    showSnackBar(true)
+    setSnackbar("Metric Successfully Deleted"):
+    setSnackbar("Metric Successfully Updated")
   }
   const metricsDisplay = healthMetrics
     .filter((metric) => {
@@ -139,14 +137,14 @@ function HealthMetricContainer({
 
   return (
     <>
-      <Container
+      <Box
         sx={{
-          height: "35rem",
+          height: "31rem",
           width: "100%",
-          overflowY: "auto",
-          margin: "1rem 1rem",
+          overflowY: "scroll",
         }}
       >
+        <Grid container>
         {metricsDisplay.map((metric) => (
           <HealthMetric
             metric={metric}
@@ -154,7 +152,8 @@ function HealthMetricContainer({
             handleSnackBar={handleSnackBar}
           />
         ))}
-      </Container>
+        </Grid>
+      </Box>
       <div ref={pdfRef} id="pdf-content" style={{ display: "none" }}>
         <h2 style={{ marginBottom: "2px" }}>
           {user.first_name} {user.last_name}'s Health Metrics
@@ -165,12 +164,12 @@ function HealthMetricContainer({
         ))}
       </div>
       {!script && (
-        <div style={{ textAlign: "center", marginBottom: "1rem" }}>
+        <div style={{ textAlign: "center"}}>
           <Button
             onClick={downloadPDF}
             size="small"
             variant="contained"
-            sx={{ backgroundColor: theme.palette.primary.dark }}
+            sx={{ backgroundColor: theme.palette.primary.dark, marginTop:'1.3rem' }}
           >
             Download PDF of Currently Displayed Health Metrics
           </Button>

@@ -4,7 +4,7 @@ import {
   Grid,
   Card,
   CardContent,
-  IconButton
+  IconButton,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import LocalPharmacyIcon from "@mui/icons-material/LocalPharmacy";
@@ -56,7 +56,6 @@ function HealthMetric({ metric, handleSnackBar }) {
   if (metric_type.id <= 8) {
     metricIcon = (
       <MonitorHeartIcon
-        fontSize="large"
         sx={{
           color: theme.palette.primary.dark,
           display: "block",
@@ -70,7 +69,6 @@ function HealthMetric({ metric, handleSnackBar }) {
   } else if (metric_type.id === 9) {
     metricIcon = (
       <LocalPharmacyIcon
-        fontSize="large"
         sx={{
           color: theme.palette.primary.main,
           display: "block",
@@ -84,7 +82,6 @@ function HealthMetric({ metric, handleSnackBar }) {
   } else {
     metricIcon = (
       <HealingIcon
-        fontSize="large"
         sx={{
           color: theme.palette.primary.light,
           display: "block",
@@ -98,36 +95,29 @@ function HealthMetric({ metric, handleSnackBar }) {
   }
 
   return (
-    <>
-      <Grid
-        container
-        spacing={2}
-        alignContent={"center"}
-        justifyContent={"flex-start"}
-      >
-        <Grid item xs={12}>
-          <Card>
+    <Grid item xs={12}>
+          <Card variant="outlined" sx={{width: '100%'}}>
             <CardContent>
               <Grid container alignItems={"flex-start"} spacing={1}>
                 <Grid item>{metricIcon}</Grid>
                 {!isEditing ? (
                   <Grid container direction="column" item xs>
-                    <Grid item xs>
-                      <Typography variant="h6" component="span">
+                    <Grid item>
+                      <Typography variant="body1" component="span">
                         {metric_type.units
-                          ? `${metric_type.metric_type}: ${content} ${metric_type.units}.`
-                          : `${metric_type.metric_type}: ${content}`}
+                          ? <strong>{metric_type.metric_type}: {content} {metric_type.units}.</strong>
+                          : <strong>{metric_type.metric_type}: {content}</strong>}
                       </Typography>
                       <Typography
-                        variant="body1"
+                        variant="caption"
                         component="span"
-                        sx={{ marginLeft: "1rem" }}
+                        sx={{ marginLeft: "0.5rem" }}
                       >
                         {formattedDate}
                       </Typography>
 
                       {comment && (
-                        <Typography variant="body1">
+                        <Typography variant="body2">
                           <strong>Comment: </strong>
                           {comment}
                         </Typography>
@@ -135,19 +125,19 @@ function HealthMetric({ metric, handleSnackBar }) {
                     </Grid>
                     <Grid item>
                       <IconButton
-                        size="small"
                         onClick={() => setIsEditing(true)}
                         aria-label="Edit Prescription"
+                        size="small"
                       >
-                        <EditIcon />
+                        <EditIcon fontSize="small" />
                       </IconButton>
                       <IconButton
-                        size="small"
                         floated="right"
                         onClick={handleClick}
                         aria-label="Delete Prescription"
+                        size="small"
                       >
-                        <DeleteIcon />
+                        <DeleteIcon fontSize="small"/>
                       </IconButton>
                     </Grid>
                   </Grid>
@@ -166,8 +156,6 @@ function HealthMetric({ metric, handleSnackBar }) {
             </CardContent>
           </Card>
         </Grid>
-      </Grid>
-    </>
   );
 }
 

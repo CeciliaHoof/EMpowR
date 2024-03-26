@@ -1,8 +1,6 @@
 import { useContext, useState, useEffect } from "react";
-import { Container, IconButton, Tooltip, Snackbar, Alert } from "@mui/material";
+import { Container, IconButton, Tooltip } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import CloseIcon from "@mui/icons-material/Close";
-import "react-toastify/dist/ReactToastify.css";
 import moment from "moment";
 import HealthMetricContainer from "../components/HealthMetricContainer";
 import HealthMetricForm from "../components/HealthMetricForm";
@@ -12,15 +10,13 @@ import MonitorHeartIcon from "@mui/icons-material/MonitorHeart";
 import HealingIcon from '@mui/icons-material/Healing';
 import { HealthMetricsContext } from "../context/healthMetrics";
 
-function HealthMetrics() {
+function HealthMetrics({ setSnackbar }) {
   const { healthMetrics, setHealthMetrics } = useContext(HealthMetricsContext);
   const [open, setOpen] = useState(false);
   const [formType, setFormType] = useState("");
   const [selectedMetricType, setSelectedMetricType] = useState("");
   const [selectedPrescription, setSelectedPrescription] = useState("");
   const [selectedDate, setSelectedDate] = useState(moment());
-  const [openSnackBar, setOpenSnackBar] = useState(false)
-  const [snackbarMessage, setSnackbarMessage] = useState("")
 
   const theme = useTheme();
 
@@ -34,40 +30,12 @@ function HealthMetrics() {
 
   function onAddMetric(metricsList) {
     setHealthMetrics([...healthMetrics, ...metricsList]);
-    metricsList.forEach((metric) =>
-      setOpenSnackBar(true)
-    );
   }
 
   function handleClick(string) {
     setOpen(true);
     setFormType(string);
   }
-
-  function handleClose(event, reason){
-    if (reason === "clickaway") {
-      return;
-    }
-
-    setOpenSnackBar(false);
-  };
-
-  function handleSnackBar(){
-    setOpenSnackBar(true)
-  }
-
-  const action = (
-    <>
-      <IconButton
-        size="small"
-        aria-label="close"
-        color="inherit"
-        onClick={handleClose}
-      >
-        <CloseIcon fontSize="small" />
-      </IconButton>
-    </>
-  );
 
   return (
     <>
@@ -90,7 +58,7 @@ function HealthMetrics() {
         />
       </Container>
       <Container
-        sx={{ width: "100%", margin: "1rem -2rem -1.4rem 2rem"}}
+        sx={{ width: "100%", marginBottom: "-0.5rem"}}
       >
         <Tooltip title="Record Other Symptoms">
           <IconButton
@@ -123,28 +91,16 @@ function HealthMetrics() {
           addMetric={onAddMetric}
           method={"POST"}
           formType={formType}
-          successMessage={setSnackbarMessage}
-          showSnackBar={handleSnackBar}
+          setSnackbar={setSnackbar}
         />
       )}
       <HealthMetricContainer
         filterMetricType={selectedMetricType}
         filterDate={selectedDate}
         filterPrescription={selectedPrescription}
-        successMessage={setSnackbarMessage}
-        showSnackBar={handleSnackBar}
+        setSnackbar={setSnackbar}
       />
     </Container>
-    <Snackbar
-    open={openSnackBar}
-    autoHideDuration={5000}
-    onClose={handleClose}
-    action={action}
-  >
-    <Alert onClose={handleClose} severity="success" sx={{ width: "100%" }}>
-      {snackbarMessage}
-    </Alert>
-  </Snackbar>
   </>
   );
 }
