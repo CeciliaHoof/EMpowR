@@ -3,15 +3,15 @@ import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   LineElement,
-  CategoryScale, //x axis
-  LinearScale, //y axis
+  CategoryScale,
+  LinearScale,
   PointElement,
   Legend,
   Tooltip,
 } from "chart.js";
-import { Form } from "semantic-ui-react";
-import styled from "styled-components";
+
 import { HealthMetricsContext } from "../context/healthMetrics";
+import { Container, Typography, Radio, RadioGroup, FormControlLabel } from "@mui/material";
 
 ChartJS.register(
   LineElement,
@@ -223,57 +223,33 @@ function MetricChart() {
   };
 
   return (
-    <ChartContainer>
-      <h2>Health Metric Data</h2>
-      <Form>
-        <Form.Group inline>
-          <label>Display:</label>
-          <Form.Radio
-            label="All"
-            value="all"
-            checked={display === "all"}
-            onChange={(e, { value }) => setDisplay(value)}
-          />
-          <Form.Radio
-            label="Day"
-            value="day"
-            checked={display === "day"}
-            onChange={(e, { value }) => setDisplay(value)}
-          />
-          <Form.Radio
-            label="Week"
-            value="week"
-            checked={display === "week"}
-            onChange={(e, { value }) => setDisplay(value)}
-          />
-          <Form.Radio
-            label="Month"
-            value="month"
-            checked={display === "month"}
-            onChange={(e, { value }) => setDisplay(value)}
-          />
-        </Form.Group>
-      </Form>
-      {healthMetrics.length === 0 && <p>Once you have Health Metrics logged in our system, come back here to view a graph of your Health Metric data.</p>}
-      <ChartWrapper>
+    <>
+      <Typography component={"h5"} variant="h5">
+        Health Metric Data
+      </Typography>
+      <RadioGroup
+        row
+        aria-label="display"
+        name="display"
+        value={display}
+        onChange={(e) => setDisplay(e.target.value)}
+      >
+        <FormControlLabel value="all" control={<Radio />} label="All" />
+        <FormControlLabel value="day" control={<Radio />} label="Day" />
+        <FormControlLabel value="week" control={<Radio />} label="Week" />
+        <FormControlLabel value="month" control={<Radio />} label="Month" />
+      </RadioGroup>
+      {healthMetrics.length === 0 && (
+        <p>
+          Once you have Health Metrics logged in our system, come back here to
+          view a graph of your Health Metric data.
+        </p>
+      )}
+      <Container sx={{ height: '30rem' }}>
         <Line data={data} options={options}></Line>
-      </ChartWrapper>
-    </ChartContainer>
+      </Container>
+    </>
   );
 }
 
 export default MetricChart;
-
-const ChartContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  align-items: center;
-  margin-top: 1rem;
-  width: 100%;
-`;
-
-const ChartWrapper = styled.div`
-  height: 30rem;
-  width: 60rem;
-`;

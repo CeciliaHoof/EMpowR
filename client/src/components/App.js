@@ -1,7 +1,25 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Routes, Route } from "react-router-dom";
-import styled from "styled-components";
 import { ToastContainer } from "react-toastify";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
+import {
+  Typography,
+  Box,
+  Toolbar,
+  IconButton,
+  Drawer,
+  CssBaseline,
+  Divider,
+  Menu,
+  MenuItem
+} from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import MuiAppBar from "@mui/material/AppBar";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import { styled, useTheme } from "@mui/material/styles";
 
 import Login from "../pages/Login";
 import Dashboard from "../pages/Dashboard";
@@ -18,14 +36,21 @@ import { UserContext } from "../context/user";
 import { HealthMetricsContext } from "../context/healthMetrics";
 import { PrescriptionsContext } from "../context/prescriptions";
 import { MedicationsContext } from "../context/medications";
+import { CurrentPageContext } from "../context/currentPage";
 
-
+const drawerWidth = 240;
 
 function App() {
   const { user, setUser } = useContext(UserContext);
   const { setHealthMetrics } = useContext(HealthMetricsContext);
   const { setPrescriptions } = useContext(PrescriptionsContext);
-  const { setMedications } = useContext(MedicationsContext)
+  const { setMedications } = useContext(MedicationsContext);
+  const { currentPage } = useContext(CurrentPageContext);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [open, setOpen] = useState(false);
+
+  const theme = useTheme();
+  console.log(theme);
 
   useEffect(() => {
     fetch("/check_session").then((r) => {
@@ -41,47 +66,178 @@ function App() {
     });
     fetch("/medications")
       .then((r) => r.json())
-      .then(data => setMedications(data))
+      .then((data) => setMedications(data));
   }, [setHealthMetrics, setPrescriptions, setMedications, setUser]);
 
   if (!user) {
     return <Login />;
   }
 
+  function handleDrawer(bool) {
+    setOpen(bool);
+  }
+
+  const handleMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  function handleLogout() {
+    fetch("/logout", {
+      method: "DELETE",
+    });
+    setUser(null);
+  }
+
   return (
     <>
-    <Container>
-      <Sidebar>
-        <h1>EMpowR</h1>
-        <h3>{`Welcome, ${user.first_name}`}</h3>
-        <NavMenu />
-      </Sidebar>
-      <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/medications" element={<Medications />} />
-        <Route path="/prescriptions" element={<Prescriptions />} />
-        <Route path="/health_metrics" element={<HealthMetrics />} />
-        <Route path="/error" element={<ErrorPage />} />
-        <Route path="/medications/:id" element={<MedicationDetails />} />
-        <Route path="/prescriptions/:id" element={<PrescriptionDetails />} />
-      </Routes>
-    </Container>
-    <ToastContainer />
+      <LocalizationProvider dateAdapter={AdapterMoment}>
+        <Box sx={{ display: "flex" }}>
+          <CssBaseline />
+          <AppBar position="fixed" open={open}>
+            <Toolbar>
+              <IconButton
+                edge="start"
+                color="inherit"
+                aria-label="open drawer"
+                sx={{ mr: 2, ...(open && { display: "none" }) }}
+                onClick={() => handleDrawer(true)}
+              >
+                <MenuIcon />
+              </IconButton>
+              <Typography variant="h5" component="div" noWrap>
+                EMpowR / 
+              </Typography>
+              <Typography variant="h5" component="div" noWrap sx={{marginLeft: '0.5rem'}}>
+                  {currentPage}
+                </Typography>
+              <div style={{ flexGrow: 1 }} /> 
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <Typography variant="h6">{`Welcome, ${user.first_name}`}</Typography>
+              <IconButton
+                size="large"
+                aria-label="account of current user"
+                aria-controls="menu-appbar"
+                aria-haspopup="true"
+                onClick={handleMenu}
+                color="inherit"
+              >
+                <AccountCircleIcon />
+              </IconButton>
+              <Menu
+                id="menu-appbar"
+                anchorEl={anchorEl}
+                anchorOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                open={Boolean(anchorEl)}
+                onClose={handleClose}
+              >
+                <MenuItem onClick={handleClose}>My account</MenuItem>
+                <MenuItem onClick={() => {handleLogout(); handleClose()}}>Logout</MenuItem>
+              </Menu>
+            </div>
+            </Toolbar>
+          </AppBar>
+
+          <Drawer
+            sx={{
+              width: drawerWidth,
+              flexShrink: 0,
+              "& .MuiDrawer-paper": {
+                width: drawerWidth,
+                boxSizing: "border-box",
+              },
+            }}
+            variant="persistent"
+            anchor="left"
+            open={open}
+          >
+            <DrawerHeader>
+              <IconButton onClick={() => handleDrawer(false)}>
+                {theme.direction === "ltr" ? (
+                  <ChevronLeftIcon />
+                ) : (
+                  <ChevronRightIcon />
+                )}
+              </IconButton>
+            </DrawerHeader>
+            <Divider />
+            <NavMenu />
+          </Drawer>
+          <Main open={open}>
+            <DrawerHeader />
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/medications" element={<Medications />} />
+              <Route path="/prescriptions" element={<Prescriptions />} />
+              <Route path="/health_metrics" element={<HealthMetrics />} />
+              <Route path="/error" element={<ErrorPage />} />
+              <Route path="/medications/:id" element={<MedicationDetails />} />
+              <Route
+                path="/prescriptions/:id"
+                element={<PrescriptionDetails />}
+              />
+            </Routes>
+          </Main>
+        </Box>
+        <ToastContainer />
+      </LocalizationProvider>
     </>
   );
 }
 
 export default App;
 
-const Container = styled.div`
-  height: 100vh;
-  display: flex;
-  gap: 1rem;
-  margin-right: 1rem;
-`;
+const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })(
+  ({ theme, open }) => ({
+    flexGrow: 1,
+    padding: theme.spacing(3),
+    transition: theme.transitions.create("margin", {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+    marginLeft: `-${drawerWidth}px`,
+    ...(open && {
+      transition: theme.transitions.create("margin", {
+        easing: theme.transitions.easing.easeOut,
+        duration: theme.transitions.duration.enteringScreen,
+      }),
+      marginLeft: 0,
+    }),
+  })
+);
 
-const Sidebar = styled.div`
-  height: 100%;
-  background-color: #7e93a8;
-  padding: 0.5%;
-`;
+const AppBar = styled(MuiAppBar, {
+  shouldForwardProp: (prop) => prop !== "open",
+})(({ theme, open }) => ({
+  transition: theme.transitions.create(["margin", "width"], {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+  ...(open && {
+    width: `calc(100% - ${drawerWidth}px)`,
+    marginLeft: `${drawerWidth}px`,
+    transition: theme.transitions.create(["margin", "width"], {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  }),
+}));
+
+const DrawerHeader = styled("div")(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  padding: theme.spacing(0, 1),
+  ...theme.mixins.toolbar,
+  justifyContent: "flex-end",
+}));

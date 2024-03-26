@@ -1,63 +1,89 @@
-import { useContext } from "react";
-import Datetime from "react-datetime";
-import moment from "moment";
-import { Form } from "semantic-ui-react";
+import React, { useContext } from "react";
+import { FormControl, InputLabel, MenuItem, Select, Typography, Box, Grid } from "@mui/material";
 import { HealthMetricsContext } from "../context/healthMetrics";
-import { PrescriptionsContext } from "../context/prescriptions"
+import { PrescriptionsContext } from "../context/prescriptions";
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { Container } from "@mui/system";
 
 function HealthMetricFilter({ filterMetric, onMetricChange, filterDate, onDateChange, filterPrescription, onPrescriptionChange }) {
   const { healthMetrics } = useContext(HealthMetricsContext);
-  const { prescriptions } = useContext(PrescriptionsContext)
-
-  const today = moment();
-  const valid = function (current) {
-    return current.isBefore(today);
-  };
+  const { prescriptions } = useContext(PrescriptionsContext);
 
   const userMetricTypes = [
     ...new Set(
-      healthMetrics.map((metric) => metric.metric_type.metric_type
-      ))]
-  userMetricTypes.unshift('All')
+      healthMetrics.map((metric) => metric.metric_type.metric_type)
+    )
+  ];
+  userMetricTypes.unshift('All');
   const metricOptions = userMetricTypes.map((type) => (
-    {key: type, value: type, text: type}
+    <MenuItem key={type} value={type}>{type}</MenuItem>
   ));
-  
-  const prescriptionOptions = prescriptions.map((script) => ({key: script.medication.generic_name, value: script.medication.generic_name, text: script.medication.generic_name}))
-  prescriptionOptions.unshift({key: 'All', value: 'All', text: 'All'})
-  
+
+  const prescriptionOptions = prescriptions.map((script) => (
+    <MenuItem key={script.medication.generic_name} value={script.medication.generic_name}>
+      {script.medication.generic_name}
+    </MenuItem>
+  ));
+  prescriptionOptions.unshift(<MenuItem key="All" value="All">All</MenuItem>);
+
   return (
     <>
-    <p style={{textAlign: "left", marginBottom: '0', marginLeft:'0.2rem', fontSize: '1rem'}}>Filter Health Metrics</p>
-    <Form size='mini'>
-      <Form.Group widths='equal'>
-      <Form.Field>
-      <Form.Select
-        placeholder="Select Metric Type"
-        options={metricOptions}
-        value={filterMetric}
-        onChange={(e, { value }) => { onMetricChange(value); onPrescriptionChange('') }}
-      />
-      </Form.Field>
-      <Form.Field>
-        <Datetime
-          inputProps={{placeholder: 'Select Start Date'}}
-          isValidDate={valid}
-          timeFormat={false}
-          value={filterDate}
-          onChange={(e) => onDateChange(e)}
-        />
-      </Form.Field>
-      {filterMetric === 'Medication Taken' && <Form.Field>
-        <Form.Select 
-          placeholder="Select Prescription"
-          options={prescriptionOptions}
-          value={filterPrescription}
-          onChange={(e, { value }) => onPrescriptionChange(value)}
-        />
-      </Form.Field>}
-      </Form.Group>
-    </Form>
+    <Typography variant="body1" style={{ textAlign: "left", marginBottom: '0', marginLeft:'0.2rem', fontSize: '1rem'}}>
+        Filter Health Metrics
+      </Typography>
+    <Container sx={{padding:'0.5rem', backgroundColor: 'white' }}>
+    
+    <Grid container spacing={2} justifyContent={"center"}>
+      <Grid item xs={12} sm={6} md={4}>
+      <Box sx={{ mt: 1}}>
+        <FormControl fullWidth >
+          <InputLabel id="metric-type-label">Select Metric Type</InputLabel>
+          <Select
+            labelId="metric-type-label"
+            label="Select Metric Type"
+            value={filterMetric}
+            onChange={(e) => { onMetricChange(e.target.value); onPrescriptionChange('') }}
+          >
+            {metricOptions}
+          </Select>
+        </FormControl>
+      </Box>
+      </Grid>
+      {filterMetric === 'Medication Taken' && (
+        <Grid item xs={12} sm={6} md={4}>
+        <Box sx={{ mt: 1 }}>
+          <FormControl fullWidth>
+            <InputLabel id="prescription-label">Select Prescription</InputLabel>
+            <Select
+              labelId="prescription-label"
+              label="Select Prescription"
+              value={filterPrescription}
+              onChange={(e) => onPrescriptionChange(e.target.value)}
+            >
+              {prescriptionOptions}
+            </Select>
+          </FormControl>
+        </Box>
+        </Grid>
+      )}
+      <Grid item xs={12} sm={6} md={4}>
+      <Box sx={{ mt: 1 }}>
+      <FormControl fullWidth >
+        
+      <DatePicker
+              label="Select Start Date"
+              inputFormat="MM/dd/yyyy"
+              value={filterDate}
+              onChange={onDateChange}
+              textField={(params) => <input {...params} placeholder="Select Start Date" />}
+              disableFuture
+            />
+        </FormControl>
+      </Box>
+      </Grid>
+      
+      </Grid>
+    </Container>
     </>
   );
 }

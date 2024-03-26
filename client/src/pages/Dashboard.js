@@ -1,6 +1,6 @@
 import { useContext, useState, useEffect } from "react";
-import styled from "styled-components";
-import { Card } from "semantic-ui-react";
+
+import { Grid, Paper } from "@mui/material";
 
 import Snapshot from "../components/Snapshot";
 import HealthMetricChart from "../components/HealthMetricChart";
@@ -25,32 +25,43 @@ function Dashboard() {
   if (!metricTypes) {
     return <h1>Loading...</h1>;
   }
-  
+
   return (
-    <MainContainer>
-      <SnapshotContainer>
-        <Card.Group>
-          <Snapshot num={numPrescriptions} type={"Prescriptions"} />
-          <Snapshot num={numMetrics} type={"Health Metrics"} />
-        </Card.Group>
-      </SnapshotContainer>
-      <HealthMetricChart />
-    </MainContainer>
+    <>
+      <Grid container spacing={4} rowSpacing={2}>
+        <Grid item xs={8}>
+          <Paper
+            sx={{
+              p: 2,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              height: "40rem",
+              gap: "0.5rem",
+            }}
+          >
+            <HealthMetricChart />
+          </Paper>
+        </Grid>
+        <Grid item xs={4}>
+          <Paper
+            sx={{
+              p: 2,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "2rem",
+              height: "40rem",
+            }}
+          >
+            <Snapshot num={numPrescriptions} type={"Prescriptions"} />
+            <Snapshot num={numMetrics} type={"Health Metrics"} />
+          </Paper>
+        </Grid>
+      </Grid>
+    </>
   );
 }
 
 export default Dashboard;
-
-const MainContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-`;
-const SnapshotContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  background-color: #b6cbe0;
-  margin: 3rem 1rem 2rem 1rem;
-  padding: 1rem;
-`;
-
