@@ -16,8 +16,6 @@ import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import moment from "moment";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { UserContext } from "../context/user";
 
 const FieldTypes = {
@@ -80,6 +78,8 @@ function HealthMetricForm({
   metric,
   onEdit,
   formType,
+  successMessage,
+  showSnackBar
 }) {
   const { user } = useContext(UserContext);
 
@@ -179,11 +179,12 @@ function HealthMetricForm({
               metricsToAdd.push(data);
             });
             addMetric(metricsToAdd);
+            successMessage("Metric Successfully Added")
+            showSnackBar(true)
             formik.resetForm(initialState);
             hideForm(false);
           } catch (error) {
             console.error(error);
-            toast.error("Error creating metrics.");
           }
           setSubmitting(false);
         } else {
@@ -213,6 +214,8 @@ function HealthMetricForm({
               if (resp.ok) {
                 resp.json().then((data) => {
                   addMetric([data]);
+                  successMessage("Metric Successfully Added")
+                  showSnackBar(true)
                   formik.resetForm();
                   hideForm(false);
                 });

@@ -1,7 +1,7 @@
 import { useContext, useState, useEffect } from "react";
-import { Container, IconButton, Tooltip } from "@mui/material";
+import { Container, IconButton, Tooltip, Snackbar, Alert } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { toast } from "react-toastify";
+import CloseIcon from "@mui/icons-material/Close";
 import "react-toastify/dist/ReactToastify.css";
 import moment from "moment";
 import HealthMetricContainer from "../components/HealthMetricContainer";
@@ -19,6 +19,8 @@ function HealthMetrics() {
   const [selectedMetricType, setSelectedMetricType] = useState("");
   const [selectedPrescription, setSelectedPrescription] = useState("");
   const [selectedDate, setSelectedDate] = useState(moment());
+  const [openSnackBar, setOpenSnackBar] = useState(false)
+  const [snackbarMessage, setSnackbarMessage] = useState("")
 
   const theme = useTheme();
 
@@ -33,7 +35,7 @@ function HealthMetrics() {
   function onAddMetric(metricsList) {
     setHealthMetrics([...healthMetrics, ...metricsList]);
     metricsList.forEach((metric) =>
-      toast.success("Metric Successfully Created.")
+      setOpenSnackBar(true)
     );
   }
 
@@ -42,7 +44,33 @@ function HealthMetrics() {
     setFormType(string);
   }
 
+  function handleClose(event, reason){
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setOpenSnackBar(false);
+  };
+
+  function handleSnackBar(){
+    setOpenSnackBar(true)
+  }
+
+  const action = (
+    <>
+      <IconButton
+        size="small"
+        aria-label="close"
+        color="inherit"
+        onClick={handleClose}
+      >
+        <CloseIcon fontSize="small" />
+      </IconButton>
+    </>
+  );
+
   return (
+    <>
     <Container sx={{ display: "flex", flexDirection: "column", width: "100%" }}>
       <Container
         sx={{
@@ -95,14 +123,29 @@ function HealthMetrics() {
           addMetric={onAddMetric}
           method={"POST"}
           formType={formType}
+          successMessage={setSnackbarMessage}
+          showSnackBar={handleSnackBar}
         />
       )}
       <HealthMetricContainer
         filterMetricType={selectedMetricType}
         filterDate={selectedDate}
         filterPrescription={selectedPrescription}
+        successMessage={setSnackbarMessage}
+        showSnackBar={handleSnackBar}
       />
     </Container>
+    <Snackbar
+    open={openSnackBar}
+    autoHideDuration={5000}
+    onClose={handleClose}
+    action={action}
+  >
+    <Alert onClose={handleClose} severity="success" sx={{ width: "100%" }}>
+      {snackbarMessage}
+    </Alert>
+  </Snackbar>
+  </>
   );
 }
 

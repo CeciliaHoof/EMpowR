@@ -1,5 +1,5 @@
 import { useContext, useRef } from "react";
-import { Container, Button } from "@mui/material"
+import { Container, Button } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import HealthMetric from "./HealthMetric";
 import html2canvas from "html2canvas";
@@ -13,12 +13,20 @@ function HealthMetricContainer({
   filterMetricType,
   filterDate,
   filterPrescription,
+  successMessage,
+  showSnackBar,
 }) {
   const { user } = useContext(UserContext);
   const { healthMetrics } = useContext(HealthMetricsContext);
   const pdfRef = useRef(null);
   const theme = useTheme();
-
+  
+  function handleSnackBar(string){
+    string === 'delete' ?
+    successMessage("Metric Successfully Deleted"):
+    successMessage("Metric Successfully Updated")
+    showSnackBar(true)
+  }
   const metricsDisplay = healthMetrics
     .filter((metric) => {
       if (script) {
@@ -128,12 +136,24 @@ function HealthMetricContainer({
   if (filterDate) {
     pdfHeading += ` since ${filterDate}`;
   }
+
   return (
     <>
-      <Container sx={{height: "35rem", width: "100%", overflowY: "auto", margin: "1rem 1rem"}}>
-          {metricsDisplay.map((metric) => (
-            <HealthMetric metric={metric} key={metric.id} />
-          ))}
+      <Container
+        sx={{
+          height: "35rem",
+          width: "100%",
+          overflowY: "auto",
+          margin: "1rem 1rem",
+        }}
+      >
+        {metricsDisplay.map((metric) => (
+          <HealthMetric
+            metric={metric}
+            key={metric.id}
+            handleSnackBar={handleSnackBar}
+          />
+        ))}
       </Container>
       <div ref={pdfRef} id="pdf-content" style={{ display: "none" }}>
         <h2 style={{ marginBottom: "2px" }}>
@@ -146,8 +166,12 @@ function HealthMetricContainer({
       </div>
       {!script && (
         <div style={{ textAlign: "center", marginBottom: "1rem" }}>
-          <Button onClick={downloadPDF} size="small" variant="contained"
-            sx={{ backgroundColor: theme.palette.primary.dark}}>
+          <Button
+            onClick={downloadPDF}
+            size="small"
+            variant="contained"
+            sx={{ backgroundColor: theme.palette.primary.dark }}
+          >
             Download PDF of Currently Displayed Health Metrics
           </Button>
         </div>
