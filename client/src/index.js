@@ -1,6 +1,5 @@
 import React from "react";
 import { BrowserRouter as Router } from "react-router-dom";
-import "react-toastify/dist/ReactToastify.css";
 import { createRoot } from "react-dom/client";
 
 import App from "./components/App";

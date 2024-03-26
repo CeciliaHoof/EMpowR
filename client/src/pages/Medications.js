@@ -1,5 +1,5 @@
 import { useState, useContext } from "react";
-import { Container } from "@mui/material";
+import { Box, Container, Grid } from "@mui/material";
 import { useTheme } from "@mui/material/styles"
 import MedicationSearch from "../components/MedicationSearch";
 import Medication from "../components/Medication";
@@ -61,9 +61,10 @@ function Medications() {
           searchBy={searchBy}
         />
       </Container>
-      <Container sx={{ height: "40rem", width: "100%", overflowY: "auto", margin: "0 1rem"}}>
-        {medicationsDisplay}
-      </Container>
+      <Box sx={{ height: "34rem", width: "100%", overflowY: "scroll"}}>
+        <Grid container>
+        {medicationsDisplay}</Grid>
+      </Box>
     </Container>
   );
 }

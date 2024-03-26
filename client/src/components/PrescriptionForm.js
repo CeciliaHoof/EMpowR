@@ -2,12 +2,11 @@ import { useContext } from "react";
 import { Button, Container, TextField, MenuItem, Grid } from "@mui/material";
 import { useFormik } from "formik";
 import * as yup from "yup";
-import { toast } from "react-toastify";
 import { UserContext } from "../context/user";
 import { PrescriptionsContext } from "../context/prescriptions";
 import { MedicationsContext } from "../context/medications";
 
-function PrescriptionForm({ close, method, prescription, onEdit }) {
+function PrescriptionForm({ close, method, prescription, onEdit, setSnackbar }) {
   const { user } = useContext(UserContext);
   const { prescriptions, setPrescriptions } = useContext(PrescriptionsContext);
   const { medications } = useContext(MedicationsContext);
@@ -93,7 +92,7 @@ function PrescriptionForm({ close, method, prescription, onEdit }) {
                 setPrescriptions([...prescriptions, data]);
                 formik.resetForm();
                 close(false);
-                toast.success("Prescription Successfully Added.");
+                setSnackbar("Prescription Successfully Added.");
               });
             } else {
               resp.json().then((data) => {
@@ -116,7 +115,6 @@ function PrescriptionForm({ close, method, prescription, onEdit }) {
                 onEdit(data);
                 formik.resetForm();
                 close(false);
-                toast.success("Prescription Successfully Updated");
               });
             } else {
               resp.json().then((data) => {

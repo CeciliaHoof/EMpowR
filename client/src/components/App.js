@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Routes, Route } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import {
@@ -12,8 +11,11 @@ import {
   CssBaseline,
   Divider,
   Menu,
-  MenuItem
+  MenuItem,
+  Snackbar,
+  Alert
 } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import MenuIcon from "@mui/icons-material/Menu";
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import MuiAppBar from "@mui/material/AppBar";
@@ -48,6 +50,8 @@ function App() {
   const { currentPage } = useContext(CurrentPageContext);
   const [anchorEl, setAnchorEl] = useState(null);
   const [open, setOpen] = useState(false);
+  const [openSnackBar, setOpenSnackBar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
 
   const theme = useTheme();
   console.log(theme);
@@ -91,6 +95,32 @@ function App() {
     });
     setUser(null);
   }
+
+  function handleSnackbarClose(event, reason) {
+    if (reason === "clickaway") {
+      return;
+    }
+    setSnackbarMessage("");
+    setOpenSnackBar(false);
+  }
+
+  function handleSnackbar(string) {
+    setSnackbarMessage(string)
+    setOpenSnackBar(true);
+  }
+
+  const action = (
+    <>
+      <IconButton
+        size="small"
+        aria-label="close"
+        color="inherit"
+        onClick={handleSnackbarClose}
+      >
+        <CloseIcon fontSize="small" />
+      </IconButton>
+    </>
+  );
 
   return (
     <>
@@ -179,18 +209,27 @@ function App() {
             <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/medications" element={<Medications />} />
-              <Route path="/prescriptions" element={<Prescriptions />} />
-              <Route path="/health_metrics" element={<HealthMetrics />} />
+              <Route path="/prescriptions" element={<Prescriptions setSnackbar={handleSnackbar}/>} />
+              <Route path="/health_metrics" element={<HealthMetrics setSnackbar={handleSnackbar}/>} />
               <Route path="/error" element={<ErrorPage />} />
               <Route path="/medications/:id" element={<MedicationDetails />} />
               <Route
                 path="/prescriptions/:id"
-                element={<PrescriptionDetails />}
+                element={<PrescriptionDetails setSnackbar={handleSnackbar}/>}
               />
             </Routes>
           </Main>
         </Box>
-        <ToastContainer />
+        <Snackbar
+        open={openSnackBar}
+        autoHideDuration={5000}
+        onClose={handleSnackbarClose}
+        action={action}
+      >
+        <Alert onClose={handleSnackbarClose} severity="success" sx={{ width: "100%" }}>
+          {snackbarMessage}
+        </Alert>
+        </Snackbar>
       </LocalizationProvider>
     </>
   );

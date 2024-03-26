@@ -43,15 +43,15 @@ function MetricChart() {
     "Weight",
   ];
   const colors = [
-    "#6699FF",
-    "#CCCCFF",
-    "#FFCCCC",
-    "#CC99FF",
-    "#CCFFCC",
-    "#CCCCCC",
-    "#FFD699",
-    "#CC9966",
-    "#FFFF99",
+    "#0d46a1",
+    "#5d03c4",
+    "#008484",
+    "#1976D2",
+    "#794feb",
+    "#00aeb4",
+    "#42a5f5",
+    "#b49bf3",
+    "#71e0dd",
   ];
 
   const sortedMetrics = healthMetrics.sort(

@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
-import { Card, CardContent, Snackbar, IconButton, Container, Typography } from "@mui/material";
+import { Card, CardContent, IconButton, Container, Typography } from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useTheme } from "@mui/material/styles";
@@ -8,14 +8,13 @@ import { PrescriptionsContext } from "../context/prescriptions";
 import HealthMetricContainer from "./HealthMetricContainer";
 import PrescriptionForm from "./PrescriptionForm";
 
-function PrescriptionDetails() {
+function PrescriptionDetails({ setSnackbar }) {
   const { id } = useParams();
   const { prescriptions, setPrescriptions } = useContext(PrescriptionsContext);
 
   const [prescription, setPrescription] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [formOpen, setFormOpen] = useState(false);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   const { medication, route, dosage, frequency } = prescription;
 
@@ -31,12 +30,13 @@ function PrescriptionDetails() {
       });
   }, [id]);
 
-  const handleSnackbarClose = () => {
-    setSnackbarOpen(false);
-  };
-
   if (isLoading) {
     return <div>Loading...</div>;
+  }
+
+  function handleEdit(updatedScript){
+    setPrescription(updatedScript)
+    setSnackbar("Prescription Successfully Updated")
   }
 
   function handleDelete() {
@@ -44,7 +44,7 @@ function PrescriptionDetails() {
       (script) => script.id !== prescription.id
     );
     setPrescriptions(updatedPrescriptions);
-    setSnackbarOpen(true);
+    setSnackbar("Prescription Successfully Deleted.");
   }
 
   function handleClick() {
@@ -70,6 +70,7 @@ function PrescriptionDetails() {
       <Container
         sx={{
           width: '80%',
+          marginBottom: '2rem'
         }}
       >
         <Card sx={{ backgroundColor: theme.palette.primary.light, borderRadius: 0 }}>
@@ -127,20 +128,12 @@ function PrescriptionDetails() {
       {formOpen && (
         <PrescriptionForm
           close={setFormOpen}
-          onEdit={setPrescription}
+          onEdit={handleEdit}
           prescription={prescription}
           method={"PATCH"}
         />
       )}
       <HealthMetricContainer script={medication.generic_name} />
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={handleSnackbarClose}
-        message="Prescription Successfully Deleted"
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-      </Snackbar>
     </Container>
   );
 }

@@ -1,8 +1,6 @@
 import { useContext, useState, useEffect } from "react";
 import { Container, IconButton, Tooltip } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import moment from "moment";
 import HealthMetricContainer from "../components/HealthMetricContainer";
 import HealthMetricForm from "../components/HealthMetricForm";
@@ -12,7 +10,7 @@ import MonitorHeartIcon from "@mui/icons-material/MonitorHeart";
 import HealingIcon from '@mui/icons-material/Healing';
 import { HealthMetricsContext } from "../context/healthMetrics";
 
-function HealthMetrics() {
+function HealthMetrics({ setSnackbar }) {
   const { healthMetrics, setHealthMetrics } = useContext(HealthMetricsContext);
   const [open, setOpen] = useState(false);
   const [formType, setFormType] = useState("");
@@ -32,9 +30,6 @@ function HealthMetrics() {
 
   function onAddMetric(metricsList) {
     setHealthMetrics([...healthMetrics, ...metricsList]);
-    metricsList.forEach((metric) =>
-      toast.success("Metric Successfully Created.")
-    );
   }
 
   function handleClick(string) {
@@ -43,6 +38,7 @@ function HealthMetrics() {
   }
 
   return (
+    <>
     <Container sx={{ display: "flex", flexDirection: "column", width: "100%" }}>
       <Container
         sx={{
@@ -62,7 +58,7 @@ function HealthMetrics() {
         />
       </Container>
       <Container
-        sx={{ width: "100%", margin: "1rem -2rem -1.4rem 2rem"}}
+        sx={{ width: "100%", marginBottom: "-0.5rem"}}
       >
         <Tooltip title="Record Other Symptoms">
           <IconButton
@@ -95,14 +91,17 @@ function HealthMetrics() {
           addMetric={onAddMetric}
           method={"POST"}
           formType={formType}
+          setSnackbar={setSnackbar}
         />
       )}
       <HealthMetricContainer
         filterMetricType={selectedMetricType}
         filterDate={selectedDate}
         filterPrescription={selectedPrescription}
+        setSnackbar={setSnackbar}
       />
     </Container>
+  </>
   );
 }
 
