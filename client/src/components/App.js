@@ -20,7 +20,6 @@ import MenuIcon from "@mui/icons-material/Menu";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import MuiAppBar from "@mui/material/AppBar";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { styled, useTheme } from "@mui/material/styles";
 
 import Login from "../pages/Login";
@@ -180,7 +179,7 @@ function App() {
                   open={Boolean(anchorEl)}
                   onClose={handleClose}
                 >
-                  <MenuItem onClick={() => {handleClose(); navigate('/manage_account'); setCurrentPage("Manage Account")}}>My account</MenuItem>
+                  <MenuItem onClick={() => {handleClose(); navigate('/manage_account'); setCurrentPage("Manage Account")}}>Manage Account</MenuItem>
                   <MenuItem
                     onClick={() => {
                       handleLogout();
@@ -209,11 +208,7 @@ function App() {
           >
             <DrawerHeader>
               <IconButton onClick={() => handleDrawer(false)}>
-                {theme.direction === "ltr" ? (
                   <ChevronLeftIcon />
-                ) : (
-                  <ChevronRightIcon />
-                )}
               </IconButton>
             </DrawerHeader>
             <Divider />
