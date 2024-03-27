@@ -11,7 +11,16 @@ import {
 } from "chart.js";
 
 import { HealthMetricsContext } from "../context/healthMetrics";
-import { Container, Typography, Radio, RadioGroup, FormControlLabel } from "@mui/material";
+import {
+  Container,
+  Typography,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
+  Box,
+  Grid,
+  Divider,
+} from "@mui/material";
 
 ChartJS.register(
   LineElement,
@@ -223,32 +232,58 @@ function MetricChart() {
   };
 
   return (
-    <>
-      <Typography component={"h5"} variant="h5">
+    <Box sx={{ height: "100%" }}>
+      <Typography component="h5" variant="h5">
         Health Metric Data
       </Typography>
-      <RadioGroup
-        row
-        aria-label="display"
-        name="display"
-        value={display}
-        onChange={(e) => setDisplay(e.target.value)}
-      >
-        <FormControlLabel value="all" control={<Radio />} label="All" />
-        <FormControlLabel value="day" control={<Radio />} label="Day" />
-        <FormControlLabel value="week" control={<Radio />} label="Week" />
-        <FormControlLabel value="month" control={<Radio />} label="Month" />
-      </RadioGroup>
-      {healthMetrics.length === 0 && (
-        <p>
-          Once you have Health Metrics logged in our system, come back here to
-          view a graph of your Health Metric data.
-        </p>
-      )}
-      <Container sx={{ height: '30rem' }}>
-        <Line data={data} options={options}></Line>
-      </Container>
-    </>
+      <Divider />
+      <Grid container>
+        <Grid item xs={12}>
+          <RadioGroup
+            row
+            aria-label="display"
+            name="display"
+            value={display}
+            onChange={(e) => setDisplay(e.target.value)}
+          >
+            <FormControlLabel
+              value="all"
+              control={<Radio size="small" />}
+              label="All"
+            />
+            <FormControlLabel
+              value="day"
+              control={<Radio size="small" />}
+              label="Day"
+            />
+            <FormControlLabel
+              value="week"
+              control={<Radio size="small" />}
+              label="Week"
+            />
+            <FormControlLabel
+              value="month"
+              control={<Radio size="small" />}
+              label="Month"
+            />
+          </RadioGroup>
+        </Grid>
+        <Grid item xs={12}>
+          <Box sx={{ width: "95%", margin: "auto" }}>
+            {healthMetrics.length === 0 && (
+                <Typography
+                  variant="body1"
+                  sx={{ textAlign: "center", paddingTop: "2rem" }}
+                >
+                  Once you have Health Metrics logged in our system, come back
+                  here to view a graph of your Health Metric data.
+                </Typography>
+            )}
+            <Line data={data} options={options}></Line>
+          </Box>
+        </Grid>
+      </Grid>
+    </Box>
   );
 }
 

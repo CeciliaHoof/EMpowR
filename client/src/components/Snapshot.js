@@ -18,7 +18,7 @@ function Snapshot({ num, type }) {
     setCurrentPage(type)
   }
   return (
-    <Card sx={{ maxWidth: '22rem'}}>
+    <Card sx={{ margin: '0.5rem'}}>
       <CardContent style={{ textAlign: 'center' }}>
         {type === 'Prescriptions' ?
           <LocalPharmacyIcon fontSize="large" sx={{ color: theme.palette.primary.light }}/>:
