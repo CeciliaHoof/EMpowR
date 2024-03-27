@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { Button, Container, TextField, MenuItem, Grid } from "@mui/material";
+import { Button, Container, TextField, MenuItem, Grid, Box } from "@mui/material";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import { UserContext } from "../context/user";
@@ -36,9 +36,6 @@ function PrescriptionForm({ close, method, prescription, onEdit, setSnackbar }) 
     "Once daily, PM",
     "Twice daily",
     "Three times daily",
-    "Every other day",
-    "Every 4 hours",
-    "Every 6 hours",
     "As needed(PRN)",
     "With Meals",
   ];
@@ -131,7 +128,7 @@ function PrescriptionForm({ close, method, prescription, onEdit, setSnackbar }) 
 
   return (
     <Container sx={{ margin: "2rem 0 2rem 0" }}>
-      <form onSubmit={formik.handleSubmit}>
+      <Box component="form" autoComplete="off" onSubmit={formik.handleSubmit}>
         <Grid container spacing={2} rowSpacing={1}>
           <Grid item xs={12} sm={6}>
             <TextField
@@ -228,7 +225,7 @@ function PrescriptionForm({ close, method, prescription, onEdit, setSnackbar }) 
           </Button>
           </div>
           </Grid>
-      </form>
+      </Box>
     </Container>
   );
 }
