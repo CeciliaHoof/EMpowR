@@ -30,8 +30,8 @@ const initialValuesMap = {
     HR: "",
     RR: "",
     SPO2: "",
-    pain: "",
     temp: "",
+    pain: "",
     glucose: "",
     weight: "",
     time_taken: moment(),
@@ -147,6 +147,7 @@ function HealthMetricForm({
             8
           )) {
             if (value) {
+              console.log(value)
               postData = {
                 content: value,
                 metric_type_id: x,
@@ -154,6 +155,7 @@ function HealthMetricForm({
                 time_taken: formattedDateTime,
                 user_id: user.id,
               };
+              console.log(postData)
               fetchPromises.push(
                 fetch("/health_metrics", {
                   method: "POST",
@@ -340,10 +342,10 @@ function HealthMetricForm({
             </Grid>
             <Grid item xs={3}>
               <FormControl fullWidth>
-                <InputLabel htmlFor="spo-input">Blood Oxygen</InputLabel>
+                <InputLabel htmlFor="pain-input">Pain Level</InputLabel>
                 <OutlinedInput
-                  id="spo-input"
-                  label="Blood Oxygen"
+                  id="pain-input"
+                  label="Pain Level"
                   placeholder="0 to 10"
                   type="number"
                   min="0"
@@ -373,10 +375,10 @@ function HealthMetricForm({
             </Grid>
             <Grid item xs={3}>
               <FormControl fullWidth>
-                <InputLabel htmlFor="bg-input">Blood Glucose</InputLabel>
+                <InputLabel htmlFor="weight-input">Weight</InputLabel>
                 <OutlinedInput
-                  id="bg-input"
-                  label="Blood Glucose"
+                  id="weight-input"
+                  label="Weight"
                   placeholder="lbs"
                   type="number"
                   min="0"

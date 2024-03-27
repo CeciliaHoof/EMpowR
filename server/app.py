@@ -197,8 +197,10 @@ class Signup(Resource):
             user = User(
                 first_name=json['first_name'],
                 last_name=json['last_name'],
-                email = json['email']
+                email = json['email'],
             )
+            if json['terms_conditions']:
+                user.terms_conditions = True
             user.password_hash = json['password']
             db.session.add(user)
             db.session.commit()
