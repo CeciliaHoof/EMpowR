@@ -6,6 +6,10 @@ import {
   Grid,
   Typography,
   FormHelperText,
+  Checkbox,
+  FormControlLabel,
+  Link,
+  Dialog,
 } from "@mui/material";
 import { useFormik } from "formik";
 import * as yup from "yup";
@@ -14,6 +18,7 @@ import { UserContext } from "../context/user";
 import { PrescriptionsContext } from "../context/prescriptions";
 import { HealthMetricsContext } from "../context/healthMetrics";
 import { CurrentPageContext } from "../context/currentPage";
+import TermsConditions from "./TermsConditions"
 
 function LoginForm() {
   const { setUser } = useContext(UserContext);
@@ -22,6 +27,7 @@ function LoginForm() {
   const { setCurrentPage } = useContext(CurrentPageContext);
   const [hasAccount, setHasAccount] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false)
 
   const formSchema = yup.object().shape({
     email: yup.string().email("Invalid email.").required("Must enter email"),
@@ -39,6 +45,11 @@ function LoginForm() {
             .required("Must enter last name.")
             .max(20, "Last name must be shorter than 20 letters.")
             .min(2, "Last name must be longer than 2 letters."),
+          terms_conditions: yup
+            .boolean()
+            .required(
+              "Please check the box to acknowledge Terms and Conditions."
+            ),
         }),
   });
 
@@ -48,6 +59,7 @@ function LoginForm() {
       first_name: "",
       last_name: "",
       password: "",
+      terms_conditions: false,
     },
     validationSchema: formSchema,
     onSubmit: (values) => {
@@ -76,74 +88,78 @@ function LoginForm() {
   });
 
   return (
+    <>
     <Box
       component="form"
       onSubmit={formik.handleSubmit}
       autoComplete="off"
-      sx={{ margin: "1em", textAlign: 'center', backgroundColor: 'white', padding: '0.5rem'  }}
+      sx={{
+        margin: "1em",
+        textAlign: "center",
+        backgroundColor: "white",
+        padding: "0.5rem",
+      }}
     >
-      <Typography variant="h6" component="h1" sx={{color: '#1976d2', marginBottom: '0.75rem'}}>
+      <Typography
+        variant="h6"
+        component="h1"
+        sx={{ color: "#1976d2", marginBottom: "0.75rem" }}
+      >
         {hasAccount ? "Login" : "Create Account"}
       </Typography>
       <Grid container justifyContent={"center"} spacing={0.5}>
         {!hasAccount && (
           <>
             <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="First Name"
-                  variant="outlined"
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  value={formik.values.first_name}
-                  name="first_name"
-                  type="text"
-                />
-                {formik.errors.first_name && formik.touched.first_name ? (
-                  <FormHelperText style={{ color: "red" }}>
-                    {formik.errors.first_name}
-                  </FormHelperText>
-                ) : (
-                  <FormHelperText> </FormHelperText>
-                )}
+              <TextField
+                fullWidth
+                label="First Name"
+                variant="outlined"
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.first_name}
+                name="first_name"
+                type="text"
+              />
+              <FormHelperText style={{ color: "red" }}>
+                {formik.errors.first_name && formik.touched.first_name
+                  ? formik.errors.first_name
+                  : " "}
+              </FormHelperText>
             </Grid>
             <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Last Name"
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  value={formik.values.last_name}
-                  name="last_name"
-                  type="text"
-                />
-                {formik.errors.last_name && formik.touched.last_name ? (
-                  <FormHelperText style={{ color: "red" }}>
-                    {formik.errors.last_name}
-                  </FormHelperText>
-                ) : (
-                  <FormHelperText> </FormHelperText>
-                )}
+              <TextField
+                fullWidth
+                label="Last Name"
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.last_name}
+                name="last_name"
+                type="text"
+              />
+              <FormHelperText style={{ color: "red" }}>
+                {formik.errors.last_name && formik.touched.last_name
+                  ? formik.errors.last_name
+                  : " "}
+              </FormHelperText>
             </Grid>
           </>
         )}
         <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Email Address"
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              value={formik.values.username}
-              name="email"
-              type="email"
-            />
-            {formik.errors.email && formik.touched.email ? (
-              <FormHelperText style={{ color: "red" }}>
-                {formik.errors.email}
-              </FormHelperText>
-            ) : (
-              <FormHelperText> </FormHelperText>
-            )}
+          <TextField
+            fullWidth
+            label="Email Address"
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            value={formik.values.username}
+            name="email"
+            type="email"
+          />
+          <FormHelperText style={{ color: "red" }}>
+            {formik.errors.email && formik.touched.email
+              ? formik.errors.email
+              : " "}
+          </FormHelperText>
         </Grid>
         <Grid item xs={12}>
           <TextField
@@ -155,31 +171,61 @@ function LoginForm() {
             name="password"
             type="password"
           />
-          {formik.errors.password && formik.touched.password ?
-            <FormHelperText sx={{ color: "red" }}>{formik.errors.password}</FormHelperText> : <FormHelperText> </FormHelperText>
-          }
+          <FormHelperText style={{ color: "red" }}>
+            {formik.errors.password && formik.touched.password
+              ? formik.errors.password
+              : " "}
+          </FormHelperText>
         </Grid>
-          {submitted &&
-            formik.errors &&
-            Object.values(formik.errors).map((error) => (
-              <Typography variant="body1" component="span" key={error} style={{ color: "red" }}>
-                {error}
-              </Typography>
-            ))}
+        {!hasAccount && (
           <Grid item xs={12}>
-            <Button type="submit" variant="contained" sx={{ marginTop:"0.5rem"}}>
-              {hasAccount ? "Login" : "Create Account"}
-            </Button>
+            <FormControlLabel
+              required
+              control={
+                <Checkbox
+                  checked={formik.values.terms_conditions}
+                  onChange={formik.handleChange}
+                  name="terms_conditions"
+                />
+              }
+              label={<Link onClick={() => setOpenDialog(true)}>Agree to Terms and Conditions</Link>}
+            />
           </Grid>
-          <Grid item xs={12}>
-            <Button onClick={() => setHasAccount(!hasAccount)}>
-              {!hasAccount
-                ? "Already have an Account? Click Here!"
-                : "Don't have account yet? Click here to one."}
-            </Button>
-          </Grid>
+        )}
+        {submitted &&
+          formik.errors &&
+          Object.values(formik.errors).map((error) => (
+            <Typography
+              variant="body1"
+              component="span"
+              key={error}
+              style={{ color: "red" }}
+            >
+              {error}
+            </Typography>
+          ))}
+        <Grid item xs={12}>
+          <Button
+            type="submit"
+            variant="contained"
+            sx={{ marginTop: "0.5rem" }}
+          >
+            {hasAccount ? "Login" : "Create Account"}
+          </Button>
+        </Grid>
+        <Grid item xs={12}>
+          <Button onClick={() => setHasAccount(!hasAccount)}>
+            {!hasAccount
+              ? "Already have an Account? Click Here!"
+              : "Don't have account yet? Click here to one."}
+          </Button>
+        </Grid>
       </Grid>
     </Box>
+    <Dialog onClose={() => setOpenDialog(false)} open={openDialog}>
+      <TermsConditions />
+    </Dialog>
+  </>
   );
 }
 

@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import {
@@ -13,14 +13,13 @@ import {
   Menu,
   MenuItem,
   Snackbar,
-  Alert
+  Alert,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import MenuIcon from "@mui/icons-material/Menu";
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import MuiAppBar from "@mui/material/AppBar";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { styled, useTheme } from "@mui/material/styles";
 
 import Login from "../pages/Login";
@@ -29,7 +28,7 @@ import ErrorPage from "../pages/ErrorPage";
 import Medications from "../pages/Medications";
 import Prescriptions from "../pages/Prescriptions";
 import HealthMetrics from "../pages/HealthMetrics";
-
+import ManageAccount from "../pages/ManageAccount";
 import NavMenu from "./NavMenu";
 import MedicationDetails from "./MedicationDetails";
 import PrescriptionDetails from "./PrescriptionDetails";
@@ -40,6 +39,7 @@ import { PrescriptionsContext } from "../context/prescriptions";
 import { MedicationsContext } from "../context/medications";
 import { CurrentPageContext } from "../context/currentPage";
 
+
 const drawerWidth = 240;
 
 function App() {
@@ -47,13 +47,15 @@ function App() {
   const { setHealthMetrics } = useContext(HealthMetricsContext);
   const { setPrescriptions } = useContext(PrescriptionsContext);
   const { setMedications } = useContext(MedicationsContext);
-  const { currentPage } = useContext(CurrentPageContext);
+  const { currentPage, setCurrentPage } = useContext(CurrentPageContext);
   const [anchorEl, setAnchorEl] = useState(null);
   const [open, setOpen] = useState(false);
   const [openSnackBar, setOpenSnackBar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
   const theme = useTheme();
+  const navigate = useNavigate();
+
   console.log(theme);
 
   useEffect(() => {
@@ -105,7 +107,7 @@ function App() {
   }
 
   function handleSnackbar(string) {
-    setSnackbarMessage(string)
+    setSnackbarMessage(string);
     setOpenSnackBar(true);
   }
 
@@ -139,43 +141,55 @@ function App() {
                 <MenuIcon />
               </IconButton>
               <Typography variant="h5" component="div" noWrap>
-                EMpowR / 
+                EMpowR /
               </Typography>
-              <Typography variant="h5" component="div" noWrap sx={{marginLeft: '0.5rem'}}>
-                  {currentPage}
-                </Typography>
-              <div style={{ flexGrow: 1 }} /> 
+              <Typography
+                variant="h5"
+                component="div"
+                noWrap
+                sx={{ marginLeft: "0.5rem" }}
+              >
+                {currentPage}
+              </Typography>
+              <div style={{ flexGrow: 1 }} />
               <div style={{ display: "flex", alignItems: "center" }}>
                 <Typography variant="h6">{`Welcome, ${user.first_name}`}</Typography>
-              <IconButton
-                size="large"
-                aria-label="account of current user"
-                aria-controls="menu-appbar"
-                aria-haspopup="true"
-                onClick={handleMenu}
-                color="inherit"
-              >
-                <AccountCircleIcon />
-              </IconButton>
-              <Menu
-                id="menu-appbar"
-                anchorEl={anchorEl}
-                anchorOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}
-                keepMounted
-                transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}
-                open={Boolean(anchorEl)}
-                onClose={handleClose}
-              >
-                <MenuItem onClick={handleClose}>My account</MenuItem>
-                <MenuItem onClick={() => {handleLogout(); handleClose()}}>Logout</MenuItem>
-              </Menu>
-            </div>
+                <IconButton
+                  size="large"
+                  aria-label="account of current user"
+                  aria-controls="menu-appbar"
+                  aria-haspopup="true"
+                  onClick={handleMenu}
+                  color="inherit"
+                >
+                  <AccountCircleIcon />
+                </IconButton>
+                <Menu
+                  id="menu-appbar"
+                  anchorEl={anchorEl}
+                  anchorOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
+                  }}
+                  keepMounted
+                  transformOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
+                  }}
+                  open={Boolean(anchorEl)}
+                  onClose={handleClose}
+                >
+                  <MenuItem onClick={() => {handleClose(); navigate('/manage_account'); setCurrentPage("Manage Account")}}>Manage Account</MenuItem>
+                  <MenuItem
+                    onClick={() => {
+                      handleLogout();
+                      handleClose();
+                    }}
+                  >
+                    Logout
+                  </MenuItem>
+                </Menu>
+              </div>
             </Toolbar>
           </AppBar>
 
@@ -194,11 +208,7 @@ function App() {
           >
             <DrawerHeader>
               <IconButton onClick={() => handleDrawer(false)}>
-                {theme.direction === "ltr" ? (
                   <ChevronLeftIcon />
-                ) : (
-                  <ChevronRightIcon />
-                )}
               </IconButton>
             </DrawerHeader>
             <Divider />
@@ -209,26 +219,37 @@ function App() {
             <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/medications" element={<Medications />} />
-              <Route path="/prescriptions" element={<Prescriptions setSnackbar={handleSnackbar}/>} />
-              <Route path="/health_metrics" element={<HealthMetrics setSnackbar={handleSnackbar}/>} />
+              <Route
+                path="/prescriptions"
+                element={<Prescriptions setSnackbar={handleSnackbar} />}
+              />
+              <Route
+                path="/health_metrics"
+                element={<HealthMetrics setSnackbar={handleSnackbar} />}
+              />
               <Route path="/error" element={<ErrorPage />} />
               <Route path="/medications/:id" element={<MedicationDetails />} />
               <Route
                 path="/prescriptions/:id"
-                element={<PrescriptionDetails setSnackbar={handleSnackbar}/>}
+                element={<PrescriptionDetails setSnackbar={handleSnackbar} />}
               />
+              <Route path="/manage_account" element={<ManageAccount />} />
             </Routes>
           </Main>
         </Box>
         <Snackbar
-        open={openSnackBar}
-        autoHideDuration={5000}
-        onClose={handleSnackbarClose}
-        action={action}
-      >
-        <Alert onClose={handleSnackbarClose} severity="success" sx={{ width: "100%" }}>
-          {snackbarMessage}
-        </Alert>
+          open={openSnackBar}
+          autoHideDuration={5000}
+          onClose={handleSnackbarClose}
+          action={action}
+        >
+          <Alert
+            onClose={handleSnackbarClose}
+            severity="success"
+            sx={{ width: "100%" }}
+          >
+            {snackbarMessage}
+          </Alert>
         </Snackbar>
       </LocalizationProvider>
     </>

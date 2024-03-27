@@ -131,7 +131,7 @@ class HealthMetrics(Resource):
 api.add_resource(HealthMetrics, '/health_metrics')
 
 class HealthMetricsById(Resource):
-    # GET, PATCH, DELETE
+
     def get(self, id):
         metric = HealthMetric.query.filter(HealthMetric.id == id).first()
 
@@ -165,7 +165,7 @@ class HealthMetricsById(Resource):
                 time = datetime.strptime(time_str, '%m-%d-%Y %H:%M')
                 metric.time_taken = time
 
-            if 'metric_type_id' in metric_data.keys() and metric_data['metric_type_id'] > 9:
+            if 'metric_type_id' in metric_data.keys() and metric_data['metric_type_id'] > 10:
                 raise Exception('That is not a valid health metric type.')
             
             db.session.commit()
@@ -177,6 +177,40 @@ class HealthMetricsById(Resource):
         return make_response(resp_body, status)
         
 api.add_resource(HealthMetricsById, '/health_metrics/<int:id>')
+
+class UsersById(Resource):
+
+    def patch(self, id):
+        user = User.query.filter(User.id == id).first()
+
+        if not user:
+            return make_response({'error' : 'User not found'}, 404)
+        
+        user_data = request.get_json()
+        try:
+            for key, value in user_data.items():
+                setattr(user, key, value)
+            if 'password' in user_data.keys():
+                user.password_hash = user_data['password']
+            db.session.commit()
+            resp_body = user.to_dict()
+            status = 201
+        except Exception as e:
+            resp_body = {'error': str(e)}
+            status = 422
+        return make_response(resp_body, status)
+    
+    def delete(self, id):
+        user = User.query.filter(User.id == id).first()
+
+        if not user:
+            return make_response({'error' : 'Metric not found'}, 404)
+        
+        db.session.delete(user)
+        db.session.commit()
+        return make_response({}, 204)
+
+api.add_resource(UsersById, '/users/<int:id>')
 
 class CheckSession(Resource):
     
@@ -197,8 +231,10 @@ class Signup(Resource):
             user = User(
                 first_name=json['first_name'],
                 last_name=json['last_name'],
-                email = json['email']
+                email = json['email'],
             )
+            if json['terms_conditions']:
+                user.terms_conditions = True
             user.password_hash = json['password']
             db.session.add(user)
             db.session.commit()
@@ -222,7 +258,7 @@ class Login(Resource):
         password = request.get_json()['password']
 
         if not user:
-            response_body = {'error': 'User not found'}
+            response_body = {'error': 'Invalid email address or password'}
             status = 404
         else:
             if user.authenticate(password):
