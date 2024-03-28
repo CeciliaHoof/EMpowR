@@ -5,7 +5,7 @@
 
 Revolutionize Your Health Management with EMpowR. Effortlessly manage your prescriptions, track your health data, and stay healthy with our easy-to-use app. Take control of your health journey with EMpowR: Our at home electronic medical record streamlines medication management, providing peace of mind and better health outcomes.
 
-<img width="1440" alt="Home" src='/Users/cecilia/Development/code/EMpowR/images/Dashboard.png'>
+![Dashboard](images/Dashboard.png)
 
 ## Getting Started
 
