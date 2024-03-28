@@ -7,7 +7,7 @@ import HealthMetricChart from "../components/HealthMetricChart";
 
 import { HealthMetricsContext } from "../context/healthMetrics";
 import { PrescriptionsContext } from "../context/prescriptions";
-import DailySchedule from "../components/DailySchedule";
+import PrescriptionSchedule from "../components/PrescriptionSchedule";
 
 function Dashboard() {
   const { healthMetrics } = useContext(HealthMetricsContext);
@@ -68,7 +68,7 @@ function Dashboard() {
                 height: "100%",
               }}
             >
-              <DailySchedule />
+              <PrescriptionSchedule />
             </Paper>
           </Grid>
         </Grid>

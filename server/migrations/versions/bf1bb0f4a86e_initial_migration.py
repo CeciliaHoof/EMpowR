@@ -1,8 +1,8 @@
-"""initiall migration
+"""initial migration
 
-Revision ID: 7ccf07ea3773
+Revision ID: bf1bb0f4a86e
 Revises: 
-Create Date: 2024-03-13 11:24:51.597481
+Create Date: 2024-03-27 15:17:41.215026
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '7ccf07ea3773'
+revision = 'bf1bb0f4a86e'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -21,27 +21,23 @@ def upgrade():
     op.create_table('medications',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('generic_name', sa.String(), nullable=True),
-    sa.Column('brand_name', sa.String(), nullable=True),
-    sa.Column('pharm_class', sa.String(), nullable=True),
-    sa.Column('route', sa.String(), nullable=True),
-    sa.Column('description', sa.String(), nullable=True),
-    sa.Column('boxed_warning', sa.String(), nullable=True),
-    sa.Column('indications_and_usage', sa.String(), nullable=True),
-    sa.Column('dosage_and_administration', sa.String(), nullable=True),
-    sa.Column('warnings_and_cautions', sa.String(), nullable=True),
-    sa.Column('adverse_reactions', sa.String(), nullable=True),
-    sa.Column('pregnancy', sa.String(), nullable=True),
-    sa.Column('contraindications', sa.String(), nullable=True),
+    sa.Column('brand_names', sa.String(), nullable=True),
+    sa.Column('drug_class', sa.String(), nullable=True),
+    sa.Column('box_warning', sa.String(), nullable=True),
+    sa.Column('indications', sa.String(), nullable=True),
+    sa.Column('dosages', sa.String(), nullable=True),
+    sa.Column('contraindications_and_cautions', sa.String(), nullable=True),
+    sa.Column('adverse_effects', sa.String(), nullable=True),
+    sa.Column('administration', sa.String(), nullable=True),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_medications'))
     )
     op.create_table('metric_types',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('metric_type', sa.String(), nullable=True),
     sa.Column('green_params', sa.Integer(), nullable=True),
-    sa.Column('yellow_params_low', sa.Integer(), nullable=True),
-    sa.Column('yellow_params_high', sa.Integer(), nullable=True),
-    sa.Column('red_params_low', sa.Integer(), nullable=True),
-    sa.Column('red_params_high', sa.Integer(), nullable=True),
+    sa.Column('yellow_params', sa.Integer(), nullable=True),
+    sa.Column('red_params', sa.Integer(), nullable=True),
+    sa.Column('units', sa.String(), nullable=True),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_metric_types'))
     )
     op.create_table('users',
@@ -49,6 +45,7 @@ def upgrade():
     sa.Column('first_name', sa.String(), nullable=False),
     sa.Column('last_name', sa.String(), nullable=False),
     sa.Column('email', sa.String(), nullable=False),
+    sa.Column('terms_conditions', sa.Boolean(), nullable=True),
     sa.Column('_password_hash', sa.String(), nullable=True),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
@@ -62,8 +59,8 @@ def upgrade():
     sa.Column('comment', sa.String(), nullable=True),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
-    sa.Column('metric_type_id', sa.Integer(), nullable=True),
-    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.Column('metric_type_id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['metric_type_id'], ['metric_types.id'], name=op.f('fk_health_metrics_metric_type_id_metric_types')),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], name=op.f('fk_health_metrics_user_id_users')),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_health_metrics'))
@@ -73,12 +70,11 @@ def upgrade():
     sa.Column('dosage', sa.String(), nullable=False),
     sa.Column('frequency', sa.String(), nullable=False),
     sa.Column('route', sa.String(), nullable=False),
-    sa.Column('time_of_day', sa.String(), nullable=False),
-    sa.Column('prescribed_on', sa.DateTime(), nullable=True),
+    sa.Column('time_of_day', sa.String(), nullable=True),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
-    sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.Column('medication_id', sa.Integer(), nullable=True),
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('medication_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['medication_id'], ['medications.id'], name=op.f('fk_prescriptions_medication_id_medications')),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], name=op.f('fk_prescriptions_user_id_users')),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_prescriptions'))
