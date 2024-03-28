@@ -50,7 +50,7 @@ function HealthMetricContainer({
       }
     })
     .filter((metric) =>
-      !filterDate ? metric : new Date(metric.time_taken) >= filterDate
+      !filterDate ? metric : new Date(metric.time_taken).setHours(0, 0, 0, 0) >= new Date(filterDate).setHours(0, 0, 0, 0)
     )
     .sort((metricA, metricB) => {
       const timeA = new Date(metricA.time_taken);

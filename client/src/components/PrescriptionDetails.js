@@ -70,7 +70,7 @@ function PrescriptionDetails({ setSnackbar }) {
       <Container
         sx={{
           width: '80%',
-          marginBottom: '2rem'
+          marginBottom: '1.5rem'
         }}
       >
         <Card sx={{ backgroundColor: theme.palette.primary.light, borderRadius: 0 }}>
@@ -105,17 +105,17 @@ function PrescriptionDetails({ setSnackbar }) {
             </Typography>
 
             <Container> 
-              <p style={{ display: "inline-block", marginRight: "2em" }}>
+              <p style={{ display: "inline", marginRight: "2em" }}>
                 <strong>Route: </strong>
                 {route}
               </p>
-              <p style={{ display: "inline-block" }}>
+              <p style={{ display: "inline" }}>
                 <strong>Dosage: </strong>
                 {dosage}
               </p>
             </Container>
             <Container>
-              <p style={{ display: "inline-block", marginRight: "2em" }}>
+              <p style={{ display: "inline", marginRight: "2em" }}>
                 <strong>Frequency: </strong>
                 {frequency}
               </p>

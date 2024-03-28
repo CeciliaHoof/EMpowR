@@ -187,7 +187,7 @@ function MedicationDetails() {
       <Container
         sx={{
           width: "80%",
-          marginBottom: "1rem",
+          marginBottom: "0.5rem",
         }}
       >
         <Card
@@ -201,12 +201,11 @@ function MedicationDetails() {
               {brandNamesDisplay}
             </Typography>
             <Container sx={{ backgroundColor: "white" }}>
-              <Typography color="textSecondary" gutterBottom>
+              <Typography color="textSecondary" style={{marginBottom:"-0.5rem"}}>
                 Medication Details
               </Typography>
-
               <Container>
-                <p>
+                <p style={{marginBottom:"-1rem"}}>
                   <strong>Drug Class: </strong>
                   {drug_class}
                 </p>
@@ -221,10 +220,9 @@ function MedicationDetails() {
       </Container>
       <Container
         sx={{
-          height: "33rem",
+          height: "28rem",
           width: "100%",
-          overflowY: "auto",
-          paddingLeft: "calc(100vw - 100%)",
+          overflowY: "scroll",
         }}
       >
         <Box sx={{ width: "100%" }}>
@@ -272,11 +270,10 @@ function MedicationDetails() {
         <Container
           sx={{
             color: "red",
-            margin: "1em 0",
-            paddingLeft: "calc(100vw - 100%)",
+            margin: "0.75em 0 0 0",
             borderLeft: "0.5em solid red",
             maxHeight: "5rem",
-            overflowY: "auto",
+            overflowY: "scroll",
           }}
         >
           <Box sx={{ width: "100%" }}>

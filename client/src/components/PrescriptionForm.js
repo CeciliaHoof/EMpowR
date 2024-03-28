@@ -130,7 +130,7 @@ function PrescriptionForm({ close, method, prescription, onEdit, setSnackbar }) 
     <Container sx={{ margin: "2rem 0 2rem 0" }}>
       <Box component="form" autoComplete="off" onSubmit={formik.handleSubmit}>
         <Grid container spacing={2} rowSpacing={1}>
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12} sm={3}>
             <TextField
               select
               fullWidth
@@ -155,7 +155,7 @@ function PrescriptionForm({ close, method, prescription, onEdit, setSnackbar }) 
               ))}
             </TextField>
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12} sm={3}>
             <TextField
               fullWidth
               label="Dosage"
@@ -168,7 +168,7 @@ function PrescriptionForm({ close, method, prescription, onEdit, setSnackbar }) 
               helperText={formik.touched.dosage && formik.errors.dosage}
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12} sm={3}>
             <TextField
               fullWidth
               label="Route"
@@ -181,7 +181,7 @@ function PrescriptionForm({ close, method, prescription, onEdit, setSnackbar }) 
               helperText={formik.touched.route && formik.errors.route}
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12} sm={3}>
             <TextField
               select
               fullWidth
