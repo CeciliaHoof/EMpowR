@@ -36,6 +36,8 @@ function PrescriptionDetails({ setSnackbar }) {
 
   function handleEdit(updatedScript){
     setPrescription(updatedScript)
+    const updatedPrescriptions = prescriptions.filter(script => script.id !== updatedScript.id)
+    setPrescriptions([...updatedPrescriptions, updatedScript])
     setSnackbar("Prescription Successfully Updated")
   }
 

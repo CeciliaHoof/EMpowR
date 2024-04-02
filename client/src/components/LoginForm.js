@@ -92,7 +92,7 @@ function LoginForm() {
     <Box
       component="form"
       onSubmit={formik.handleSubmit}
-      autoComplete="off"
+      autoComplete="on"
       sx={{
         margin: "1em",
         textAlign: "center",
