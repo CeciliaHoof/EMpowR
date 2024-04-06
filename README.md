@@ -7,6 +7,9 @@ Revolutionize Your Health Management. Effortlessly manage your prescriptions, tr
 
 ![Dashboard](images/Dashboard.png)
 
+## Demo
+[Visit Loom for a brief video demo](https://www.loom.com/share/ba7959c85ce84475acad6320efda1948) 
+
 ## Getting Started
 
 Once you have the repo forked and cloned down to your local machine, open your terminal and confirm that you are in the parent directory of the repo, then.
