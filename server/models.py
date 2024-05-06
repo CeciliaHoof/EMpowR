@@ -53,7 +53,6 @@ class User(db.Model, SerializerMixin):
 
     health_metrics = db.relationship('HealthMetric', back_populates = 'user')
     alerts = association_proxy('health_metrics', 'alerts')
-
     serialize_rules = ('-_password_hash', '-prescriptions.user', '-health_metrics.user', 'alerts', '-alerts.user')
 
     def __repr__(self):

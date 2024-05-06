@@ -56,8 +56,6 @@ function App() {
   const theme = useTheme();
   const navigate = useNavigate();
 
-  console.log(theme);
-
   useEffect(() => {
     fetch("/check_session").then((r) => {
       if (r.ok) {
@@ -65,6 +63,7 @@ function App() {
           setUser(data);
           setHealthMetrics(data.health_metrics);
           setPrescriptions(data.prescriptions);
+          console.log(data.medications)
         });
       } else {
         setUser(null);
