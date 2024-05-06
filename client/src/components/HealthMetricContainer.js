@@ -121,7 +121,7 @@ function HealthMetricContainer({
   }
 
   let pdfHeading;
-  if (filterMetricType !== "Medication Taken" && filterMetricType !== "All") {
+  if (filterMetricType !== "Medication Taken") {
     pdfHeading = `${filterMetricType} Data`;
   } else {
     if (filterPrescription === "" || filterPrescription === "All") {
