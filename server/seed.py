@@ -4,7 +4,7 @@ import re
 
 # Local imports
 from app import app
-from models import db, MetricType
+from models import db, MetricType, Alert
             
 if __name__ == '__main__':
     with app.app_context():
@@ -15,28 +15,31 @@ if __name__ == '__main__':
 
         metric_types = []
 
-        BP = MetricType(metric_type = 'Blood Pressure', green_params = 90, yellow_params = 125, red_params = 161, units='mmHg')
+        BP = MetricType(metric_type = 'Blood Pressure', units='mmHg')
         metric_types.append(BP)
-        
+        #green_params = 90, yellow_params = 125, red_params = 161,
+
         # DBP = MetricType(metric_type = 'Diasystolic Blood Pressure', green_params = 60, yellow_params = 81, red_params = 91, units='mmHg')
         # metric_types.append(DBP)
 
-        HR = MetricType(metric_type = 'Heart Rate', green_params = 60, yellow_params = 101, red_params = 121, units='beats per minute')
+        HR = MetricType(metric_type = 'Heart Rate', units='beats per minute')
         metric_types.append(HR)
-        
-        RR = MetricType(metric_type = 'Respiratory Rate', green_params = 12, yellow_params = 21, red_params = 30, units='breaths per minute')
+        # green_params = 60, yellow_params = 101, red_params = 121,
+
+        RR = MetricType(metric_type = 'Respiratory Rate', units='breaths per minute')
         metric_types.append(RR)
-        
+        # green_params = 12, yellow_params = 21, red_params = 30, 
+
         BLOOD_OXYGEN = MetricType(metric_type = 'Blood Oxygen', units='%')
         metric_types.append(BLOOD_OXYGEN)
         
-        PAIN = MetricType(metric_type = 'Pain Level', green_params = 0, yellow_params = 4, red_params = 7, units='out of 10')
+        PAIN = MetricType(metric_type = 'Pain Level', units='out of 10')
         metric_types.append(PAIN)
 
         TEMPERATURE = MetricType(metric_type = 'Temperature', units='°F')
         metric_types.append(TEMPERATURE)
 
-        BG = MetricType(metric_type = 'Blood Glucose', green_params = 80, yellow_params = 100, red_params = 150, units='mg/dL')
+        BG = MetricType(metric_type = 'Blood Glucose', units='mg/dL')
         metric_types.append(BG)
 
         WEIGHT = MetricType(metric_type = 'Weight', units = 'lbs')
