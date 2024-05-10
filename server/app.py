@@ -231,6 +231,20 @@ class Alerts(Resource):
 
 api.add_resource(Alerts, '/alerts')
 
+class AlertsById(Resource):
+
+    def delete(self, id):
+        alert = Alert.query.filter(Alert.id == id).first()
+
+        if not alert:
+            return make_response({'error' : 'Alert not found'}, 404)
+        
+        db.session.delete(alert)
+        db.session.commit()
+        return make_response({}, 204)
+
+api.add_resource(AlertsById, '/alerts/<int:id>')
+
 class CheckSession(Resource):
     
     def get(self):

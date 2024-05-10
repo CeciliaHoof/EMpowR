@@ -52,8 +52,8 @@ class User(db.Model, SerializerMixin):
     medications = association_proxy('prescriptions', 'medication')
 
     health_metrics = db.relationship('HealthMetric', back_populates = 'user')
-    # alerts = association_proxy('health_metrics', 'alert')
-    serialize_rules = ('-_password_hash', '-prescriptions.user', '-health_metrics.user', 'alerts', '-alerts.user')
+    alerts = association_proxy('health_metrics', 'alert')
+    serialize_rules = ('-_password_hash', '-prescriptions.user', '-health_metrics.user', 'alerts', '-alerts.user', '-alerts.health_metric')
 
     def __repr__(self):
         return f'< User {self.id} | {self.first_name} {self.last_name} | {self.email} >'
