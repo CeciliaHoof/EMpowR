@@ -129,6 +129,9 @@ class MetricType(db.Model, SerializerMixin):
     
     id = db.Column(db.Integer, primary_key = True)
     metric_type = db.Column(db.String)
+    green_params = db.Column(db.Integer)
+    yellow_params = db.Column(db.Integer)
+    red_params = db.Column(db.Integer)
     units = db.Column(db.String)
 
     health_metrics = db.relationship('HealthMetric', back_populates = 'metric_type')
