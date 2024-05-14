@@ -48,12 +48,13 @@ class User(db.Model, SerializerMixin):
             raise ValueError('First and last name must be between 2 and 20 characters')
         return value
     
-    prescriptions = db.relationship('Prescription', back_populates = 'user')
+    prescriptions = db.relationship('Prescription', back_populates = 'user', cascade='all, delete-orphan')
     medications = association_proxy('prescriptions', 'medication')
 
-    health_metrics = db.relationship('HealthMetric', back_populates = 'user')
-    alerts = association_proxy('health_metrics', 'alert')
-    serialize_rules = ('-_password_hash', '-prescriptions.user', '-health_metrics.user', 'alerts', '-alerts.user', '-alerts.health_metric')
+    health_metrics = db.relationship('HealthMetric', back_populates = 'user', cascade='all, delete-orphan')
+    alerts = db.relationship('Alert', back_populates = 'user', cascade='all, delete-orphan')
+
+    serialize_rules = ('-_password_hash', '-prescriptions.user', '-health_metrics.user', '-alerts.user', '-alerts.health_metric')
 
     def __repr__(self):
         return f'< User {self.id} | {self.first_name} {self.last_name} | {self.email} >'
@@ -117,9 +118,9 @@ class HealthMetric(db.Model, SerializerMixin):
     metric_type = db.relationship('MetricType', back_populates = 'health_metrics')
     user = db.relationship('User', back_populates = 'health_metrics')
 
-    alert = db.relationship('Alert', back_populates = 'health_metric')
+    alert = db.relationship('Alert', uselist = False, back_populates = 'health_metric', cascade='all, delete-orphan')
 
-    serialize_rules = ('-user.health_metrics', '-metric_type.health_metrics', '-alert.health_metric')
+    serialize_rules = ('-user.health_metrics', '-user.alerts', '-metric_type.health_metrics', '-alert.health_metric', '-alert.user')
 
     def __repr__(self):
         return f'< Health Metric {self.id} | {self.user_id} | {self.content} >'
@@ -149,13 +150,15 @@ class Alert(db.Model, SerializerMixin):
     updated_at =  db.Column(db.DateTime, onupdate = db.func.now())
     severity = db.Column(db.String)
     # alert_type = db.Column(db.String)
-    status = db.Column(db.String)
+    status = db.Column(db.String, server_default = "unacknowledged")
 
     health_metric_id = db.Column(db.Integer, db.ForeignKey('health_metrics.id'))
-    
     health_metric = db.relationship('HealthMetric', back_populates = 'alert')
 
-    serialize_rules = ('-health_metric.alert', )
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    user = db.relationship('User', back_populates = 'alerts')
+
+    serialize_rules = ('-health_metric.alert', '-health_metric.user', '-user.alerts', '-user.health_metrics')
 
     def __repr__(self):
         return f'< Metric Type {self.id} | {self.status} | {self.health_metric_id}>'

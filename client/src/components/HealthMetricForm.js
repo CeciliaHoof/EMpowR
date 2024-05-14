@@ -185,7 +185,7 @@ function HealthMetricForm({
                 time_taken: formattedDateTime,
                 user_id: user.id,
               };
-              console.log(postData)
+              
               fetchPromises.push(
                 fetch("/health_metrics", {
                   method: "POST",
@@ -207,7 +207,7 @@ function HealthMetricForm({
           try {
             const responses = await Promise.all(fetchPromises);
             responses.forEach((data) => {
-              metricsToAdd.push(data);
+              metricsToAdd.push(data.metric);
             });
             addMetric(metricsToAdd);
             setSnackbar("Metric Successfully Added")

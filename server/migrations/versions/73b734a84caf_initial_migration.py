@@ -1,8 +1,8 @@
 """initial migration
 
-Revision ID: bf1bb0f4a86e
+Revision ID: 73b734a84caf
 Revises: 
-Create Date: 2024-03-27 15:17:41.215026
+Create Date: 2024-05-14 13:42:07.967395
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'bf1bb0f4a86e'
+revision = '73b734a84caf'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -84,10 +84,11 @@ def upgrade():
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.Column('severity', sa.String(), nullable=True),
-    sa.Column('alert_type', sa.String(), nullable=True),
     sa.Column('status', sa.String(), nullable=True),
     sa.Column('health_metric_id', sa.Integer(), nullable=True),
+    sa.Column('user_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['health_metric_id'], ['health_metrics.id'], name=op.f('fk_alerts_health_metric_id_health_metrics')),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], name=op.f('fk_alerts_user_id_users')),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_alerts'))
     )
     # ### end Alembic commands ###
