@@ -177,7 +177,6 @@ function HealthMetricForm({
             8
           )) {
             if (value) {
-              console.log(value)
               postData = {
                 content: value,
                 metric_type_id: x,
@@ -207,7 +206,11 @@ function HealthMetricForm({
           try {
             const responses = await Promise.all(fetchPromises);
             responses.forEach((data) => {
-              metricsToAdd.push(data.metric);
+              if(data.alert){
+                metricsToAdd.push(data.metric);
+                console.log(data.alert)} else {
+                  metricsToAdd.push(data)
+                }
             });
             addMetric(metricsToAdd);
             setSnackbar("Metric Successfully Added")
