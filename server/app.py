@@ -212,6 +212,39 @@ class UsersById(Resource):
 
 api.add_resource(UsersById, '/users/<int:id>')
 
+class Alerts(Resource):
+
+    def post(self):
+        alert_json = request.get_json()
+        try:
+            new_alert = Alert()
+            for key, value in alert_json.items():
+                setattr(new_alert, key, value)
+            db.session.add(new_alert)
+            db.session.commit()
+            resp_body = new_alert.to_dict()
+            status = 201
+        except Exception as e:
+            resp_body = {'error': str(e)}
+            status = 422
+        return make_response(resp_body, status)
+
+api.add_resource(Alerts, '/alerts')
+
+class AlertsById(Resource):
+
+    def delete(self, id):
+        alert = Alert.query.filter(Alert.id == id).first()
+
+        if not alert:
+            return make_response({'error' : 'Alert not found'}, 404)
+        
+        db.session.delete(alert)
+        db.session.commit()
+        return make_response({}, 204)
+
+api.add_resource(AlertsById, '/alerts/<int:id>')
+
 class CheckSession(Resource):
     
     def get(self):

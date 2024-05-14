@@ -71,6 +71,36 @@ const validationSchemaMap = {
   }),
 };
 
+const sbpParams = {
+  green: 90,
+  yellow: 135,
+  red: 161
+}
+
+const dbpParams = {
+  green: 60,
+  yellow: 81,
+  red: 91
+} 
+
+const hrParams = {
+  green: 60,
+  yellow: 101,
+  red: 121
+} 
+
+const rrParams = {
+  green: 12,
+  yellow: 21,
+  red: 30
+}
+
+const boParams = {
+  green: 97,
+  yellow: 93,
+  red: 89
+} //this one will have to be handled as less than instead of greater than
+
 function HealthMetricForm({
   hideForm,
   addMetric,
