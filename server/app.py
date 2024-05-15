@@ -266,6 +266,24 @@ class AlertsById(Resource):
         db.session.delete(alert)
         db.session.commit()
         return make_response({}, 204)
+    
+    def patch(self, id):
+        alert = Alert.query.filter(Alert.id == id).first()
+
+        if not alert:
+            return make_response({'error' : 'User not found'}, 404)
+        
+        alert_data = request.get_json()
+        try:
+            for key, value in alert_data.items():
+                setattr(alert, key, value)
+            db.session.commit()
+            resp_body = alert.to_dict()
+            status = 201
+        except Exception as e:
+            resp_body = {'error': str(e)}
+            status = 422
+        return make_response(resp_body, status)
 
 api.add_resource(AlertsById, '/alerts/<int:id>')
 

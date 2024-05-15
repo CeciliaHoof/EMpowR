@@ -10,15 +10,18 @@ import LocalPharmacyIcon from "@mui/icons-material/LocalPharmacy";
 import MonitorHeartIcon from "@mui/icons-material/MonitorHeart";
 import HealingIcon from "@mui/icons-material/Healing";
 import { HealthMetricsContext } from "../context/healthMetrics";
+import { AlertsContext } from "../context/alerts"
 
 function HealthMetrics({ setSnackbar }) {
   const { healthMetrics, setHealthMetrics } = useContext(HealthMetricsContext);
+  const { alerts, setAlerts } = useContext(AlertsContext)
+
   const [openForm, setOpenForm] = useState(false);
   const [formType, setFormType] = useState("");
   const [selectedMetricType, setSelectedMetricType] = useState("");
   const [selectedPrescription, setSelectedPrescription] = useState("");
   const [selectedDate, setSelectedDate] = useState(moment());
-  const [alerts, setAlerts] = useState([]);
+  const [newAlerts, setNewAlerts] = useState([]);
   const [dialogueOpen, setDialogueOpen] = useState(false);
 
   const theme = useTheme();
@@ -41,8 +44,8 @@ function HealthMetrics({ setSnackbar }) {
   }
 
   function handleNewAlert(alertArray) {
-    setAlerts(alertArray);
-    console.log(alertArray);
+    setAlerts([...alerts, ...alertArray]);
+    setNewAlerts(alertArray);
     setDialogueOpen(true);
   }
 
@@ -121,7 +124,7 @@ function HealthMetrics({ setSnackbar }) {
         />
       </Container>
       {dialogueOpen && <AlertDialog
-        alerts={alerts}
+        alerts={newAlerts}
         open={dialogueOpen}
         setOpen={setDialogueOpen}
       />}

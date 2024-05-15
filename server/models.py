@@ -150,7 +150,7 @@ class Alert(db.Model, SerializerMixin):
     updated_at =  db.Column(db.DateTime, onupdate = db.func.now())
     severity = db.Column(db.String)
     # alert_type = db.Column(db.String)
-    status = db.Column(db.String, server_default = "unacknowledged")
+    status = db.Column(db.String, default = "unacknowledged")
 
     health_metric_id = db.Column(db.Integer, db.ForeignKey('health_metrics.id'))
     health_metric = db.relationship('HealthMetric', back_populates = 'alert')
