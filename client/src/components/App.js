@@ -63,7 +63,6 @@ function App() {
           setUser(data);
           setHealthMetrics(data.health_metrics);
           setPrescriptions(data.prescriptions);
-          console.log(data.medications)
         });
       } else {
         setUser(null);

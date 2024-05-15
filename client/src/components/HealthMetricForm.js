@@ -50,7 +50,12 @@ const initialValuesMap = {
 
 const validationSchemaMap = {
   [FieldTypes.VITALS]: yup.object().shape({
-    BP: yup.string().matches(/\//, 'Field must contain an SBP and DBP separated by a "/" character'),
+    BP: yup
+      .string()
+      .matches(
+        /\//,
+        'Field must contain an SBP and DBP separated by a "/" character'
+      ),
     HR: yup.number().positive("Heart Rate must be a positive number"),
     RR: yup.string(),
     temp: yup.string(),
@@ -71,36 +76,6 @@ const validationSchemaMap = {
   }),
 };
 
-const sbpParams = {
-  green: 90,
-  yellow: 135,
-  red: 161
-}
-
-const dbpParams = {
-  green: 60,
-  yellow: 81,
-  red: 91
-} 
-
-const hrParams = {
-  green: 60,
-  yellow: 101,
-  red: 121
-} 
-
-const rrParams = {
-  green: 12,
-  yellow: 21,
-  red: 30
-}
-
-const boParams = {
-  green: 97,
-  yellow: 93,
-  red: 89
-} //this one will have to be handled as less than instead of greater than
-
 function HealthMetricForm({
   hideForm,
   addMetric,
@@ -108,11 +83,12 @@ function HealthMetricForm({
   metric,
   onEdit,
   formType,
-  setSnackbar
+  setSnackbar,
+  createAlert,
 }) {
   const { user } = useContext(UserContext);
 
-  const theme = useTheme()
+  const theme = useTheme();
 
   const initialState = metric
     ? {
@@ -126,7 +102,12 @@ function HealthMetricForm({
     ? yup.object().shape({
         content:
           metric.metric_type_id === 1
-            ? yup.string().matches(/\//, 'Field must contain an SBP and DBP separated by a "/" character')
+            ? yup
+                .string()
+                .matches(
+                  /\//,
+                  'Field must contain an SBP and DBP separated by a "/" character'
+                )
             : yup.string().required("Content is required"),
         time_taken: yup.date().required("Time taken is required"),
         comment: yup.string(),
@@ -170,6 +151,7 @@ function HealthMetricForm({
         let postData;
         let x = 1;
         let metricsToAdd = [];
+        let alerts = [];
         const fetchPromises = [];
         if (formType === "vitals") {
           for (const [key, value] of Object.entries(formik.values).slice(
@@ -184,7 +166,7 @@ function HealthMetricForm({
                 time_taken: formattedDateTime,
                 user_id: user.id,
               };
-              
+
               fetchPromises.push(
                 fetch("/health_metrics", {
                   method: "POST",
@@ -206,14 +188,16 @@ function HealthMetricForm({
           try {
             const responses = await Promise.all(fetchPromises);
             responses.forEach((data) => {
-              if(data.alert){
+              if (data.alert) {
                 metricsToAdd.push(data.metric);
-                console.log(data.alert)} else {
-                  metricsToAdd.push(data)
-                }
+                alerts.push(data.alert);
+              } else {
+                metricsToAdd.push(data);
+              }
             });
             addMetric(metricsToAdd);
-            setSnackbar("Metric Successfully Added")
+            createAlert(alerts)
+            setSnackbar("Metric Successfully Added");
             formik.resetForm(initialState);
             hideForm(false);
           } catch (error) {
@@ -247,7 +231,7 @@ function HealthMetricForm({
               if (resp.ok) {
                 resp.json().then((data) => {
                   addMetric([data]);
-                  setSnackbar("Metric Successfully Added")
+                  setSnackbar("Metric Successfully Added");
                   formik.resetForm();
                   hideForm(false);
                 });
@@ -270,7 +254,9 @@ function HealthMetricForm({
   );
 
   const medicationOptions = medications.map((med) => (
-    <MenuItem key={med.generic_name} value={med.generic_name}>{med.generic_name}</MenuItem>
+    <MenuItem key={med.generic_name} value={med.generic_name}>
+      {med.generic_name}
+    </MenuItem>
   ));
 
   const getFieldError = (fieldName) => {
@@ -301,9 +287,14 @@ function HealthMetricForm({
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                   name="BP"
-                  error={(formik.touched.BP && formik.errors.BP) ? true : false}
+                  error={formik.touched.BP && formik.errors.BP ? true : false}
                 />
-                <FormHelperText id="BP-error-text" sx={{color: theme.palette.error.main}}>{getFieldError("BP")}</FormHelperText>
+                <FormHelperText
+                  id="BP-error-text"
+                  sx={{ color: theme.palette.error.main }}
+                >
+                  {getFieldError("BP")}
+                </FormHelperText>
               </FormControl>
             </Grid>
             <Grid item xs={2.4}>
@@ -459,67 +450,67 @@ function HealthMetricForm({
                 name="symptom"
               />
             </FormControl>
-            </Grid>
-
+          </Grid>
         )}
         {metric && metric.metric_type_id <= 8 && (
           <Grid item xs={9}>
-          <FormControl fullWidth>
-          <InputLabel htmlFor="vs-input">{metric.metric_type.metric_type}</InputLabel>
-            <OutlinedInput
-              id="vs-input"
-              label={metric.metric_type.metric_type}
-              type={
-                metric.metric_type_id !== 1
-                  ? "number"
-                  : "text"
-              }
-              value={formik.values.content}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              name="content"
-            />
-            {formik.touched.content && formik.errors.content && (
-              <span style={{ color: "red" }}>{formik.errors.content}</span>
-            )}
-          </FormControl>
+            <FormControl fullWidth>
+              <InputLabel htmlFor="vs-input">
+                {metric.metric_type.metric_type}
+              </InputLabel>
+              <OutlinedInput
+                id="vs-input"
+                label={metric.metric_type.metric_type}
+                type={metric.metric_type_id !== 1 ? "number" : "text"}
+                value={formik.values.content}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                name="content"
+              />
+              {formik.touched.content && formik.errors.content && (
+                <span style={{ color: "red" }}>{formik.errors.content}</span>
+              )}
+            </FormControl>
           </Grid>
         )}
         {metric && metric.metric_type_id === 9 && (
           <Grid item xs={9}>
-          <FormControl fullWidth>
-            <InputLabel htmlFor="med-input">{metric.metric_type.metric_type}</InputLabel>
-            <Select
-              id="med-input"
-              label="Select Medication"
-              placeholder="Select Medication"
-              value={formik.values.content}
-              onChange={(e) => {
-                formik.setFieldValue("content", e.target.value);
-              }}
-              name="content"
-            >
-              {medicationOptions}
-            </Select>
-            {formik.touched.medication && formik.errors.medication && (
-              <span style={{ color: "red" }}>{formik.errors.medication}</span>
-            )}
-          </FormControl>
-        </Grid>
+            <FormControl fullWidth>
+              <InputLabel htmlFor="med-input">
+                {metric.metric_type.metric_type}
+              </InputLabel>
+              <Select
+                id="med-input"
+                label="Select Medication"
+                placeholder="Select Medication"
+                value={formik.values.content}
+                onChange={(e) => {
+                  formik.setFieldValue("content", e.target.value);
+                }}
+                name="content"
+              >
+                {medicationOptions}
+              </Select>
+              {formik.touched.medication && formik.errors.medication && (
+                <span style={{ color: "red" }}>{formik.errors.medication}</span>
+              )}
+            </FormControl>
+          </Grid>
         )}
         {metric && metric.metric_type_id === 10 && (
           <Grid item xs={9}>
-          <FormControl fullWidth>
-            <TextField
-              id="comment-input"
-              label={metric.metric_type.metric_type}
-              placeholder="lightheaded, fatigue, cough, etc."
-              value={formik.values.content}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              name="content"
-            />
-          </FormControl></Grid>
+            <FormControl fullWidth>
+              <TextField
+                id="comment-input"
+                label={metric.metric_type.metric_type}
+                placeholder="lightheaded, fatigue, cough, etc."
+                value={formik.values.content}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                name="content"
+              />
+            </FormControl>
+          </Grid>
         )}
         <Grid item xs={3}>
           <FormControl fullWidth>
@@ -534,9 +525,7 @@ function HealthMetricForm({
               maxDateTime={moment()}
             />
             {formik.touched.time_taken && formik.errors.time_taken && (
-              <span style={{ color: "red" }}>
-                Date and time are required.
-              </span>
+              <span style={{ color: "red" }}>Date and time are required.</span>
             )}
           </FormControl>
         </Grid>

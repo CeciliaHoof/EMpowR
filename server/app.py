@@ -128,15 +128,15 @@ class HealthMetrics(Resource):
             metric_type = MetricType.query.filter(MetricType.id == metric_data['metric_type_id']).first()
             alert_severity = None
 
-            if metric_type.green_params:
+            if metric_type.red_params:
                 if metric_type.id != 1:
                     content = int(metric_data['content'])
                 elif metric_type.id == 1:
                     content = int(metric_data['content'].split('/')[0])
 
-                if content < metric_type.green_params or metric_type.yellow_params <= content < metric_type.red_params:
+                if metric_type.yellow_params <= content < metric_type.red_params:
                     alert_severity = "yellow"
-                elif content >= metric_type.red_params:
+                elif content < metric_type.green_params or content >= metric_type.red_params:
                     alert_severity = "red"
             
             if alert_severity:
@@ -144,7 +144,7 @@ class HealthMetrics(Resource):
                 db.session.add(new_alert)
                 db.session.commit()
                 resp_body = {'metric': resp_body, 'alert': new_alert.to_dict()}
-                print(resp_body)
+
         except Exception as e:
             resp_body = {'error': str(e)}
             status = 422
