@@ -124,7 +124,7 @@ function HealthMetrics({ setSnackbar }) {
         />
       </Container>
       {dialogueOpen && <AlertDialog
-        alerts={newAlerts}
+        newAlerts={newAlerts}
         open={dialogueOpen}
         setOpen={setDialogueOpen}
       />}
