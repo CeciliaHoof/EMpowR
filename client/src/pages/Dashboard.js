@@ -4,14 +4,16 @@ import { Grid, Paper, Box, Container } from "@mui/material";
 
 import Snapshot from "../components/Snapshot";
 import HealthMetricChart from "../components/HealthMetricChart";
+import PrescriptionSchedule from "../components/PrescriptionSchedule";
 
 import { HealthMetricsContext } from "../context/healthMetrics";
 import { PrescriptionsContext } from "../context/prescriptions";
-import PrescriptionSchedule from "../components/PrescriptionSchedule";
+import { AlertsContext } from "../context/alerts";
 
 function Dashboard() {
   const { healthMetrics } = useContext(HealthMetricsContext);
   const { prescriptions } = useContext(PrescriptionsContext);
+  const { alerts } = useContext(AlertsContext)
   const [metricTypes, setMetricTypes] = useState("");
 
   useEffect(() => {
@@ -19,9 +21,6 @@ function Dashboard() {
       .then((r) => r.json())
       .then((data) => setMetricTypes(data));
   }, []);
-
-  const numPrescriptions = prescriptions.length;
-  const numMetrics = healthMetrics.length;
 
   if (!metricTypes) {
     return <h1>Loading...</h1>;
@@ -45,19 +44,16 @@ function Dashboard() {
                 </Box>
               </Paper>
             </Grid>
-            <Grid item>
-              <Paper
-                square
-                sx={{
-                  p: "0.5rem",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Snapshot num={numPrescriptions} type={"Prescriptions"} />
-                <Snapshot num={numMetrics} type={"Health Metrics"} />
-              </Paper>
+            <Grid item container direction="row" spacing={2}>
+              <Grid item xs={4}>
+                <Snapshot num={prescriptions.length} type={"Prescriptions"} />
+              </Grid>
+              <Grid item xs={4}>
+                <Snapshot num={healthMetrics.length} type={"Health Metrics"} />
+              </Grid>
+              <Grid item xs={4}>
+                <Snapshot num={alerts.length} type={"Alerts"} />
+              </Grid>
             </Grid>
           </Grid>
           <Grid item xs={4}>

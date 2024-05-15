@@ -32,12 +32,12 @@ function AlertDialog({ alerts, open, setOpen }) {
             Health Metric Alert
           </DialogTitle>
           <DialogContent>
-            The Health Metric data you entered appears to be outside of the
+            {alerts[currentAlertIndex].health_metric.metric_type.metric_type}: {alerts[currentAlertIndex].health_metric.content} {alerts[currentAlertIndex].health_metric.metric_type.units}
+          </DialogContent>
+          <DialogContent style={{ marginTop: '-1rem'}}>
+            The vital sign you entered appears to be outside of the
             normal range. Please contact your health care provider, especially
             if you are experiencing any abnormal symptoms.
-          </DialogContent>
-          <DialogContent style={{ marginTop: '-1rem' }}>
-            {alerts[currentAlertIndex].health_metric.metric_type.metric_type}: {alerts[currentAlertIndex].health_metric.content} {alerts[currentAlertIndex].health_metric.metric_type.units}
           </DialogContent>
           <DialogActions>
             <Button onClick={handleClose}>Acknowledge</Button>

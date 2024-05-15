@@ -1,34 +1,70 @@
 import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent, Divider, Typography } from '@mui/material'
+import {
+  Card,
+  CardContent,
+  Divider,
+  Typography,
+  Grid,
+} from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import LocalPharmacyIcon from '@mui/icons-material/LocalPharmacy';
-import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
-import { CurrentPageContext } from "../context/currentPage"
+import LocalPharmacyIcon from "@mui/icons-material/LocalPharmacy";
+import MonitorHeartIcon from "@mui/icons-material/MonitorHeart";
+import AddAlertIcon from "@mui/icons-material/AddAlert";
+import { CurrentPageContext } from "../context/currentPage";
 
 function Snapshot({ num, type }) {
-  const { setCurrentPage } = useContext(CurrentPageContext)
-  const navigate = useNavigate()
-  const theme = useTheme()
+  const { setCurrentPage } = useContext(CurrentPageContext);
+  const navigate = useNavigate();
+  const theme = useTheme();
 
-  function handleClick(){
-    type === 'Prescriptions'
-      ? navigate(`/prescriptions`) 
-      : navigate(`/health_metrics`)
-    setCurrentPage(type)
+  function handleClick() {
+    type === "Prescriptions"
+      ? navigate(`/prescriptions`)
+      : navigate(`/health_metrics`);
+    setCurrentPage(type);
   }
   return (
-    <Card sx={{ margin: '0.5rem'}}>
-      <CardContent style={{ textAlign: 'center' }}>
-        {type === 'Prescriptions' ?
-          <LocalPharmacyIcon fontSize="large" sx={{ color: theme.palette.primary.light }}/>:
-          <MonitorHeartIcon fontSize="large" sx={{ color: theme.palette.primary.light }}/>  
-        }
-        <Typography variant="h5" component="div">{`You have ${num} ${type.toLowerCase()} saved!`}</Typography>
-      <Divider sx={{ marginBottom: '0.3rem'}}/>
-        <Typography variant="body2" onClick={handleClick} style={{ cursor: 'pointer' }}>
-          {`View ${type}`}
-        </Typography>
+    <Card sx={{ width: "100%", height: "auto" }}>
+      <CardContent style={{ textAlign: "center" }}>
+        <Grid container direction="column" spacing={2}>
+          <Grid item xs={6}>
+            {type === "Prescriptions" && (
+              <LocalPharmacyIcon
+                fontSize="large"
+                sx={{ color: theme.palette.primary.light }}
+              />
+            )}{" "}
+            {type === "Health Metrics" && (
+              <MonitorHeartIcon
+                fontSize="large"
+                sx={{ color: theme.palette.primary.light }}
+              />
+            )}
+            {type === "Alerts" && (
+              <AddAlertIcon
+                fontSize="large"
+                sx={{ color: theme.palette.primary.light }}
+              />
+            )}
+          </Grid>
+          <Grid item xs={3}>
+            <Typography
+              variant="h6"
+              component="div"
+            >{`${num} ${type}`}</Typography>
+          </Grid>
+          <Grid item xs={3}>
+            <Divider sx={{ marginBottom: "0.3rem" }} />
+            <Typography
+              variant="body2"
+              onClick={handleClick}
+              style={{ cursor: "pointer" }}
+            >
+              {`View ${type}`}
+            </Typography>
+          </Grid>
+        </Grid>
       </CardContent>
     </Card>
   );

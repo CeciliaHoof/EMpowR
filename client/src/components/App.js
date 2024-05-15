@@ -38,6 +38,7 @@ import { HealthMetricsContext } from "../context/healthMetrics";
 import { PrescriptionsContext } from "../context/prescriptions";
 import { MedicationsContext } from "../context/medications";
 import { CurrentPageContext } from "../context/currentPage";
+import { AlertsContext } from "../context/alerts"
 
 
 const drawerWidth = 240;
@@ -47,6 +48,7 @@ function App() {
   const { setHealthMetrics } = useContext(HealthMetricsContext);
   const { setPrescriptions } = useContext(PrescriptionsContext);
   const { setMedications } = useContext(MedicationsContext);
+  const { setAlerts } = useContext(AlertsContext)
   const { currentPage, setCurrentPage } = useContext(CurrentPageContext);
   const [anchorEl, setAnchorEl] = useState(null);
   const [open, setOpen] = useState(false);
@@ -63,6 +65,7 @@ function App() {
           setUser(data);
           setHealthMetrics(data.health_metrics);
           setPrescriptions(data.prescriptions);
+          setAlerts(data.alerts)
         });
       } else {
         setUser(null);
@@ -71,7 +74,7 @@ function App() {
     fetch("/medications")
       .then((r) => r.json())
       .then((data) => setMedications(data));
-  }, [setHealthMetrics, setPrescriptions, setMedications, setUser]);
+  }, [setHealthMetrics, setPrescriptions, setMedications, setUser, setAlerts]);
 
   if (!user) {
     return <Login />;
