@@ -26,7 +26,7 @@ export default function Alert({ alert }) {
   const { metric_type, content, time_taken } = health_metric;
 
   let color;
-  severity === "yellow" ? (color = "#ffea00") : (color = "#ff1744");
+  severity === "yellow" ? (color = "#ffea00") : (color = "#b2102f");
   const theme = useTheme();
 
   const moment = require("moment");

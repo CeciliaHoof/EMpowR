@@ -16,7 +16,7 @@ function AlertDialog({ newAlerts, open, setOpen }) {
   let currAlert = newAlerts[currentAlertIndex]
 
   let color;
-  currAlert.severity === "yellow" ? (color = "#ffea00") : (color = "#ff1744");
+  currAlert.severity === "yellow" ? (color = "#ffea00") : (color = "#b2102f");
 
   function handleClose(acknowledged) {
     if (currentAlertIndex < newAlerts.length - 1) {
