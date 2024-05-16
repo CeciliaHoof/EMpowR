@@ -25,13 +25,14 @@ function Dashboard() {
   if (!metricTypes) {
     return <h1>Loading...</h1>;
   }
+
   const unacknowledged = alerts.filter((alert) => alert.status === "unacknowledged")
   
   return (
     <Container sx={{ marginTop: "1rem" }}>
       <Box sx={{ height: "100%" }}>
         <Grid container spacing={3}>
-          <Grid item xs={8} container direction="column" spacing={2}>
+          <Grid item xs={8} container direction="column" spacing={3}>
             <Grid item>
               <Paper
                 square

@@ -20,7 +20,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import MuiAppBar from "@mui/material/AppBar";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import { styled, useTheme } from "@mui/material/styles";
+import { styled } from "@mui/material/styles";
 
 import Login from "../pages/Login";
 import Dashboard from "../pages/Dashboard";
@@ -56,7 +56,6 @@ function App() {
   const [openSnackBar, setOpenSnackBar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
-  const theme = useTheme();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -125,6 +124,8 @@ function App() {
       </IconButton>
     </>
   );
+
+  console.log(user.alerts)
 
   return (
     <>

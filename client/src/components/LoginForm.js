@@ -18,6 +18,7 @@ import { UserContext } from "../context/user";
 import { PrescriptionsContext } from "../context/prescriptions";
 import { HealthMetricsContext } from "../context/healthMetrics";
 import { CurrentPageContext } from "../context/currentPage";
+import { AlertsContext } from "../context/alerts";
 import TermsConditions from "./TermsConditions"
 
 function LoginForm() {
@@ -25,6 +26,7 @@ function LoginForm() {
   const { setHealthMetrics } = useContext(HealthMetricsContext);
   const { setPrescriptions } = useContext(PrescriptionsContext);
   const { setCurrentPage } = useContext(CurrentPageContext);
+  const { setAlerts } = useContext(AlertsContext)
   const [hasAccount, setHasAccount] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [openDialog, setOpenDialog] = useState(false)
@@ -76,6 +78,7 @@ function LoginForm() {
             setUser(data);
             setHealthMetrics(data.health_metrics);
             setPrescriptions(data.prescriptions);
+            setAlerts(data.alerts)
             setCurrentPage("Dashboard");
           });
         } else {
