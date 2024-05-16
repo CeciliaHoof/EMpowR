@@ -26,7 +26,7 @@ function Dashboard() {
     return <h1>Loading...</h1>;
   }
   const unacknowledged = alerts.filter((alert) => alert.status === "unacknowledged")
-  console.log(unacknowledged)
+  
   return (
     <Container sx={{ marginTop: "1rem" }}>
       <Box sx={{ height: "100%" }}>
