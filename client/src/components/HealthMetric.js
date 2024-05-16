@@ -1,11 +1,5 @@
 import { useState, useContext } from "react";
-import {
-  Typography,
-  Grid,
-  Card,
-  CardContent,
-  IconButton,
-} from "@mui/material";
+import { Typography, Grid, Card, CardContent, IconButton } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import LocalPharmacyIcon from "@mui/icons-material/LocalPharmacy";
 import MonitorHeartIcon from "@mui/icons-material/MonitorHeart";
@@ -24,13 +18,13 @@ function HealthMetric({ metric, handleSnackBar }) {
   function handleEdit(metric) {
     const updatedMetrics = healthMetrics.filter((hm) => hm.id !== metric.id);
     setHealthMetrics([...updatedMetrics, metric]);
-    handleSnackBar('edit')
+    handleSnackBar("edit");
   }
 
   function handleDelete(metric) {
     const updatedMetrics = healthMetrics.filter((hm) => hm.id !== metric.id);
     setHealthMetrics(updatedMetrics);
-    handleSnackBar('delete')
+    handleSnackBar("delete");
   }
 
   function handleClick() {
@@ -96,66 +90,73 @@ function HealthMetric({ metric, handleSnackBar }) {
 
   return (
     <Grid item xs={12}>
-          <Card variant="outlined" sx={{width: '100%'}}>
-            <CardContent>
-              <Grid container alignItems={"flex-start"} spacing={1}>
-                <Grid item>{metricIcon}</Grid>
-                {!isEditing ? (
-                  <Grid container direction="column" item xs>
-                    <Grid item>
-                      <Typography variant="body1" component="span">
-                        {metric_type.units
-                          ? <strong>{metric_type.metric_type}: {content} {metric_type.units}.</strong>
-                          : <strong>{metric_type.metric_type}: {content}</strong>}
-                      </Typography>
-                      <Typography
-                        variant="caption"
-                        component="span"
-                        sx={{ marginLeft: "0.5rem" }}
-                      >
-                        {formattedDate}
-                      </Typography>
+      <Card variant="outlined" sx={{ width: "100%" }}>
+        <CardContent>
+          <Grid container alignItems={"flex-start"} spacing={1}>
+            <Grid item>{metricIcon}</Grid>
+            {!isEditing ? (
+              <Grid container direction="column" item xs>
+                <Grid item>
+                  <Typography variant="body1" component="span">
+                    {metric_type.units ? (
+                      <strong>
+                        {metric_type.metric_type}: {content} {metric_type.units}
+                        .
+                      </strong>
+                    ) : (
+                      <strong>
+                        {metric_type.metric_type}: {content}
+                      </strong>
+                    )}
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    component="span"
+                    sx={{ marginLeft: "0.5rem" }}
+                  >
+                    {formattedDate}
+                  </Typography>
 
-                      {comment && (
-                        <Typography variant="body2">
-                          <strong>Comment: </strong>
-                          {comment}
-                        </Typography>
-                      )}
-                    </Grid>
-                    <Grid item>
-                      <IconButton
-                        onClick={() => setIsEditing(true)}
-                        aria-label="Edit Prescription"
-                        size="small"
-                      >
-                        <EditIcon fontSize="small" />
-                      </IconButton>
-                      <IconButton
-                        floated="right"
-                        onClick={handleClick}
-                        aria-label="Delete Prescription"
-                        size="small"
-                      >
-                        <DeleteIcon fontSize="small"/>
-                      </IconButton>
-                    </Grid>
-                  </Grid>
-                ) : (
-                  <Grid item xs={12}>
-                    <HealthMetricForm
-                      hideForm={setIsEditing}
-                      onEdit={handleEdit}
-                      metric={metric}
-                      method="PATCH"
-                      data-html2canvas-ignore="true"
-                    />
-                  </Grid>
-                )}
+                  {comment && (
+                    <Typography variant="body2">
+                      <strong>Comment: </strong>
+                      {comment}
+                    </Typography>
+                  )}
+                </Grid>
+                <Grid item>
+                  <IconButton
+                    onClick={() => setIsEditing(true)}
+                    aria-label="Edit Prescription"
+                    size="small"
+                  >
+                    <EditIcon fontSize="small" />
+                  </IconButton>
+                  <IconButton
+                    floated="right"
+                    onClick={handleClick}
+                    aria-label="Delete Prescription"
+                    size="small"
+                  >
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                </Grid>
               </Grid>
-            </CardContent>
-          </Card>
-        </Grid>
+            ) : (
+              <Grid item xs={12}>
+                <HealthMetricForm
+                  hideForm={setIsEditing}
+                  onEdit={handleEdit}
+                  metric={metric}
+                  method="PATCH"
+                  data-html2canvas-ignore="true"
+                />
+              </Grid>
+            )}
+          </Grid>
+        </CardContent>
+      </Card>
+    </Grid>
   );
 }
 

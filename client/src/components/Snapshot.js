@@ -20,9 +20,13 @@ function Snapshot({ num, type, badge }) {
   const theme = useTheme();
 
   function handleClick() {
-    if(type === "Prescriptions")
-      {navigate(`/prescriptions`)} else if (type === "Alerts"){navigate(`/alerts`)}
-      else {navigate(`/health_metrics`)};
+    if (type === "Prescriptions") {
+      navigate(`/prescriptions`);
+    } else if (type === "Alerts") {
+      navigate(`/alerts`);
+    } else {
+      navigate(`/health_metrics`);
+    }
     setCurrentPage(type);
   }
   return (
@@ -31,16 +35,20 @@ function Snapshot({ num, type, badge }) {
         <Grid container direction="column" spacing={2}>
           <Grid item xs={6}>
             {type === "Prescriptions" && (
-              <LocalPharmacyIcon
-                fontSize="large"
-                sx={{ color: theme.palette.primary.light }}
-              />
+              <Badge>
+                <LocalPharmacyIcon
+                  fontSize="large"
+                  sx={{ color: theme.palette.primary.light }}
+                />
+              </Badge>
             )}{" "}
             {type === "Health Metrics" && (
-              <MonitorHeartIcon
-                fontSize="large"
-                sx={{ color: theme.palette.primary.light }}
-              />
+              <Badge>
+                <MonitorHeartIcon
+                  fontSize="large"
+                  sx={{ color: theme.palette.primary.light }}
+                />
+              </Badge>
             )}
             {type === "Alerts" && (
               <Badge badgeContent={badge.length} color="primary">

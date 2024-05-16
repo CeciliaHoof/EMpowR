@@ -6,17 +6,23 @@ import {
   CardContent,
   IconButton,
   Tooltip,
+  TextField,
+  Button,
   alpha,
+  Box,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import AddAlertIcon from "@mui/icons-material/AddAlert";
 import CheckIcon from "@mui/icons-material/Check";
+import AddIcon from "@mui/icons-material/Add";
 import { AlertsContext } from "../context/alerts";
 
 export default function Alert({ alert }) {
   const { alerts, setAlerts } = useContext(AlertsContext);
+  const [addComment, setAddComment] = useState(false);
+  const [newComment, setNewComment] = useState("");
 
-  const { status, health_metric, severity } = alert;
+  const { status, health_metric, severity, comment } = alert;
   const { metric_type, content, time_taken } = health_metric;
 
   let color;
@@ -44,6 +50,27 @@ export default function Alert({ alert }) {
       }
     });
   }
+  function handleAddComment(e) {
+    e.preventDefault();
+    const updatedAlerts = alerts.filter((a) => a.id !== alert.id);
+    fetch(`/alerts/${alert.id}`, {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ comment: newComment }),
+    }).then((resp) => {
+      if (resp.ok) {
+        resp.json().then((data) => {
+          setAlerts([data, ...updatedAlerts]);
+        });
+      } else {
+        resp.json().then((data) => {
+          console.error(data);
+        });
+      }
+    });
+
+    setAddComment(false);
+  }
 
   return (
     <Grid item xs={12}>
@@ -65,55 +92,78 @@ export default function Alert({ alert }) {
                 }}
               />
             </Grid>
-            <Grid container direction="column" item xs>
-              <Grid item>
-                <Typography variant="body1" component="span">
-                  {metric_type.units ? (
-                    <strong>
-                      {metric_type.metric_type}: {content} {metric_type.units}
-                    </strong>
-                  ) : (
-                    <strong>
-                      {metric_type.metric_type}: {content}
-                    </strong>
-                  )}
-                </Typography>
-                <Typography
-                  variant="caption"
-                  component="span"
-                  sx={{ marginLeft: "0.5rem" }}
-                >
-                  {formattedDate}
-                </Typography>
-
-                {/* {comment && (
-                  <Typography variant="body2">
-                    <strong>Comment: </strong>
-                    {comment}
-                  </Typography>
-                )} */}
+            <Grid container item xs>
+              <Grid item xs={11}>
+                <Grid item container direction="column">
+                  <Grid item>
+                    <Typography variant="body1" component="span">
+                      {metric_type.units ? (
+                        <strong>
+                          {metric_type.metric_type}: {content}{" "}
+                          {metric_type.units}
+                        </strong>
+                      ) : (
+                        <strong>
+                          {metric_type.metric_type}: {content}
+                        </strong>
+                      )}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      component="span"
+                      sx={{ marginLeft: "0.5rem" }}
+                    >
+                      {formattedDate}
+                    </Typography>
+                  </Grid>
+                  <Grid item>
+                    {addComment && (
+                      <Box
+                        component="form"
+                        onSubmit={(e) => handleAddComment(e)}
+                        autoComplete="off"
+                      >
+                        <TextField
+                          id="outlined-basic"
+                          label="Add Comment"
+                          variant="outlined"
+                          size="small"
+                          value={newComment}
+                          onChange={(e) => setNewComment(e.target.value)}
+                        />
+                        <Button type="submit">Submit</Button>
+                      </Box>
+                    )}
+                    {comment && (
+                      <Typography variant="body2">
+                        <strong>Comment: </strong>
+                        {comment}
+                      </Typography>
+                    )}
+                  </Grid>
+                </Grid>
               </Grid>
               <Grid item>
                 {status === "unacknowledged" && (
                   <Tooltip title="Acknowledge Alert">
                     <IconButton
                       onClick={handleAcknowledged}
-                      aria-label="Edit Prescription"
+                      aria-label="Acknowledge"
                       size="small"
                     >
-                      <CheckIcon fontSize="medium" />
+                      <CheckIcon fontSize="small" />
                     </IconButton>
                   </Tooltip>
                 )}
-
-                {/* <IconButton
-                  floated="right"
-                  onClick={handleClick}
-                  aria-label="Delete Prescription"
-                  size="small"
-                >
-                  <DeleteIcon fontSize="small" />
-                </IconButton> */}
+                <Tooltip title="Add Comment">
+                  <IconButton
+                    onClick={() => setAddComment(true)}
+                    aria-label="Add Comment"
+                    size="small"
+                  >
+                    <AddIcon fontSize="medium" />
+                  </IconButton>
+                </Tooltip>
               </Grid>
             </Grid>
           </Grid>

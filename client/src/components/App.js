@@ -125,8 +125,6 @@ function App() {
     </>
   );
 
-  console.log(user.alerts)
-
   return (
     <>
       <LocalizationProvider dateAdapter={AdapterMoment}>

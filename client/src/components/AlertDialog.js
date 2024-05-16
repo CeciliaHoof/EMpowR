@@ -5,6 +5,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  alpha,
 } from "@mui/material";
 import { AlertsContext } from "../context/alerts";
 
@@ -13,6 +14,9 @@ function AlertDialog({ newAlerts, open, setOpen }) {
   const { alerts, setAlerts } = useContext(AlertsContext)
 
   let currAlert = newAlerts[currentAlertIndex]
+
+  let color;
+  currAlert.severity === "yellow" ? (color = "#ffea00") : (color = "#ff1744");
 
   function handleClose(acknowledged) {
     if (currentAlertIndex < newAlerts.length - 1) {
@@ -50,7 +54,7 @@ function AlertDialog({ newAlerts, open, setOpen }) {
       <div>
         <Dialog open={open} onClose={() => handleClose(false)}>
           <DialogTitle
-            style={{ backgroundColor: currAlert.severity }}
+            style={{ backgroundColor: alpha(color, 0.75) }}
           >
             Health Metric Alert
           </DialogTitle>

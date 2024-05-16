@@ -22,6 +22,11 @@ function NavMenu() {
             <ListItemText primary="Dashboard" />
           </ListItemButton>
         </ListItem >
+        <ListItem disablePadding as={NavLink} to="/alerts">
+          <ListItemButton onClick={() => handleClick("Alerts")}>
+            <ListItemText primary="Alerts" />
+          </ListItemButton>
+        </ListItem >
         <ListItem disablePadding as={NavLink} to="/health_metrics">
           <ListItemButton onClick={() => handleClick("Health Metrics")}>
             <ListItemText primary="Health Metrics" />
