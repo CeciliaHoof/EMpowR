@@ -26,7 +26,7 @@ function Snapshot({ num, type, badge }) {
     setCurrentPage(type);
   }
   return (
-    <Card sx={{ width: "100%", height: "auto" }}>
+    <Card sx={{ width: "100%", height: "100%" }}>
       <CardContent style={{ textAlign: "center" }}>
         <Grid container direction="column" spacing={2}>
           <Grid item xs={6}>
