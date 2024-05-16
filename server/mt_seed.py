@@ -29,12 +29,12 @@ if __name__ == '__main__':
         
         BLOOD_OXYGEN = MetricType(metric_type = 'Blood Oxygen', units='%')
         metric_types.append(BLOOD_OXYGEN)
-        
-        PAIN = MetricType(metric_type = 'Pain Level', green_params = 0, yellow_params = 4, red_params = 7, units='out of 10')
-        metric_types.append(PAIN)
 
         TEMPERATURE = MetricType(metric_type = 'Temperature', units='°F')
         metric_types.append(TEMPERATURE)
+
+        PAIN = MetricType(metric_type = 'Pain Level', green_params = 0, yellow_params = 4, red_params = 7, units='out of 10')
+        metric_types.append(PAIN)
 
         BG = MetricType(metric_type = 'Blood Glucose', green_params = 80, yellow_params = 100, red_params = 150, units='mg/dL')
         metric_types.append(BG)

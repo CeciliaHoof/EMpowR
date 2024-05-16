@@ -109,6 +109,7 @@ class HealthMetrics(Resource):
 
     def post(self):
         metric_data = request.get_json()
+
         try:
             new_metric = HealthMetric()
             for key, value in metric_data.items():
@@ -123,9 +124,32 @@ class HealthMetrics(Resource):
             db.session.commit()
             resp_body = new_metric.to_dict()
             status = 201
+
+            metric_type = MetricType.query.filter(MetricType.id == metric_data['metric_type_id']).first()
+            alert_severity = None
+
+            if metric_type.red_params:
+                if metric_type.id != 1:
+                    content = int(metric_data['content'])
+                elif metric_type.id == 1:
+                    content = int(metric_data['content'].split('/')[0])
+
+                if metric_type.yellow_params <= content < metric_type.red_params:
+                    alert_severity = "yellow"
+                elif content < metric_type.green_params or content >= metric_type.red_params:
+                    alert_severity = "red"
+            
+            if alert_severity:
+                new_alert = Alert(severity = alert_severity, health_metric_id = resp_body['id'], user_id = resp_body['user_id'])
+                db.session.add(new_alert)
+                db.session.commit()
+                resp_body = {'metric': resp_body, 'alert': new_alert.to_dict()}
+
         except Exception as e:
             resp_body = {'error': str(e)}
             status = 422
+        
+        
         return make_response(resp_body, status)
     
 api.add_resource(HealthMetrics, '/health_metrics')
@@ -242,6 +266,24 @@ class AlertsById(Resource):
         db.session.delete(alert)
         db.session.commit()
         return make_response({}, 204)
+    
+    def patch(self, id):
+        alert = Alert.query.filter(Alert.id == id).first()
+
+        if not alert:
+            return make_response({'error' : 'User not found'}, 404)
+        
+        alert_data = request.get_json()
+        try:
+            for key, value in alert_data.items():
+                setattr(alert, key, value)
+            db.session.commit()
+            resp_body = alert.to_dict()
+            status = 201
+        except Exception as e:
+            resp_body = {'error': str(e)}
+            status = 422
+        return make_response(resp_body, status)
 
 api.add_resource(AlertsById, '/alerts/<int:id>')
 

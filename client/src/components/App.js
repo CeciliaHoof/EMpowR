@@ -29,6 +29,7 @@ import Medications from "../pages/Medications";
 import Prescriptions from "../pages/Prescriptions";
 import HealthMetrics from "../pages/HealthMetrics";
 import ManageAccount from "../pages/ManageAccount";
+import Alerts from "../pages/Alerts"
 import NavMenu from "./NavMenu";
 import MedicationDetails from "./MedicationDetails";
 import PrescriptionDetails from "./PrescriptionDetails";
@@ -38,6 +39,7 @@ import { HealthMetricsContext } from "../context/healthMetrics";
 import { PrescriptionsContext } from "../context/prescriptions";
 import { MedicationsContext } from "../context/medications";
 import { CurrentPageContext } from "../context/currentPage";
+import { AlertsContext } from "../context/alerts"
 
 
 const drawerWidth = 240;
@@ -47,6 +49,7 @@ function App() {
   const { setHealthMetrics } = useContext(HealthMetricsContext);
   const { setPrescriptions } = useContext(PrescriptionsContext);
   const { setMedications } = useContext(MedicationsContext);
+  const { setAlerts } = useContext(AlertsContext)
   const { currentPage, setCurrentPage } = useContext(CurrentPageContext);
   const [anchorEl, setAnchorEl] = useState(null);
   const [open, setOpen] = useState(false);
@@ -63,7 +66,7 @@ function App() {
           setUser(data);
           setHealthMetrics(data.health_metrics);
           setPrescriptions(data.prescriptions);
-          console.log(data.medications)
+          setAlerts(data.alerts)
         });
       } else {
         setUser(null);
@@ -72,7 +75,7 @@ function App() {
     fetch("/medications")
       .then((r) => r.json())
       .then((data) => setMedications(data));
-  }, [setHealthMetrics, setPrescriptions, setMedications, setUser]);
+  }, [setHealthMetrics, setPrescriptions, setMedications, setUser, setAlerts]);
 
   if (!user) {
     return <Login />;
@@ -233,6 +236,7 @@ function App() {
                 element={<PrescriptionDetails setSnackbar={handleSnackbar} />}
               />
               <Route path="/manage_account" element={<ManageAccount />} />
+              <Route path="/alerts" element={<Alerts />} />
             </Routes>
           </Main>
         </Box>
