@@ -6,6 +6,7 @@ import {
   Divider,
   Typography,
   Grid,
+  Badge,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import LocalPharmacyIcon from "@mui/icons-material/LocalPharmacy";
@@ -13,15 +14,15 @@ import MonitorHeartIcon from "@mui/icons-material/MonitorHeart";
 import AddAlertIcon from "@mui/icons-material/AddAlert";
 import { CurrentPageContext } from "../context/currentPage";
 
-function Snapshot({ num, type }) {
+function Snapshot({ num, type, badge }) {
   const { setCurrentPage } = useContext(CurrentPageContext);
   const navigate = useNavigate();
   const theme = useTheme();
 
   function handleClick() {
-    type === "Prescriptions"
-      ? navigate(`/prescriptions`)
-      : navigate(`/health_metrics`);
+    if(type === "Prescriptions")
+      {navigate(`/prescriptions`)} else if (type === "Alerts"){navigate(`/alerts`)}
+      else {navigate(`/health_metrics`)};
     setCurrentPage(type);
   }
   return (
@@ -42,10 +43,12 @@ function Snapshot({ num, type }) {
               />
             )}
             {type === "Alerts" && (
-              <AddAlertIcon
-                fontSize="large"
-                sx={{ color: theme.palette.primary.light }}
-              />
+              <Badge badgeContent={badge.length} color="primary">
+                <AddAlertIcon
+                  fontSize="large"
+                  sx={{ color: theme.palette.primary.light }}
+                />
+              </Badge>
             )}
           </Grid>
           <Grid item xs={3}>

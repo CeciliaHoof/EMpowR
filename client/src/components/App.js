@@ -29,6 +29,7 @@ import Medications from "../pages/Medications";
 import Prescriptions from "../pages/Prescriptions";
 import HealthMetrics from "../pages/HealthMetrics";
 import ManageAccount from "../pages/ManageAccount";
+import Alerts from "../pages/Alerts"
 import NavMenu from "./NavMenu";
 import MedicationDetails from "./MedicationDetails";
 import PrescriptionDetails from "./PrescriptionDetails";
@@ -235,6 +236,7 @@ function App() {
                 element={<PrescriptionDetails setSnackbar={handleSnackbar} />}
               />
               <Route path="/manage_account" element={<ManageAccount />} />
+              <Route path="/alerts" element={<Alerts />} />
             </Routes>
           </Main>
         </Box>

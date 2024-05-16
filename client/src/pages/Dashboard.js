@@ -25,7 +25,8 @@ function Dashboard() {
   if (!metricTypes) {
     return <h1>Loading...</h1>;
   }
-
+  const unacknowledged = alerts.filter((alert) => alert.status === "unacknowledged")
+  console.log(unacknowledged)
   return (
     <Container sx={{ marginTop: "1rem" }}>
       <Box sx={{ height: "100%" }}>
@@ -52,7 +53,7 @@ function Dashboard() {
                 <Snapshot num={healthMetrics.length} type={"Health Metrics"} />
               </Grid>
               <Grid item xs={4}>
-                <Snapshot num={alerts.length} type={"Alerts"} />
+                <Snapshot num={alerts.length} badge={unacknowledged} type={"Alerts"} />
               </Grid>
             </Grid>
           </Grid>
