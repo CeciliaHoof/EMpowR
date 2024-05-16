@@ -54,7 +54,7 @@ class User(db.Model, SerializerMixin):
     health_metrics = db.relationship('HealthMetric', back_populates = 'user', cascade='all, delete-orphan')
     alerts = db.relationship('Alert', back_populates = 'user', cascade='all, delete-orphan')
 
-    serialize_rules = ('-_password_hash', '-prescriptions.user', '-health_metrics.user', '-alerts.user', '-alerts.health_metric')
+    serialize_rules = ('-_password_hash', '-prescriptions.user', '-health_metrics.user', '-alerts.user')
 
     def __repr__(self):
         return f'< User {self.id} | {self.first_name} {self.last_name} | {self.email} >'

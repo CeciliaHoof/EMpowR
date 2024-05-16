@@ -2,14 +2,19 @@ import { useContext } from "react";
 import { Container, Box, Typography, Grid } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { AlertsContext } from "../context/alerts";
-import Alert from "../components/Alert"
+import Alert from "../components/Alert";
 
 function Alerts() {
   const { alerts, setAlerts } = useContext(AlertsContext);
 
-  const theme = useTheme()
+  const theme = useTheme();
 
-  const alertsDisplay = alerts.map((alert) => <Alert alert={alert} key={alert.id} />)
+  const unacknowledged = alerts
+    .filter((alert) => alert.status === "unacknowledged")
+    .map((alert) => <Alert alert={alert} key={alert.id} />);
+  const other = alerts
+    .filter((alert) => alert.status !== "unacknowledged")
+    .map((alert) => <Alert alert={alert} key={alert.id} />);
 
   return (
     <>
@@ -22,15 +27,53 @@ function Alerts() {
             backgroundColor: theme.palette.primary.light,
             padding: "2rem 0.5rem 1rem",
             width: "80%",
-            height: '152px',
+            height: "152px",
             margin: "auto",
           }}
         >
-          <Typography variant="h6">If you have an alert for any vital signs, consider rechecking the vital sign and contacting your healthcare provider, <strong>especially</strong> if you are experiencing any unusual symptoms.</Typography>
-          <Typography variant="caption">This is not intended to be healthcare advice. Contact your provider for further information.</Typography>
+          <Typography variant="h6">
+            If you have an alert for any vital signs, consider rechecking the
+            vital sign and contacting your healthcare provider,{" "}
+            <strong>especially</strong> if you are experiencing any unusual
+            symptoms.
+          </Typography>
+          <Typography variant="caption">
+            This is not intended to be healthcare advice. Contact your provider
+            for further information.
+          </Typography>
         </Container>
-        <Box sx={{ height: "33rem", width: "100%", overflowY: "scroll", marginTop: '1rem' }}>
-          <Grid container>{alertsDisplay}</Grid>
+        <Box
+          sx={{
+            height: "33rem",
+            width: "100%",
+            overflowY: "scroll",
+            marginTop: "1rem",
+          }}
+        >
+          <Grid container spacing={2}>
+            {unacknowledged && (
+              <Grid item xs={12} container>
+                <Grid item xs={12}>
+                  <Typography variant="h6">
+                    <strong>Unacknowledged</strong>
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} container>
+                  {unacknowledged}
+                </Grid>
+              </Grid>
+            )}
+            <Grid item xs={12} container>
+              <Grid item xs={12}>
+                <Typography variant="h6">
+                  <strong>Acknowledged</strong>
+                </Typography>
+              </Grid>
+              <Grid item xs={12} container>
+                {other}
+              </Grid>
+            </Grid>
+          </Grid>
         </Box>
       </Container>
     </>
