@@ -9,8 +9,6 @@ function Alerts() {
 
   const theme = useTheme();
 
-  alerts.forEach(alert => console.log(alert.health_metric.time_taken))
-
   const unacknowledged = alerts
     .filter((alert) => alert.status === "unacknowledged")
     .sort((alertA, alertB) => {
@@ -96,9 +94,3 @@ function Alerts() {
 }
 
 export default Alerts;
-
-// On this page a user will:
-// see a disclaimer message: Alerts are meant to help you better determine if you should contact your healthcare provider. They are not intended to be healthcare advice.
-// see all of their alerts -- unacknowledged first, then acknowledged
-// acknowledge alerts
-// add a comment if they have contacted their healthcare provider or if an alert is not applicable
