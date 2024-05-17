@@ -54,7 +54,7 @@ class User(db.Model, SerializerMixin):
     health_metrics = db.relationship('HealthMetric', back_populates = 'user', cascade='all, delete-orphan')
     alerts = db.relationship('Alert', back_populates = 'user', cascade='all, delete-orphan')
 
-    serialize_rules = ('-_password_hash', '-prescriptions.user', '-health_metrics.user', '-alerts.user', '-alerts.health_metric')
+    serialize_rules = ('-_password_hash', '-prescriptions.user', '-health_metrics.user', '-alerts.user')
 
     def __repr__(self):
         return f'< User {self.id} | {self.first_name} {self.last_name} | {self.email} >'
@@ -149,7 +149,7 @@ class Alert(db.Model, SerializerMixin):
     created_at = db.Column(db.DateTime, server_default = db.func.now())
     updated_at =  db.Column(db.DateTime, onupdate = db.func.now())
     severity = db.Column(db.String)
-    # alert_type = db.Column(db.String)
+    comment = db.Column(db.String)
     status = db.Column(db.String, default = "unacknowledged")
 
     health_metric_id = db.Column(db.Integer, db.ForeignKey('health_metrics.id'))
