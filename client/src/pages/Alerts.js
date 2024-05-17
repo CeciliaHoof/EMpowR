@@ -5,16 +5,31 @@ import { AlertsContext } from "../context/alerts";
 import Alert from "../components/Alert";
 
 function Alerts() {
-  const { alerts, setAlerts } = useContext(AlertsContext);
+  const { alerts } = useContext(AlertsContext);
 
   const theme = useTheme();
 
+  alerts.forEach(alert => console.log(alert.health_metric.time_taken))
+
   const unacknowledged = alerts
     .filter((alert) => alert.status === "unacknowledged")
-    .map((alert) => <Alert alert={alert} key={alert.id} />);
+    .sort((alertA, alertB) => {
+      const timeA = new Date(alertA.health_metric.time_taken);
+      const timeB = new Date(alertB.health_metric.time_taken);
+
+      return timeB - timeA;
+    })
+    .map((alert) => <Alert alert={alert} key={alert.id} />)
+
   const other = alerts
     .filter((alert) => alert.status !== "unacknowledged")
-    .map((alert) => <Alert alert={alert} key={alert.id} />);
+    .sort((alertA, alertB) => {
+      const timeA = new Date(alertA.health_metric.time_taken);
+      const timeB = new Date(alertB.health_metric.time_taken);
+
+      return timeB - timeA;
+    })
+    .map((alert) => <Alert alert={alert} key={alert.id} />)
 
   return (
     <>
@@ -51,7 +66,7 @@ function Alerts() {
           }}
         >
           <Grid container spacing={2}>
-            {unacknowledged && (
+            {unacknowledged.length > 0 && (
               <Grid item xs={12} container>
                 <Grid item xs={12}>
                   <Typography variant="h6">
