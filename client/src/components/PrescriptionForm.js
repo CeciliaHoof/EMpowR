@@ -1,35 +1,48 @@
-import { useContext } from "react";
-import { Button, Container, TextField, MenuItem, Grid, Box } from "@mui/material";
-import { useFormik } from "formik";
-import * as yup from "yup";
+import { useContext, useEffect, useState } from "react";
+import {
+  Button,
+  Container,
+  TextField,
+  MenuItem,
+  Grid,
+  Box,
+  Autocomplete,
+} from "@mui/material";
 import { UserContext } from "../context/user";
 import { PrescriptionsContext } from "../context/prescriptions";
 import { MedicationsContext } from "../context/medications";
 
-function PrescriptionForm({ close, method, prescription, onEdit, setSnackbar }) {
+export default function PrescriptionForm({
+  close,
+  method,
+  prescription,
+  onEdit,
+  setSnackbar,
+}) {
   const { user } = useContext(UserContext);
   const { prescriptions, setPrescriptions } = useContext(PrescriptionsContext);
   const { medications } = useContext(MedicationsContext);
+  const [initialState, setInitialState] = useState({});
 
-  let initialState;
-
-  prescription
-    ? (initialState = {
-        dosage: prescription.dosage,
-        frequency: prescription.frequency,
-        route: prescription.route,
-        time_of_day: prescription.time_of_day,
-        user_id: user.id,
-        medication_id: prescription.medication.generic_name,
-      })
-    : (initialState = {
-        dosage: "",
-        frequency: "",
-        route: "",
-        time_of_day: "",
-        user_id: user.id,
-        medication_id: "",
-      });
+  useEffect(() => {
+    prescription
+      ? (setInitialState({
+          dosage: prescription.dosage,
+          frequency: prescription.frequency,
+          route: prescription.route,
+          time_of_day: prescription.time_of_day,
+          user_id: user.id,
+          medication_id: prescription.medication.generic_name,
+        }))
+      : (setInitialState({
+          dosage: "",
+          frequency: "",
+          route: "",
+          time_of_day: "",
+          user_id: user.id,
+          medication_id: "",
+        }));
+  }, [prescription]);
 
   const frequencies = [
     "Once daily, AM",
@@ -42,11 +55,11 @@ function PrescriptionForm({ close, method, prescription, onEdit, setSnackbar }) 
 
   let userMedications;
 
-  !prescription
-    ? (userMedications = prescriptions.map(
-        (prescription) => prescription.medication_id
-      ))
-    : (userMedications = []);
+  if (!prescription) {
+    userMedications = prescriptions.map(
+      (prescription) => prescription.medication_id
+    );
+  }
 
   const medicationOptions = medications
     .filter((medication) => !userMedications.includes(medication.id))
@@ -62,100 +75,38 @@ function PrescriptionForm({ close, method, prescription, onEdit, setSnackbar }) 
     label: frequency,
   }));
 
-  const validationSchema = yup.object().shape({
-    medication_id: yup.string().required("Medication is required"),
-    dosage: yup.string().required("Dosage is required"),
-    frequency: yup.string().required("Frequency is required"),
-    route: yup.string().required("Route is required"),
-  });
-
-  const formik = useFormik({
-    initialValues: initialState,
-    validationSchema: validationSchema,
-    onSubmit: (values, { setSubmitting }) => {
-      const selectedMedication = medications.find(
-        (medication) => medication.generic_name === formik.values.medication_id
-      );
-      const requestData = { ...values, medication_id: selectedMedication.id };
-      if (method === "POST") {
-        fetch("/prescriptions", {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify(requestData),
-        })
-          .then((resp) => {
-            if (resp.ok) {
-              resp.json().then((data) => {
-                setPrescriptions([...prescriptions, data]);
-                formik.resetForm();
-                close(false);
-                setSnackbar("Prescription Successfully Added.");
-              });
-            } else {
-              resp.json().then((data) => {
-                formik.setErrors(data);
-              });
-            }
-          })
-          .finally(() => {
-            setSubmitting(false);
-          });
-      } else {
-        fetch(`/prescriptions/${prescription.id}`, {
-          method: "PATCH",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify(requestData),
-        })
-          .then((resp) => {
-            if (resp.ok) {
-              resp.json().then((data) => {
-                onEdit(data);
-                formik.resetForm();
-                close(false);
-              });
-            } else {
-              resp.json().then((data) => {
-                formik.setErrors(data);
-              });
-            }
-          })
-          .finally(() => {
-            setSubmitting(false);
-          });
-      }
-    },
-  });
+  function handleChange(value){
+    console.log(value)
+  }
 
   return (
     <Container sx={{ margin: "2rem 0 2rem 0" }}>
-      <Box component="form" autoComplete="off" onSubmit={formik.handleSubmit}>
+      <Box component="form" autoComplete="off">
         <Grid container spacing={2} rowSpacing={1}>
           <Grid item xs={12} sm={3}>
-            <TextField
-              select
-              fullWidth
-              label="Medication"
-              variant="outlined"
-              margin="normal"
+            <Autocomplete
+              id="medication_id"
               name="medication_id"
-              value={formik.values.medication_id}
-              onChange={formik.handleChange}
-              error={
-                formik.touched.medication_id &&
-                Boolean(formik.errors.medication_id)
-              }
-              helperText={
-                formik.touched.medication_id && formik.errors.medication_id
-              }
-            >
-              {medicationOptions.map((option) => (
-                <MenuItem key={option.value} value={option.value}>
-                  {option.label}
-                </MenuItem>
-              ))}
-            </TextField>
+              label="Medication"
+              options={medicationOptions}
+              getOptionLabel={(option) => option.label}
+              onChange={(e, value) => handleChange(value)}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  //   error={Boolean(
+                  //     formik.touched.contact && formik.errors.contact
+                  //   )}
+                  fullWidth
+                  //   helperText={formik.touched.contact && formik.errors.contact}
+                  label="Medication"
+                  name="medication_id"
+                  variant="outlined"
+                />
+              )}
+            />
           </Grid>
-          <Grid item xs={12} sm={3}>
+          {/* <Grid item xs={12} sm={3}>
             <TextField
               fullWidth
               label="Dosage"
@@ -202,32 +153,30 @@ function PrescriptionForm({ close, method, prescription, onEdit, setSnackbar }) 
                 </MenuItem>
               ))}
             </TextField>
-          </Grid>
+          </Grid> */}
         </Grid>
         <Grid item xs={12}>
-        <div style={{ textAlign: "center", marginTop: '0.5rem' }}>
-          <Button
-            size="small"
-            variant="contained"
-            color="primary"
-            type="submit"
-            sx={{ marginRight: "1rem" }}
-          >
-            Submit
-          </Button>
-          <Button
-            size="small"
-            variant="contained"
-            color="primary"
-            onClick={() => close(false)}
-          >
-            Cancel
-          </Button>
+          <div style={{ textAlign: "center", marginTop: "0.5rem" }}>
+            <Button
+              size="small"
+              variant="contained"
+              color="primary"
+              type="submit"
+              sx={{ marginRight: "1rem" }}
+            >
+              Submit
+            </Button>
+            <Button
+              size="small"
+              variant="contained"
+              color="primary"
+              onClick={() => close(false)}
+            >
+              Cancel
+            </Button>
           </div>
-          </Grid>
+        </Grid>
       </Box>
     </Container>
   );
 }
-
-export default PrescriptionForm;

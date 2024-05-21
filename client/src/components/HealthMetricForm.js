@@ -18,14 +18,8 @@ import * as yup from "yup";
 import moment from "moment";
 import { UserContext } from "../context/user";
 
-const FieldTypes = {
-  VITALS: "vitals",
-  PRESCRIPTION: "prescription",
-  SYMPTOMS: "symptoms",
-};
-
 const initialValuesMap = {
-  [FieldTypes.VITALS]: {
+  vitals: {
     BP: "",
     HR: "",
     RR: "",
@@ -37,19 +31,19 @@ const initialValuesMap = {
     time_taken: moment(),
     comment: "",
   },
-  [FieldTypes.PRESCRIPTION]: {
+  prescription: {
     medication: "",
     time_taken: moment(),
     comment: "",
   },
-  [FieldTypes.SYMPTOMS]: {
+  symptoms: {
     symptom: "",
     time_taken: moment(),
   },
 };
 
 const validationSchemaMap = {
-  [FieldTypes.VITALS]: yup.object().shape({
+  vitals: yup.object().shape({
     BP: yup
       .string()
       .matches(
@@ -57,20 +51,20 @@ const validationSchemaMap = {
         'Field must contain an SBP and DBP separated by a "/" character'
       ),
     HR: yup.number().positive("Heart Rate must be a positive number"),
-    RR: yup.string(),
+    RR: yup.number().positive("Respiratory Rate must be a positive number"),
     temp: yup.string(),
-    SPO2: yup.string(),
-    pain: yup.string(),
-    glucose: yup.string(),
+    SPO2: yup.number().positive("Heart Rate must be a positive number"),
+    pain: yup.number(),
+    glucose: yup.number().positive("Heart Rate must be a positive number"),
     time_taken: yup.date().required("Time taken is required"),
     comment: yup.string(),
   }),
-  [FieldTypes.PRESCRIPTION]: yup.object().shape({
+  prescription: yup.object().shape({
     medication: yup.string().required("Medication is required"),
     time_taken: yup.date().required("Time taken is required"),
     comment: yup.string(),
   }),
-  [FieldTypes.SYMPTOMS]: yup.object().shape({
+  symptoms: yup.object().shape({
     symptom: yup.string().required("Symptom is required"),
     time_taken: yup.date().required("Time taken is required"),
   }),
@@ -79,9 +73,6 @@ const validationSchemaMap = {
 function HealthMetricForm({
   hideForm,
   addMetric,
-  method,
-  metric,
-  onEdit,
   formType,
   setSnackbar,
   createAlert,
@@ -90,29 +81,9 @@ function HealthMetricForm({
 
   const theme = useTheme();
 
-  const initialState = metric
-    ? {
-        content: metric.content,
-        time_taken: moment(metric.time_taken),
-        comment: metric.comment ? metric.comment : "",
-      }
-    : initialValuesMap[formType];
+  const initialState = initialValuesMap[formType];
 
-  const validationSchema = metric
-    ? yup.object().shape({
-        content:
-          metric.metric_type_id === 1
-            ? yup
-                .string()
-                .matches(
-                  /\//,
-                  'Field must contain an SBP and DBP separated by a "/" character'
-                )
-            : yup.string().required("Content is required"),
-        time_taken: yup.date().required("Time taken is required"),
-        comment: yup.string(),
-      })
-    : validationSchemaMap[formType];
+  const validationSchema = validationSchemaMap[formType];
 
   const formik = useFormik({
     initialValues: initialState,
@@ -121,20 +92,90 @@ function HealthMetricForm({
       const formattedDateTime = moment(values.time_taken).format(
         "MM-DD-YYYY HH:mm"
       );
-      if (method === "PATCH") {
-        const patchData = {
-          ...values,
-          time_taken: formattedDateTime,
-        };
-        fetch(`/health_metrics/${metric.id}`, {
-          method: "PATCH",
+      let postData;
+      let x = 1;
+      let metricsToAdd = [];
+      let alerts = [];
+      const fetchPromises = [];
+      if (formType === "vitals") {
+        for (const [key, value] of Object.entries(formik.values).slice(0, 8)) {
+          const valueStr = value.toString()
+          if (valueStr) {
+            postData = {
+              content: value,
+              metric_type_id: x,
+              comment: formik.values.comment,
+              time_taken: formattedDateTime,
+              user_id: user.id,
+            }
+
+            fetchPromises.push(
+              fetch("/health_metrics", {
+                method: "POST",
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify(postData),
+              }).then((resp) => {
+                if (resp.ok) {
+                  return resp.json();
+                } else {
+                  resp.json().then((data) => {
+                    formik.setErrors(data);
+                  });
+                }
+              })
+            );
+          }
+          x++;
+        }
+        try {
+          const responses = await Promise.all(fetchPromises);
+          responses.forEach((data) => {
+            if (data.alert) {
+              metricsToAdd.push(data.metric);
+              alerts.push(data.alert);
+            } else {
+              metricsToAdd.push(data);
+            }
+          });
+          addMetric(metricsToAdd);
+          if (alerts.length > 0) {
+            createAlert(alerts);
+          }
+          setSnackbar("Metric Successfully Added");
+          formik.resetForm(initialState);
+          hideForm(false);
+        } catch (error) {
+          console.error(error);
+        }
+        setSubmitting(false);
+      } else {
+        if (formType === "prescription") {
+          postData = {
+            content: formik.values.medication,
+            time_taken: formattedDateTime,
+            comment: formik.values.comment,
+            metric_type_id: 9,
+            user_id: user.id,
+          };
+        } else if (formType === "symptoms") {
+          postData = {
+            content: formik.values.symptom,
+            time_taken: formattedDateTime,
+            metric_type_id: 10,
+            user_id: user.id,
+          };
+        }
+
+        fetch("/health_metrics", {
+          method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify(patchData),
+          body: JSON.stringify(postData),
         })
           .then((resp) => {
             if (resp.ok) {
               resp.json().then((data) => {
-                onEdit(data);
+                addMetric([data]);
+                setSnackbar("Metric Successfully Added");
                 formik.resetForm();
                 hideForm(false);
               });
@@ -147,106 +188,9 @@ function HealthMetricForm({
           .finally(() => {
             setSubmitting(false);
           });
-      } else {
-        let postData;
-        let x = 1;
-        let metricsToAdd = [];
-        let alerts = [];
-        const fetchPromises = [];
-        if (formType === "vitals") {
-          for (const [key, value] of Object.entries(formik.values).slice(
-            0,
-            8
-          )) {
-            if (value) {
-              postData = {
-                content: value,
-                metric_type_id: x,
-                comment: formik.values.comment,
-                time_taken: formattedDateTime,
-                user_id: user.id,
-              };
-
-              fetchPromises.push(
-                fetch("/health_metrics", {
-                  method: "POST",
-                  headers: { "content-type": "application/json" },
-                  body: JSON.stringify(postData),
-                }).then((resp) => {
-                  if (resp.ok) {
-                    return resp.json();
-                  } else {
-                    resp.json().then((data) => {
-                      formik.setErrors(data);
-                    });
-                  }
-                })
-              );
-            }
-            x++;
-          }
-          try {
-            const responses = await Promise.all(fetchPromises);
-            responses.forEach((data) => {
-              if (data.alert) {
-                metricsToAdd.push(data.metric);
-                alerts.push(data.alert);
-              } else {
-                metricsToAdd.push(data);
-              }
-            });
-            addMetric(metricsToAdd);
-            createAlert(alerts)
-            setSnackbar("Metric Successfully Added");
-            formik.resetForm(initialState);
-            hideForm(false);
-          } catch (error) {
-            console.error(error);
-          }
-          setSubmitting(false);
-        } else {
-          if (formType === "prescription") {
-            postData = {
-              content: formik.values.medication,
-              time_taken: formattedDateTime,
-              comment: formik.values.comment,
-              metric_type_id: 9,
-              user_id: user.id,
-            };
-          } else if (formType === "symptoms") {
-            postData = {
-              content: formik.values.symptom,
-              time_taken: formattedDateTime,
-              metric_type_id: 10,
-              user_id: user.id,
-            };
-          }
-
-          fetch("/health_metrics", {
-            method: "POST",
-            headers: { "content-type": "application/json" },
-            body: JSON.stringify(postData),
-          })
-            .then((resp) => {
-              if (resp.ok) {
-                resp.json().then((data) => {
-                  addMetric([data]);
-                  setSnackbar("Metric Successfully Added");
-                  formik.resetForm();
-                  hideForm(false);
-                });
-              } else {
-                resp.json().then((data) => {
-                  formik.setErrors(data);
-                });
-              }
-            })
-            .finally(() => {
-              setSubmitting(false);
-            });
-        }
       }
     },
+    // },
   });
 
   const medications = user.prescriptions.map(
@@ -259,11 +203,11 @@ function HealthMetricForm({
     </MenuItem>
   ));
 
-  const getFieldError = (fieldName) => {
+  function getFieldError(fieldName) {
     return formik.touched[fieldName] && formik.errors[fieldName]
       ? formik.errors[fieldName]
       : "";
-  };
+  }
 
   return (
     <Box
@@ -273,7 +217,7 @@ function HealthMetricForm({
       style={{ marginTop: "1em" }}
     >
       <Grid container spacing={2}>
-        {formType === FieldTypes.VITALS && (
+        {formType === "vitals" && (
           <>
             <Grid item xs={2.4}>
               <FormControl fullWidth>
@@ -415,7 +359,7 @@ function HealthMetricForm({
             </Grid>
           </>
         )}
-        {formType === FieldTypes.PRESCRIPTION && (
+        {formType === "prescription" && (
           <Grid item xs={9}>
             <FormControl fullWidth>
               <InputLabel htmlFor="med-input">Select Medication</InputLabel>
@@ -437,7 +381,7 @@ function HealthMetricForm({
             </FormControl>
           </Grid>
         )}
-        {formType === FieldTypes.SYMPTOMS && (
+        {formType === "symptoms" && (
           <Grid item xs={9}>
             <FormControl fullWidth>
               <TextField
@@ -448,66 +392,6 @@ function HealthMetricForm({
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 name="symptom"
-              />
-            </FormControl>
-          </Grid>
-        )}
-        {metric && metric.metric_type_id <= 8 && (
-          <Grid item xs={9}>
-            <FormControl fullWidth>
-              <InputLabel htmlFor="vs-input">
-                {metric.metric_type.metric_type}
-              </InputLabel>
-              <OutlinedInput
-                id="vs-input"
-                label={metric.metric_type.metric_type}
-                type={metric.metric_type_id !== 1 ? "number" : "text"}
-                value={formik.values.content}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                name="content"
-              />
-              {formik.touched.content && formik.errors.content && (
-                <span style={{ color: "red" }}>{formik.errors.content}</span>
-              )}
-            </FormControl>
-          </Grid>
-        )}
-        {metric && metric.metric_type_id === 9 && (
-          <Grid item xs={9}>
-            <FormControl fullWidth>
-              <InputLabel htmlFor="med-input">
-                {metric.metric_type.metric_type}
-              </InputLabel>
-              <Select
-                id="med-input"
-                label="Select Medication"
-                placeholder="Select Medication"
-                value={formik.values.content}
-                onChange={(e) => {
-                  formik.setFieldValue("content", e.target.value);
-                }}
-                name="content"
-              >
-                {medicationOptions}
-              </Select>
-              {formik.touched.medication && formik.errors.medication && (
-                <span style={{ color: "red" }}>{formik.errors.medication}</span>
-              )}
-            </FormControl>
-          </Grid>
-        )}
-        {metric && metric.metric_type_id === 10 && (
-          <Grid item xs={9}>
-            <FormControl fullWidth>
-              <TextField
-                id="comment-input"
-                label={metric.metric_type.metric_type}
-                placeholder="lightheaded, fatigue, cough, etc."
-                value={formik.values.content}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                name="content"
               />
             </FormControl>
           </Grid>
@@ -529,8 +413,7 @@ function HealthMetricForm({
             )}
           </FormControl>
         </Grid>
-        {((formType && formType !== "symptoms") ||
-          (metric && metric.metric_type_id < 10)) && (
+        {formType !== "symptoms" && (
           <Grid item xs={12}>
             <FormControl fullWidth>
               <TextField

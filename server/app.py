@@ -236,24 +236,24 @@ class UsersById(Resource):
 
 api.add_resource(UsersById, '/users/<int:id>')
 
-class Alerts(Resource):
+# class Alerts(Resource):
 
-    def post(self):
-        alert_json = request.get_json()
-        try:
-            new_alert = Alert()
-            for key, value in alert_json.items():
-                setattr(new_alert, key, value)
-            db.session.add(new_alert)
-            db.session.commit()
-            resp_body = new_alert.to_dict()
-            status = 201
-        except Exception as e:
-            resp_body = {'error': str(e)}
-            status = 422
-        return make_response(resp_body, status)
+#     def post(self):
+#         alert_json = request.get_json()
+#         try:
+#             new_alert = Alert()
+#             for key, value in alert_json.items():
+#                 setattr(new_alert, key, value)
+#             db.session.add(new_alert)
+#             db.session.commit()
+#             resp_body = new_alert.to_dict()
+#             status = 201
+#         except Exception as e:
+#             resp_body = {'error': str(e)}
+#             status = 422
+#         return make_response(resp_body, status)
 
-api.add_resource(Alerts, '/alerts')
+# api.add_resource(Alerts, '/alerts')
 
 class AlertsById(Resource):
 

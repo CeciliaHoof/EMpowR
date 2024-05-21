@@ -7,7 +7,7 @@ import HealingIcon from "@mui/icons-material/Healing";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { HealthMetricsContext } from "../context/healthMetrics";
-import HealthMetricForm from "./HealthMetricForm";
+import HealthMetricEdit from "./HealthMetricEdit";
 
 function HealthMetric({ metric, handleSnackBar }) {
   const { healthMetrics, setHealthMetrics } = useContext(HealthMetricsContext);
@@ -144,12 +144,10 @@ function HealthMetric({ metric, handleSnackBar }) {
               </Grid>
             ) : (
               <Grid item xs={12}>
-                <HealthMetricForm
+                <HealthMetricEdit
                   hideForm={setIsEditing}
                   onEdit={handleEdit}
                   metric={metric}
-                  method="PATCH"
-                  data-html2canvas-ignore="true"
                 />
               </Grid>
             )}
