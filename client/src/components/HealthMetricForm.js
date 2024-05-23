@@ -10,6 +10,7 @@ import {
   Select,
   Button,
   MenuItem,
+  Chip
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
@@ -394,6 +395,13 @@ function HealthMetricForm({
                   formik.setFieldValue("medication", e.target.value);
                 }}
                 name="medication"
+                renderValue={(selected) => (
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                    {selected.map((value) => (
+                      <Chip key={value} label={value} />
+                    ))}
+                  </Box>
+                )}
               >
                 {medicationOptions}
               </Select>
