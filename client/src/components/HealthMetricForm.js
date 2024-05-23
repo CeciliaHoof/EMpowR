@@ -10,6 +10,7 @@ import {
   Select,
   Button,
   MenuItem,
+  Chip
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
@@ -32,7 +33,7 @@ const initialValuesMap = {
     comment: "",
   },
   prescription: {
-    medication: "",
+    medication: [],
     time_taken: moment(),
     comment: "",
   },
@@ -60,7 +61,7 @@ const validationSchemaMap = {
     comment: yup.string(),
   }),
   prescription: yup.object().shape({
-    medication: yup.string().required("Medication is required"),
+    medication: yup.array().required("Medication is required"),
     time_taken: yup.date().required("Time taken is required"),
     comment: yup.string(),
   }),
@@ -97,17 +98,49 @@ function HealthMetricForm({
       let metricsToAdd = [];
       let alerts = [];
       const fetchPromises = [];
-      if (formType === "vitals") {
-        for (const [key, value] of Object.entries(formik.values).slice(0, 8)) {
-          const valueStr = value.toString()
-          if (valueStr) {
-            postData = {
-              content: value,
-              metric_type_id: x,
-              comment: formik.values.comment,
-              time_taken: formattedDateTime,
-              user_id: user.id,
+      if (formType === "vitals" || formType === "prescription") {
+        if (formType === "vitals") {
+          for (const [key, value] of Object.entries(formik.values).slice(
+            0,
+            8
+          )) {
+            const valueStr = value.toString();
+            if (valueStr) {
+              postData = {
+                content: value,
+                metric_type_id: x,
+                comment: formik.values.comment,
+                time_taken: formattedDateTime,
+                user_id: user.id,
+              };
+
+              fetchPromises.push(
+                fetch("/health_metrics", {
+                  method: "POST",
+                  headers: { "content-type": "application/json" },
+                  body: JSON.stringify(postData),
+                }).then((resp) => {
+                  if (resp.ok) {
+                    return resp.json();
+                  } else {
+                    resp.json().then((data) => {
+                      formik.setErrors(data);
+                    });
+                  }
+                })
+              );
             }
+            x++;
+          }
+        } else {
+          for (let i = 0; i < formik.values.medication.length; i++) {
+            postData = {
+              content: formik.values.medication[i],
+              time_taken: formattedDateTime,
+              comment: formik.values.comment,
+              metric_type_id: 9,
+              user_id: user.id,
+            };
 
             fetchPromises.push(
               fetch("/health_metrics", {
@@ -125,7 +158,6 @@ function HealthMetricForm({
               })
             );
           }
-          x++;
         }
         try {
           const responses = await Promise.all(fetchPromises);
@@ -149,22 +181,12 @@ function HealthMetricForm({
         }
         setSubmitting(false);
       } else {
-        if (formType === "prescription") {
-          postData = {
-            content: formik.values.medication,
-            time_taken: formattedDateTime,
-            comment: formik.values.comment,
-            metric_type_id: 9,
-            user_id: user.id,
-          };
-        } else if (formType === "symptoms") {
-          postData = {
-            content: formik.values.symptom,
-            time_taken: formattedDateTime,
-            metric_type_id: 10,
-            user_id: user.id,
-          };
-        }
+        postData = {
+          content: formik.values.symptom,
+          time_taken: formattedDateTime,
+          metric_type_id: 10,
+          user_id: user.id,
+        };
 
         fetch("/health_metrics", {
           method: "POST",
@@ -364,6 +386,7 @@ function HealthMetricForm({
             <FormControl fullWidth>
               <InputLabel htmlFor="med-input">Select Medication</InputLabel>
               <Select
+                multiple
                 id="med-input"
                 label="Select Medication"
                 placeholder="Select Medication"
@@ -372,6 +395,13 @@ function HealthMetricForm({
                   formik.setFieldValue("medication", e.target.value);
                 }}
                 name="medication"
+                renderValue={(selected) => (
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                    {selected.map((value) => (
+                      <Chip key={value} label={value} />
+                    ))}
+                  </Box>
+                )}
               >
                 {medicationOptions}
               </Select>
