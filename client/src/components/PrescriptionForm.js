@@ -23,25 +23,29 @@ export default function PrescriptionForm({
   const { prescriptions, setPrescriptions } = useContext(PrescriptionsContext);
   const { medications } = useContext(MedicationsContext);
   const [initialState, setInitialState] = useState({});
+  const [formData, setFormData] = useState({});
 
   useEffect(() => {
-    prescription
-      ? (setInitialState({
-          dosage: prescription.dosage,
-          frequency: prescription.frequency,
-          route: prescription.route,
-          time_of_day: prescription.time_of_day,
-          user_id: user.id,
-          medication_id: prescription.medication.generic_name,
-        }))
-      : (setInitialState({
-          dosage: "",
-          frequency: "",
-          route: "",
-          time_of_day: "",
-          user_id: user.id,
-          medication_id: "",
-        }));
+    if (prescription) {
+      setInitialState({
+        dosage: prescription.dosage,
+        frequency: prescription.frequency,
+        route: prescription.route,
+        time_of_day: prescription.time_of_day,
+        user_id: user.id,
+        medication_id: prescription.medication.generic_name,
+      });
+    } else {
+      setInitialState({
+        dosage: "",
+        frequency: "",
+        route: "",
+        time_of_day: "",
+        user_id: user.id,
+        medication_id: "",
+      });
+    }
+    setFormData(initialState);
   }, [prescription]);
 
   const frequencies = [
@@ -75,13 +79,18 @@ export default function PrescriptionForm({
     label: frequency,
   }));
 
-  function handleChange(value){
-    console.log(value)
+  function handleChange(e) {
+    setFormData({...formData, [e.target.name]: e.target.value})
+  }
+
+  function handleSubmit(e){
+    e.preventDefault()
+    console.log(formData)
   }
 
   return (
     <Container sx={{ margin: "2rem 0 2rem 0" }}>
-      <Box component="form" autoComplete="off">
+      <Box component="form" autoComplete="off" onSubmit={(e) => handleSubmit(e)}>
         <Grid container spacing={2} rowSpacing={1}>
           <Grid item xs={12} sm={3}>
             <Autocomplete
@@ -90,7 +99,7 @@ export default function PrescriptionForm({
               label="Medication"
               options={medicationOptions}
               getOptionLabel={(option) => option.label}
-              onChange={(e, value) => handleChange(value)}
+              onChange={(e) => handleChange(e)}
               renderInput={(params) => (
                 <TextField
                   {...params}
@@ -106,17 +115,17 @@ export default function PrescriptionForm({
               )}
             />
           </Grid>
-          {/* <Grid item xs={12} sm={3}>
+          <Grid item xs={12} sm={3}>
             <TextField
               fullWidth
               label="Dosage"
               variant="outlined"
               margin="normal"
               name="dosage"
-              value={formik.values.dosage}
-              onChange={formik.handleChange}
-              error={formik.touched.dosage && Boolean(formik.errors.dosage)}
-              helperText={formik.touched.dosage && formik.errors.dosage}
+              value={formData.dosage}
+              onChange={(e) => handleChange(e)}
+            //   error={formik.touched.dosage && Boolean(formik.errors.dosage)}
+            //   helperText={formik.touched.dosage && formik.errors.dosage}
             />
           </Grid>
           <Grid item xs={12} sm={3}>
@@ -126,10 +135,10 @@ export default function PrescriptionForm({
               variant="outlined"
               margin="normal"
               name="route"
-              value={formik.values.route}
-              onChange={formik.handleChange}
-              error={formik.touched.route && Boolean(formik.errors.route)}
-              helperText={formik.touched.route && formik.errors.route}
+              value={formData.route}
+              onChange={(e) => handleChange(e)}
+            //   error={formik.touched.route && Boolean(formik.errors.route)}
+            //   helperText={formik.touched.route && formik.errors.route}
             />
           </Grid>
           <Grid item xs={12} sm={3}>
@@ -140,12 +149,12 @@ export default function PrescriptionForm({
               variant="outlined"
               margin="normal"
               name="frequency"
-              value={formik.values.frequency}
-              onChange={formik.handleChange}
-              error={
-                formik.touched.frequency && Boolean(formik.errors.frequency)
-              }
-              helperText={formik.touched.frequency && formik.errors.frequency}
+              value={formData.frequency}
+              onChange={(e) => handleChange(e)}
+            //   error={
+            //     formik.touched.frequency && Boolean(formik.errors.frequency)
+            //   }
+            //   helperText={formik.touched.frequency && formik.errors.frequency}
             >
               {frequencyOptions.map((option) => (
                 <MenuItem key={option.value} value={option.value}>
@@ -153,7 +162,7 @@ export default function PrescriptionForm({
                 </MenuItem>
               ))}
             </TextField>
-          </Grid> */}
+          </Grid>
         </Grid>
         <Grid item xs={12}>
           <div style={{ textAlign: "center", marginTop: "0.5rem" }}>

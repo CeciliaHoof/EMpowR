@@ -45,8 +45,8 @@ function MetricChart() {
     "HR",
     "RR",
     "SpO2",
-    "Pain",
     "Temp",
+    "Pain",
     "Blood Glucose",
     "Weight",
   ];
